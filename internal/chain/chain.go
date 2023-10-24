@@ -36,9 +36,10 @@ func NewChain(c Config) (BaseChain, error) {
 }
 
 type Block struct {
-	Number     int64  // 区块高度
-	Hash       string // 区块hash
-	ParentHash string // 父区块hash
+	Number     int64     // 区块高度
+	Hash       string    // 区块hash
+	ParentHash string    // 父区块hash
+	ReceiveAt  time.Time // 区块时间
 }
 
 type Transaction struct {
@@ -60,8 +61,8 @@ type TransferBill struct {
 }
 
 type BaseChain interface {
-	GetBlock(ctx context.Context, number int64) (*Block, error)
-	GetBlockTransactions(ctx context.Context, number int64) ([]*Transaction, error)
-	GetTransaction(ctx context.Context, hash string) (*Transaction, error)
-	GenerateAddress(ctx context.Context) (string, string, error)
+	GetBlock(ctx context.Context, number int64) (*Block, error)                     // 获取区块
+	GetBlockTransactions(ctx context.Context, number int64) ([]*Transaction, error) // 获取区块交易
+	GetTransaction(ctx context.Context, hash string) (*Transaction, error)          // 获取交易
+	GenerateAddress(ctx context.Context) (string, string, error)                    // 生成地址
 }

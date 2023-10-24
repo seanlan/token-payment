@@ -7,7 +7,6 @@ import (
 	"context"
 	"go.uber.org/zap"
 	"token-payment/internal/chain"
-	_ "token-payment/internal/config"
 
 	"github.com/spf13/cobra"
 )
@@ -36,7 +35,7 @@ to quickly create a Cobra application.`,
 			panic(err)
 		}
 		b, err := ch.GetBlock(context.Background(),
-			32533471)
+			32877600)
 		if err != nil {
 			panic(err)
 		}

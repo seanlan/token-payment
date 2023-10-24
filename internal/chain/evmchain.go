@@ -237,7 +237,7 @@ func (e *EvmChain) GetBlock(ctx context.Context, number int64) (block *Block, er
 	}
 	b, err := client.BlockByNumber(ctx, big.NewInt(number))
 	if err != nil {
-		if err != ethereum.NotFound {
+		if err == ethereum.NotFound {
 			zap.S().Errorw("get block error", "number", number, "rpc", e.currentRpc, "error", err)
 			err = ErrorNotFound
 		}
@@ -247,6 +247,7 @@ func (e *EvmChain) GetBlock(ctx context.Context, number int64) (block *Block, er
 		Number:     b.Number().Int64(),
 		Hash:       b.Hash().String(),
 		ParentHash: b.ParentHash().String(),
+		ReceiveAt:  b.ReceivedAt,
 	}
 	return block, nil
 }
