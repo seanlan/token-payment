@@ -4,11 +4,8 @@ Copyright © 2023 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
-	"context"
-	"go.uber.org/zap"
-	"token-payment/internal/chain"
-
 	"github.com/spf13/cobra"
+	"token-payment/internal/crontab"
 )
 
 // testCmd represents the test command
@@ -22,34 +19,39 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		ch, err := chain.NewChain(chain.Config{
-			Name:        "eth",
-			ChainType:   "evm",
-			ChainID:     56,
-			ChainSymbol: "bsc",
-			Currency:    "bnb",
-			RpcURLs:     []string{"https://bsc.rpc.blxrbdn.com"},
-			GasPrice:    0,
-		})
-		if err != nil {
-			panic(err)
-		}
-		b, err := ch.GetBlock(context.Background(),
-			32877600)
-		if err != nil {
-			panic(err)
-		}
-		zap.S().Infof("%#v", b)
-		//s := chain.EvmChain{
+		crontab.CronReadNextBlock()
+		//ch, err := chain.NewChain(chain.Config{
+		//	Name:        "Polygon",
+		//	ChainType:   "polygon",
+		//	ChainID:     137,
+		//	ChainSymbol: "polygon",
+		//	Currency:    "matic",
+		//	RpcURLs:     []string{"https://poly-rpc.gateway.pokt.network"},
+		//	GasPrice:    0,
+		//})
+		//if err != nil {
+		//	panic(err)
+		//}
+		//b, err := ch.GetBlock(context.Background(),
+		//	49165088)
+		//if err != nil {
+		//	panic(err)
+		//}
+		//zap.S().Infof("%#v", b)
+		//s := chain.PolygonChain{
 		//	Name:        "eth",
 		//	ChainType:   "evm",
 		//	ChainID:     80001,
 		//	ChainSymbol: "eth",
 		//	Currency:    "eth",
-		//	RpcURLs:     []string{"https://polygon-bor.publicnode.com"},
+		//	RpcURLs:     []string{"https://gateway.tenderly.co/public/polygon-mumbai"},
 		//	GasPrice:    0,
 		//}
-		//s.GetTransaction(context.Background(), "0x507ceead1c8a44806cc62a531e0c684d17ebcf2e5fe443c831adadc0ba2cc4dd")
+		//t, err := s.GetTransaction(context.Background(), "0x71c19da19a75611aa6cef7484dbac3b000a2735887f58f5e3d265589370d839f")
+		//if err != nil {
+		//	panic(err)
+		//}
+		//zap.S().Infof("%#v", t)
 	},
 }
 

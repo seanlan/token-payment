@@ -28,28 +28,28 @@ package sqlmodel
 const TableNameChainToken = "chain_token"
 
 var ChainTokenColumns = struct {
+	ID              FieldBase
 	ChainSymbol     FieldBase
 	ContractAddress FieldBase
-	Decimals        FieldBase
-	ID              FieldBase
 	Name            FieldBase
 	Symbol          FieldBase
+	Decimals        FieldBase
 }{
+	ID:              FieldBase{"`id`"},
 	ChainSymbol:     FieldBase{"`chain_symbol`"},
 	ContractAddress: FieldBase{"`contract_address`"},
-	Decimals:        FieldBase{"`decimals`"},
-	ID:              FieldBase{"`id`"},
 	Name:            FieldBase{"`name`"},
 	Symbol:          FieldBase{"`symbol`"},
+	Decimals:        FieldBase{"`decimals`"},
 }
 
 type ChainToken struct {
-	ChainSymbol     string `json:"chain_symbol" gorm:"column:chain_symbol;type:varchar(200);not null"`         //链的符号
-	ContractAddress string `json:"contract_address" gorm:"column:contract_address;type:varchar(200);not null"` //代币合约地址，如果是空表示是主币
-	Decimals        int32  `json:"decimals" gorm:"column:decimals;type:int;not null"`                          //小数位
-	ID              uint64 `json:"id" gorm:"column:id;type:bigint unsigned;primaryKey;autoIncrement:true"`     //
-	Name            string `json:"name" gorm:"column:name;type:varchar(200);not null"`                         //币种名称
-	Symbol          string `json:"symbol" gorm:"column:symbol;type:varchar(200);not null"`                     //币种符号
+	ID              int64  `json:"id" gorm:"column:id;type:bigint;primaryKey;autoIncrement"`              //
+	ChainSymbol     string `json:"chain_symbol" gorm:"column:chain_symbol;type:varchar;not null"`         //链的符号
+	ContractAddress string `json:"contract_address" gorm:"column:contract_address;type:varchar;not null"` //代币合约地址，如果是空表示是主币
+	Name            string `json:"name" gorm:"column:name;type:varchar;not null"`                         //币种名称
+	Symbol          string `json:"symbol" gorm:"column:symbol;type:varchar;not null"`                     //币种符号
+	Decimals        int32  `json:"decimals" gorm:"column:decimals;type:int;not null"`                     //小数位
 }
 
 // TableName ChainToken's table name

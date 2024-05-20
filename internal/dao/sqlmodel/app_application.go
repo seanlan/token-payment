@@ -28,28 +28,28 @@ package sqlmodel
 const TableNameAppApplication = "app_application"
 
 var AppApplicationColumns = struct {
-	AppKey    FieldBase
-	AppName   FieldBase
-	AppSecret FieldBase
-	CreateAt  FieldBase
-	HookURL   FieldBase
 	ID        FieldBase
+	AppKey    FieldBase
+	AppSecret FieldBase
+	AppName   FieldBase
+	HookURL   FieldBase
+	CreateAt  FieldBase
 }{
-	AppKey:    FieldBase{"`app_key`"},
-	AppName:   FieldBase{"`app_name`"},
-	AppSecret: FieldBase{"`app_secret`"},
-	CreateAt:  FieldBase{"`create_at`"},
-	HookURL:   FieldBase{"`hook_url`"},
 	ID:        FieldBase{"`id`"},
+	AppKey:    FieldBase{"`app_key`"},
+	AppSecret: FieldBase{"`app_secret`"},
+	AppName:   FieldBase{"`app_name`"},
+	HookURL:   FieldBase{"`hook_url`"},
+	CreateAt:  FieldBase{"`create_at`"},
 }
 
 type AppApplication struct {
-	AppKey    string `json:"app_key" gorm:"column:app_key;type:varchar(200);not null"`               //app key
-	AppName   string `json:"app_name" gorm:"column:app_name;type:varchar(200);not null"`             //app name
-	AppSecret string `json:"app_secret" gorm:"column:app_secret;type:varchar(200);not null"`         //app secret
-	CreateAt  int64  `json:"create_at" gorm:"column:create_at;type:bigint;not null"`                 //创建时间
-	HookURL   string `json:"hook_url" gorm:"column:hook_url;type:varchar(512);not null"`             //通知url
-	ID        uint64 `json:"id" gorm:"column:id;type:bigint unsigned;primaryKey;autoIncrement:true"` //
+	ID        int64  `json:"id" gorm:"column:id;type:bigint;primaryKey;autoIncrement"`  //
+	AppKey    string `json:"app_key" gorm:"column:app_key;type:varchar;not null"`       //app key
+	AppSecret string `json:"app_secret" gorm:"column:app_secret;type:varchar;not null"` //app secret
+	AppName   string `json:"app_name" gorm:"column:app_name;type:varchar;not null"`     //app name
+	HookURL   string `json:"hook_url" gorm:"column:hook_url;type:varchar;not null"`     //通知url
+	CreateAt  int64  `json:"create_at" gorm:"column:create_at;type:bigint;not null"`    //创建时间
 }
 
 // TableName AppApplication's table name

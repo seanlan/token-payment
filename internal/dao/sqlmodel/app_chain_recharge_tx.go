@@ -28,64 +28,61 @@ package sqlmodel
 const TableNameAppChainRechargeTx = "app_chain_recharge_tx"
 
 var AppChainRechargeTxColumns = struct {
-	AppKey           FieldBase
-	BatchIndex       FieldBase
-	BlockHash        FieldBase
-	BlockNumber      FieldBase
-	BlockTime        FieldBase
-	ChainSymbol      FieldBase
-	Confirmations    FieldBase
-	ContractAddress  FieldBase
-	From             FieldBase
-	ID               FieldBase
-	Index            FieldBase
-	MaxConfirmations FieldBase
-	Removed          FieldBase
-	To               FieldBase
-	TokenID          FieldBase
-	TokenSymbol      FieldBase
-	TxHash           FieldBase
-	Value            FieldBase
+	ID              FieldBase
+	AppKey          FieldBase
+	ChainSymbol     FieldBase
+	TokenSymbol     FieldBase
+	BlockNumber     FieldBase
+	BlockHash       FieldBase
+	TxHash          FieldBase
+	BlockTime       FieldBase
+	From            FieldBase
+	To              FieldBase
+	ContractAddress FieldBase
+	TokenID         FieldBase
+	Value           FieldBase
+	Index           FieldBase
+	BatchIndex      FieldBase
+	Confirmations   FieldBase
+	Removed         FieldBase
 }{
-	AppKey:           FieldBase{"`app_key`"},
-	BatchIndex:       FieldBase{"`batch_index`"},
-	BlockHash:        FieldBase{"`block_hash`"},
-	BlockNumber:      FieldBase{"`block_number`"},
-	BlockTime:        FieldBase{"`block_time`"},
-	ChainSymbol:      FieldBase{"`chain_symbol`"},
-	Confirmations:    FieldBase{"`confirmations`"},
-	ContractAddress:  FieldBase{"`contract_address`"},
-	From:             FieldBase{"`from`"},
-	ID:               FieldBase{"`id`"},
-	Index:            FieldBase{"`index`"},
-	MaxConfirmations: FieldBase{"`max_ confirmations`"},
-	Removed:          FieldBase{"`removed`"},
-	To:               FieldBase{"`to`"},
-	TokenID:          FieldBase{"`token_id`"},
-	TokenSymbol:      FieldBase{"`token_symbol`"},
-	TxHash:           FieldBase{"`tx_hash`"},
-	Value:            FieldBase{"`value`"},
+	ID:              FieldBase{"`id`"},
+	AppKey:          FieldBase{"`app_key`"},
+	ChainSymbol:     FieldBase{"`chain_symbol`"},
+	TokenSymbol:     FieldBase{"`token_symbol`"},
+	BlockNumber:     FieldBase{"`block_number`"},
+	BlockHash:       FieldBase{"`block_hash`"},
+	TxHash:          FieldBase{"`tx_hash`"},
+	BlockTime:       FieldBase{"`block_time`"},
+	From:            FieldBase{"`from`"},
+	To:              FieldBase{"`to`"},
+	ContractAddress: FieldBase{"`contract_address`"},
+	TokenID:         FieldBase{"`token_id`"},
+	Value:           FieldBase{"`value`"},
+	Index:           FieldBase{"`index`"},
+	BatchIndex:      FieldBase{"`batch_index`"},
+	Confirmations:   FieldBase{"`confirmations`"},
+	Removed:         FieldBase{"`removed`"},
 }
 
 type AppChainRechargeTx struct {
-	AppKey           string `json:"app_key" gorm:"column:app_key;type:varchar(100);not null"`                   //app key
-	BatchIndex       int64  `json:"batch_index" gorm:"column:batch_index;type:bigint;not null"`                 //批量处理的交易序号
-	BlockHash        string `json:"block_hash" gorm:"column:block_hash;type:varchar(200);not null"`             //区块hash
-	BlockNumber      int64  `json:"block_number" gorm:"column:block_number;type:bigint;not null"`               //区块高度
-	BlockTime        int64  `json:"block_time" gorm:"column:block_time;type:bigint;not null"`                   //区块时间
-	ChainSymbol      string `json:"chain_symbol" gorm:"column:chain_symbol;type:varchar(100);not null"`         //链的符号
-	Confirmations    int64  `json:"confirmations" gorm:"column:confirmations;type:bigint;not null"`             //当前确认数
-	ContractAddress  string `json:"contract_address" gorm:"column:contract_address;type:varchar(100);not null"` //合约地址
-	From             string `json:"from" gorm:"column:from;type:varchar(100);not null"`                         //转出地址
-	ID               uint64 `json:"id" gorm:"column:id;type:bigint unsigned;primaryKey;autoIncrement:true"`     //
-	Index            int64  `json:"index" gorm:"column:index;type:bigint;not null"`                             //在交易中的序号
-	MaxConfirmations int64  `json:"max_ confirmations" gorm:"column:max_ confirmations;type:bigint;not null"`   //最大确认数
-	Removed          int32  `json:"removed" gorm:"column:removed;type:int;not null"`                            //交易是否被移除
-	To               string `json:"to" gorm:"column:to;type:varchar(100);not null"`                             //转入地址
-	TokenID          string `json:"token_id" gorm:"column:token_id;type:varchar(100);not null"`                 //NFT的TokenID
-	TokenSymbol      string `json:"token_symbol" gorm:"column:token_symbol;type:varchar(200);not null"`         //币种符号
-	TxHash           string `json:"tx_hash" gorm:"column:tx_hash;type:varchar(200);not null"`                   //交易hash
-	Value            string `json:"value" gorm:"column:value;type:varchar(100);not null"`                       //转账数量
+	ID              int64  `json:"id" gorm:"column:id;type:bigint;primaryKey;autoIncrement"`              //
+	AppKey          string `json:"app_key" gorm:"column:app_key;type:varchar;not null"`                   //app key
+	ChainSymbol     string `json:"chain_symbol" gorm:"column:chain_symbol;type:varchar;not null"`         //链的符号
+	TokenSymbol     string `json:"token_symbol" gorm:"column:token_symbol;type:varchar;not null"`         //币种符号
+	BlockNumber     int64  `json:"block_number" gorm:"column:block_number;type:bigint;not null"`          //区块高度
+	BlockHash       string `json:"block_hash" gorm:"column:block_hash;type:varchar;not null"`             //区块hash
+	TxHash          string `json:"tx_hash" gorm:"column:tx_hash;type:varchar;not null"`                   //交易hash
+	BlockTime       int64  `json:"block_time" gorm:"column:block_time;type:bigint;not null"`              //区块时间
+	From            string `json:"from" gorm:"column:from;type:varchar;not null"`                         //转出地址
+	To              string `json:"to" gorm:"column:to;type:varchar;not null"`                             //转入地址
+	ContractAddress string `json:"contract_address" gorm:"column:contract_address;type:varchar;not null"` //合约地址
+	TokenID         string `json:"token_id" gorm:"column:token_id;type:varchar;not null"`                 //NFT的TokenID
+	Value           string `json:"value" gorm:"column:value;type:varchar;not null"`                       //转账数量
+	Index           int64  `json:"index" gorm:"column:index;type:bigint;not null"`                        //在交易中的序号
+	BatchIndex      int64  `json:"batch_index" gorm:"column:batch_index;type:bigint;not null"`            //批量处理的交易序号
+	Confirmations   int64  `json:"confirmations" gorm:"column:confirmations;type:bigint;not null"`        //当前确认数
+	Removed         int32  `json:"removed" gorm:"column:removed;type:int;not null"`                       //交易是否被移除
 }
 
 // TableName AppChainRechargeTx's table name

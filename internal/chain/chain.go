@@ -23,6 +23,7 @@ type Config struct {
 
 var (
 	ErrorNotFound = errors.New("not found")
+	ErrorChain    = errors.New("chain error")
 )
 
 type newChainFunc func(Config) (BaseChain, error)
@@ -32,6 +33,9 @@ func addChainFactory(chainType string, f newChainFunc) {
 }
 
 func NewChain(c Config) (BaseChain, error) {
+	if chainFactory[c.ChainType] == nil {
+		return nil, ErrorChain
+	}
 	return chainFactory[c.ChainType](c)
 }
 

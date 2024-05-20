@@ -2,7 +2,7 @@ dbuser="root"
 dbpwd="q145145145"
 dbhost="127.0.0.1:3306"
 dbname="tokenpay"
-conn="$dbuser:$dbpwd@tcp($dbhost)/$dbname?parseTime=true&loc=Local&charset=utf8mb4&collation=utf8mb4_unicode_ci"
+conn="mysql://$dbuser:$dbpwd@tcp($dbhost)/$dbname?parseTime=true&loc=Local&charset=utf8mb4&collation=utf8mb4_unicode_ci"
 package=$(go list -m)
 prefix="t_"
 workdir=$(dirname $0)

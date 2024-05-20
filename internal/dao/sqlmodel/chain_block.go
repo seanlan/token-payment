@@ -28,31 +28,31 @@ package sqlmodel
 const TableNameChainBlock = "chain_block"
 
 var ChainBlockColumns = struct {
-	BlockHash   FieldBase
-	BlockNumber FieldBase
-	ChainSymbol FieldBase
-	Checked     FieldBase
 	ID          FieldBase
+	ChainSymbol FieldBase
+	BlockNumber FieldBase
+	BlockHash   FieldBase
 	ParentHash  FieldBase
+	Checked     FieldBase
 	Removed     FieldBase
 }{
-	BlockHash:   FieldBase{"`block_hash`"},
-	BlockNumber: FieldBase{"`block_number`"},
-	ChainSymbol: FieldBase{"`chain_symbol`"},
-	Checked:     FieldBase{"`checked`"},
 	ID:          FieldBase{"`id`"},
+	ChainSymbol: FieldBase{"`chain_symbol`"},
+	BlockNumber: FieldBase{"`block_number`"},
+	BlockHash:   FieldBase{"`block_hash`"},
 	ParentHash:  FieldBase{"`parent_hash`"},
+	Checked:     FieldBase{"`checked`"},
 	Removed:     FieldBase{"`removed`"},
 }
 
 type ChainBlock struct {
-	BlockHash   string `json:"block_hash" gorm:"column:block_hash;type:varchar(100);not null"`         //区块hash值
-	BlockNumber int64  `json:"block_number" gorm:"column:block_number;type:bigint;not null"`           //区块高度
-	ChainSymbol string `json:"chain_symbol" gorm:"column:chain_symbol;type:varchar(200);not null"`     //链的符号
-	Checked     int32  `json:"checked" gorm:"column:checked;type:int;not null"`                        //是否检测完成
-	ID          uint64 `json:"id" gorm:"column:id;type:bigint unsigned;primaryKey;autoIncrement:true"` //
-	ParentHash  string `json:"parent_hash" gorm:"column:parent_hash;type:varchar(100);not null"`       //上一个区块hash值
-	Removed     int32  `json:"removed" gorm:"column:removed;type:int;not null"`                        //是否已移除
+	ID          int64  `json:"id" gorm:"column:id;type:bigint;primaryKey;autoIncrement"`      //
+	ChainSymbol string `json:"chain_symbol" gorm:"column:chain_symbol;type:varchar;not null"` //链的符号
+	BlockNumber int64  `json:"block_number" gorm:"column:block_number;type:bigint;not null"`  //区块高度
+	BlockHash   string `json:"block_hash" gorm:"column:block_hash;type:varchar;not null"`     //区块hash值
+	ParentHash  string `json:"parent_hash" gorm:"column:parent_hash;type:varchar;not null"`   //上一个区块hash值
+	Checked     int32  `json:"checked" gorm:"column:checked;type:int;not null"`               //是否检测完成
+	Removed     int32  `json:"removed" gorm:"column:removed;type:int;not null"`               //是否已移除
 }
 
 // TableName ChainBlock's table name

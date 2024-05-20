@@ -28,22 +28,22 @@ package sqlmodel
 const TableNameChainRPC = "chain_rpc"
 
 var ChainRPCColumns = struct {
-	ChainSymbol FieldBase
-	Disable     FieldBase
 	ID          FieldBase
+	ChainSymbol FieldBase
 	RPCURL      FieldBase
+	Disable     FieldBase
 }{
-	ChainSymbol: FieldBase{"`chain_symbol`"},
-	Disable:     FieldBase{"`disable`"},
 	ID:          FieldBase{"`id`"},
+	ChainSymbol: FieldBase{"`chain_symbol`"},
 	RPCURL:      FieldBase{"`rpc_url`"},
+	Disable:     FieldBase{"`disable`"},
 }
 
 type ChainRPC struct {
-	ChainSymbol string `json:"chain_symbol" gorm:"column:chain_symbol;type:varchar(200);not null"`     //链的符号
-	Disable     int32  `json:"disable" gorm:"column:disable;type:int;not null"`                        //是否可用
-	ID          uint64 `json:"id" gorm:"column:id;type:bigint unsigned;primaryKey;autoIncrement:true"` //
-	RPCURL      string `json:"rpc_url" gorm:"column:rpc_url;type:varchar(1024);not null"`              //rpc地址
+	ID          int64  `json:"id" gorm:"column:id;type:bigint;primaryKey;autoIncrement"`      //
+	ChainSymbol string `json:"chain_symbol" gorm:"column:chain_symbol;type:varchar;not null"` //链的符号
+	RPCURL      string `json:"rpc_url" gorm:"column:rpc_url;type:varchar;not null"`           //rpc地址
+	Disable     int32  `json:"disable" gorm:"column:disable;type:int;not null"`               //是否可用
 }
 
 // TableName ChainRPC's table name

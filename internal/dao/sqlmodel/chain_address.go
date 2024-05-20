@@ -28,31 +28,31 @@ package sqlmodel
 const TableNameChainAddress = "chain_address"
 
 var ChainAddressColumns = struct {
-	Address     FieldBase
+	ID          FieldBase
 	AppKey      FieldBase
 	ChainSymbol FieldBase
-	CreateAt    FieldBase
+	Address     FieldBase
 	EncKey      FieldBase
 	Hook        FieldBase
-	ID          FieldBase
+	CreateAt    FieldBase
 }{
-	Address:     FieldBase{"`address`"},
+	ID:          FieldBase{"`id`"},
 	AppKey:      FieldBase{"`app_key`"},
 	ChainSymbol: FieldBase{"`chain_symbol`"},
-	CreateAt:    FieldBase{"`create_at`"},
+	Address:     FieldBase{"`address`"},
 	EncKey:      FieldBase{"`enc_key`"},
 	Hook:        FieldBase{"`hook`"},
-	ID:          FieldBase{"`id`"},
+	CreateAt:    FieldBase{"`create_at`"},
 }
 
 type ChainAddress struct {
-	Address     string `json:"address" gorm:"column:address;type:varchar(255);not null"`               //地址
-	AppKey      string `json:"app_key" gorm:"column:app_key;type:varchar(200);not null"`               //app key
-	ChainSymbol string `json:"chain_symbol" gorm:"column:chain_symbol;type:varchar(200);not null"`     //链的符号
-	CreateAt    int64  `json:"create_at" gorm:"column:create_at;type:bigint;not null"`                 //创建时间
-	EncKey      string `json:"enc_key" gorm:"column:enc_key;type:varchar(255);not null"`               //加密后的私钥
-	Hook        string `json:"hook" gorm:"column:hook;type:varchar(512);not null"`                     //账号变动通知url
-	ID          uint64 `json:"id" gorm:"column:id;type:bigint unsigned;primaryKey;autoIncrement:true"` //
+	ID          int64  `json:"id" gorm:"column:id;type:bigint;primaryKey;autoIncrement"`      //
+	AppKey      string `json:"app_key" gorm:"column:app_key;type:varchar;not null"`           //app key
+	ChainSymbol string `json:"chain_symbol" gorm:"column:chain_symbol;type:varchar;not null"` //链的符号
+	Address     string `json:"address" gorm:"column:address;type:varchar;not null"`           //地址
+	EncKey      string `json:"enc_key" gorm:"column:enc_key;type:varchar;not null"`           //加密后的私钥
+	Hook        string `json:"hook" gorm:"column:hook;type:varchar;not null"`                 //账号变动通知url
+	CreateAt    int64  `json:"create_at" gorm:"column:create_at;type:bigint;not null"`        //创建时间
 }
 
 // TableName ChainAddress's table name

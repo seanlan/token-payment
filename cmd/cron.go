@@ -24,8 +24,13 @@ func (*CronZapLogger) Error(err error, msg string, keysAndValues ...interface{})
 func cronFunc(cmd *cobra.Command, args []string) {
 	var err error
 	c := cron.New(cron.WithLogger(&CronZapLogger{}), cron.WithChain(cron.Recover(&CronZapLogger{})))
-	// 每秒钟读取一次区块
-	_, err = c.AddFunc("@every 100ms", crontab.CronReadNextBlock)
+	// 读取新的区块
+	_, err = c.AddFunc("@every 1s", crontab.CronReadNextBlock)
+	if err != nil {
+		zap.S().Fatalf("cron add func error: %#v", err)
+	}
+	// 更新rebase区块
+	_, err = c.AddFunc("@every 1ms", crontab.CronRebaseBlock)
 	if err != nil {
 		zap.S().Fatalf("cron add func error: %#v", err)
 	}

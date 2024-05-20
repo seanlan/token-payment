@@ -1,4 +1,4 @@
-debug: true
+debug: false
 app: "tokenpay"
 #gin配置
 web:
