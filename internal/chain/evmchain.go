@@ -116,7 +116,6 @@ func (e *EvmChain) _getTransaction(ctx context.Context, tx *types.Transaction) (
 	if txReceipt.Status == EVMTransactionStatusFail { // 交易失败
 		return nil, nil
 	}
-	tx.Time()
 	var (
 		transaction = Transaction{
 			BlockNumber: txReceipt.BlockNumber.Int64(),
