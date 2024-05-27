@@ -11,6 +11,13 @@ import (
 	"token-payment/internal/dao/sqlmodel"
 )
 
+// GetChainRpcClient 获取链的rpc client
+//
+//	@Description:  获取链的rpc client
+//	@param ctx
+//	@param ch 链
+//	@return client 链的rpc client
+//	@return err
 func GetChainRpcClient(ctx context.Context, ch *sqlmodel.Chain) (client chain.BaseChain, err error) {
 	var (
 		chainRPCs []sqlmodel.ChainRPC

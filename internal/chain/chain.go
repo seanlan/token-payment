@@ -59,7 +59,7 @@ type TransferBill struct {
 	To              string   // 转入地址
 	ContractAddress string   // 合约地址
 	Value           *big.Int // 转账金额
-	TokenID         *big.Int // token id
+	TokenID         *big.Int // token id (erc721)
 	Index           int      // 交易序号
 	BatchIndex      int      // 交易批次序号
 }

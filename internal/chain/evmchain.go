@@ -11,6 +11,7 @@ import (
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
+	"github.com/ethereum/go-ethereum/rpc"
 	"go.uber.org/zap"
 	"math/big"
 	"math/rand"
@@ -76,23 +77,19 @@ func (e *EvmChain) selectRpc() string {
 	return e.RpcURLs[rand.Intn(len(e.RpcURLs))]
 }
 
-// _getTransaction
+// _receiptToTransaction
 //
-//	@Description: 获取交易
+//	@Description: 将交易回执转换为交易
 //	@receiver e
 //	@param ctx
+//	@param txReceipt 交易回执
 //	@param tx 交易
 //	@return *Transaction 交易
 //	@return error 错误
-func (e *EvmChain) _getTransaction(ctx context.Context, tx *types.Transaction) (*Transaction, error) {
+func (e *EvmChain) _receiptToTransaction(ctx context.Context, txReceipt *types.Receipt, tx *types.Transaction) (*Transaction, error) {
 	rpcUrl := e.selectRpc()
 	client, err := ethclient.Dial(rpcUrl)
 	if err != nil {
-		return nil, err
-	}
-	txReceipt, err := client.TransactionReceipt(ctx, tx.Hash())
-	if err != nil {
-		zap.S().Errorw("get transaction receipt error", "hash", tx.Hash().String(), "rpc", rpcUrl, "error", err)
 		return nil, err
 	}
 	var (
@@ -226,6 +223,28 @@ func (e *EvmChain) _getTransaction(ctx context.Context, tx *types.Transaction) (
 	return &transaction, nil
 }
 
+// _getTransaction
+//
+//	@Description: 获取交易
+//	@receiver e
+//	@param ctx
+//	@param tx 交易
+//	@return *Transaction 交易
+//	@return error 错误
+func (e *EvmChain) _getTransaction(ctx context.Context, tx *types.Transaction) (*Transaction, error) {
+	rpcUrl := e.selectRpc()
+	client, err := ethclient.Dial(rpcUrl)
+	if err != nil {
+		return nil, err
+	}
+	txReceipt, err := client.TransactionReceipt(ctx, tx.Hash())
+	if err != nil {
+		zap.S().Errorw("get transaction receipt error", "hash", tx.Hash().String(), "rpc", rpcUrl, "error", err)
+		return nil, err
+	}
+	return e._receiptToTransaction(ctx, txReceipt, tx)
+}
+
 // GetTransaction
 //
 //	@Description: 获取交易
@@ -289,25 +308,41 @@ func (e *EvmChain) GetBlock(ctx context.Context, number int64) (block *Block, er
 //	@return []*Transaction 交易列表
 //	@return error 错误
 func (e *EvmChain) GetBlockTransactions(ctx context.Context, number int64) ([]*Transaction, error) {
-	var bills = make([]*Transaction, 0)
+	var trans = make([]*Transaction, 0)
 	urlRpc := e.selectRpc()
 	client, err := ethclient.Dial(e.selectRpc())
 	if err != nil {
-		return bills, err
+		return trans, err
 	}
 	b, err := client.BlockByNumber(ctx, big.NewInt(number))
 	if err != nil {
 		zap.S().Infow("get block error", "number", number, "rpc", urlRpc, "error", err)
-		return bills, err
+		return trans, err
+	}
+	var (
+		receipts   []*types.Receipt
+		ReceiptMap = make(map[common.Hash]*types.Receipt)
+	)
+	receipts, err = client.BlockReceipts(ctx, rpc.BlockNumberOrHashWithNumber(rpc.BlockNumber(number)))
+	if err != nil {
+		zap.S().Errorw("get block receipts error", "number", number, "rpc", urlRpc, "error", err)
+		return trans, err
+	}
+	for _, receipt := range receipts {
+		ReceiptMap[receipt.TxHash] = receipt
 	}
 	for _, tx := range b.Transactions() {
-		_tx, _err := e._getTransaction(ctx, tx)
+		receipt := ReceiptMap[tx.Hash()]
+		if receipt == nil {
+			return nil, errors.New("receipt not found")
+		}
+		_tx, _err := e._receiptToTransaction(ctx, receipt, tx)
 		if _err != nil {
 			return nil, _err
 		}
-		bills = append(bills, _tx)
+		trans = append(trans, _tx)
 	}
-	return bills, nil
+	return trans, nil
 }
 
 // GenerateAddress
@@ -338,4 +373,73 @@ func (e *EvmChain) GenerateAddress(ctx context.Context) (address string, private
 	// 地址全部储存为小写方便处理
 	address = strings.ToLower(crypto.PubkeyToAddress(*publicKeyECDSA).String())
 	return
+}
+
+func (e *EvmChain) Transfer(privateKey, to string, amount string, contract ...string) (string, error) {
+	value, ok := new(big.Int).SetString(amount, 10)
+	if !ok {
+		return "", errors.New("amount error")
+	}
+	// 创建一个新的私钥
+	_privateKey, err := crypto.HexToECDSA(privateKey)
+	if err != nil {
+		return "", err
+	}
+	// 创建一个rpc client
+	client, err := ethclient.Dial(e.selectRpc())
+	if err != nil {
+		return "", err
+	}
+	// 获取nonce
+	nonce, err := client.PendingNonceAt(context.Background(), crypto.PubkeyToAddress(_privateKey.PublicKey))
+	if err != nil {
+		return "", err
+	}
+	// 获取gasPrice
+	gasPrice, err := client.SuggestGasPrice(context.Background())
+	if err != nil {
+		return "", err
+	}
+	// 创建交易
+	var tx *types.Transaction
+	if len(contract) > 0 { // ERC20 token 交易
+		contractAddress := common.HexToAddress(contract[0])
+		erc20Abi, err := abi.JSON(strings.NewReader(EVMErc20ABI))
+		if err != nil {
+			return "", err
+		}
+		data, err := erc20Abi.Pack("transfer", common.HexToAddress(to), value)
+		if err != nil {
+			return "", err
+		}
+		tx = types.NewTx(&types.LegacyTx{
+			Nonce:    nonce,
+			To:       &contractAddress,
+			Value:    value,
+			Gas:      200000,
+			GasPrice: gasPrice,
+			Data:     data,
+		})
+	} else { // 普通转账
+		toAddress := common.HexToAddress(to)
+		tx = types.NewTx(&types.LegacyTx{
+			Nonce:    nonce,
+			To:       &toAddress,
+			Value:    value,
+			Gas:      200000,
+			GasPrice: gasPrice,
+			Data:     nil,
+		})
+	}
+	// 签名交易
+	signedTx, err := types.SignTx(tx, types.NewEIP155Signer(big.NewInt(e.ChainID)), _privateKey)
+	if err != nil {
+		return "", err
+	}
+	// 发送交易
+	err = client.SendTransaction(context.Background(), signedTx)
+	if err != nil {
+		return "", err
+	}
+	return signedTx.Hash().String(), nil
 }
