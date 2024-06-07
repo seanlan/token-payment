@@ -29,14 +29,14 @@ const TableNameChainToken = "chain_token"
 
 var ChainTokenColumns = struct {
 	ID              FieldBase
-	ChainSymbol     FieldBase
+	Chain           FieldBase
 	ContractAddress FieldBase
 	Name            FieldBase
 	Symbol          FieldBase
 	Decimals        FieldBase
 }{
 	ID:              FieldBase{"`id`"},
-	ChainSymbol:     FieldBase{"`chain_symbol`"},
+	Chain:           FieldBase{"`chain`"},
 	ContractAddress: FieldBase{"`contract_address`"},
 	Name:            FieldBase{"`name`"},
 	Symbol:          FieldBase{"`symbol`"},
@@ -45,7 +45,7 @@ var ChainTokenColumns = struct {
 
 type ChainToken struct {
 	ID              int64  `json:"id" gorm:"column:id;type:bigint;primaryKey;autoIncrement"`              //
-	ChainSymbol     string `json:"chain_symbol" gorm:"column:chain_symbol;type:varchar;not null"`         //链的符号
+	Chain           string `json:"chain" gorm:"column:chain;type:varchar;not null"`                       //链的符号
 	ContractAddress string `json:"contract_address" gorm:"column:contract_address;type:varchar;not null"` //代币合约地址，如果是空表示是主币
 	Name            string `json:"name" gorm:"column:name;type:varchar;not null"`                         //币种名称
 	Symbol          string `json:"symbol" gorm:"column:symbol;type:varchar;not null"`                     //币种符号

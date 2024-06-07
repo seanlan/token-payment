@@ -12,7 +12,7 @@ var C *Config
 
 func setup(c *Config) {
 	initLogging(c.Debug, c.App)
-	initDB(c.Mysql, c.Debug)
+	initDB(c.DB, c.Debug)
 	initRedis(c.Redis)
 }
 

@@ -48,7 +48,7 @@ func NewDB(dns string) (db *gorm.DB, err error) {
 	return
 }
 
-func initDB(c Mysql, debug bool) {
+func initDB(c DBConfig, debug bool) {
 	db, err := NewDB(c.Uri)
 	if err != nil {
 		panic(err)

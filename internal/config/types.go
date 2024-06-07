@@ -1,23 +1,23 @@
 package config
 
 type Config struct {
-	Debug bool   `yaml:"debug" json:"debug"`
-	App   string `yaml:"app" json:"app"`
-	Web   Web    `yaml:"web" json:"web"`
-	Mysql Mysql  `yaml:"mysql" json:"mysql"`
-	Redis Redis  `yaml:"redis" json:"redis"`
+	Debug bool        `yaml:"debug" json:"debug"`
+	App   string      `yaml:"app" json:"app"`
+	Web   WebConfig   `yaml:"web" json:"web"`
+	DB    DBConfig    `yaml:"db" json:"db"`
+	Redis RedisConfig `yaml:"redis" json:"redis"`
 }
 
-type Web struct {
+type WebConfig struct {
 	Host   string `yaml:"host" json:"host"`
 	Secret string `yaml:"secret" json:"secret"`
 }
 
-type Mysql struct {
+type DBConfig struct {
 	Uri string `yaml:"uri" json:"uri"`
 }
 
-type Redis struct {
+type RedisConfig struct {
 	Prefix   string `yaml:"prefix" json:"prefix"`
 	Username string `yaml:"username" json:"username"`
 	Password string `yaml:"password" json:"password"`

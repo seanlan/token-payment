@@ -5,7 +5,7 @@ import (
 	"token-payment/pkg/xlredis"
 )
 
-func initRedis(c Redis) {
+func initRedis(c RedisConfig) {
 	r, err := xlredis.NewClient(c.Hosts, c.Username, c.Password, c.Prefix, c.DB)
 	if err != nil {
 		panic(err)
