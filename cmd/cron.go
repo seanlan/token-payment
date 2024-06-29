@@ -30,7 +30,7 @@ func cronFunc(cmd *cobra.Command, args []string) {
 		zap.S().Fatalf("cron add func error: %#v", err)
 	}
 	// 更新rebase区块
-	_, err = c.AddFunc("@every 1ms", crontab.CronRebaseBlock)
+	_, err = c.AddFunc("@every 1s", crontab.CronRebaseBlock)
 	if err != nil {
 		zap.S().Fatalf("cron add func error: %#v", err)
 	}

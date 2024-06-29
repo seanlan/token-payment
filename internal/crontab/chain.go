@@ -20,12 +20,13 @@ func CronReadNextBlock() {
 	)
 
 	// 获取锁
-	if !dao.Redis.GetLock(ctx, lockKey, timeout) {
-		zap.S().Info("CronReadNextBlock locked !!!")
-		return
-	} else {
+	if dao.Redis.GetLock(ctx, lockKey, timeout) {
 		// 释放锁
 		defer dao.Redis.ReleaseLock(ctx, lockKey)
+	} else {
+		// 未获取到锁
+		zap.S().Info("CronReadNextBlock locked !!!")
+		return
 	}
 	defer func() {
 		if _err := recover(); _err != nil {
@@ -63,11 +64,12 @@ func CronRebaseBlock() {
 		lockKey = "cron_rebase_block"
 	)
 	// 获取锁
-	if !dao.Redis.GetLock(ctx, lockKey, timeout) {
-		return
-	} else {
+	if dao.Redis.GetLock(ctx, lockKey, timeout) {
 		// 结束后释放锁
 		defer dao.Redis.ReleaseLock(ctx, lockKey)
+
+	} else {
+		return
 	}
 	// 获取所有的链
 	err := dao.FetchAllChain(ctx, &chains, nil, 0, 0)

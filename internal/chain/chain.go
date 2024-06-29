@@ -65,6 +65,7 @@ type TransferBill struct {
 }
 
 type BaseChain interface {
+	GetLatestBlockNumber(ctx context.Context) (int64, error)                        // 获取最新区块
 	GetBlock(ctx context.Context, number int64) (*Block, error)                     // 获取区块
 	GetBlockTransactions(ctx context.Context, number int64) ([]*Transaction, error) // 获取区块交易
 	GetTransaction(ctx context.Context, hash string) (*Transaction, error)          // 获取交易

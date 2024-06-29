@@ -77,6 +77,21 @@ func (e *EvmChain) selectRpc() string {
 	return e.RpcURLs[rand.Intn(len(e.RpcURLs))]
 }
 
+func (e *EvmChain) GetLatestBlockNumber(ctx context.Context) (int64, error) {
+	rpcUrl := e.selectRpc()
+	client, err := ethclient.Dial(rpcUrl)
+	if err != nil {
+		return 0, err
+	}
+	var latestID uint64
+	latestID, err = client.BlockNumber(ctx)
+	if err != nil {
+		zap.S().Errorw("get block number error", "rpc", rpcUrl, "error", err)
+		return 0, err
+	}
+	return int64(latestID), nil
+}
+
 // _receiptToTransaction
 //
 //	@Description: 将交易回执转换为交易
@@ -135,7 +150,7 @@ func (e *EvmChain) _receiptToTransaction(ctx context.Context, txReceipt *types.R
 		transferBills = append(transferBills, &TransferBill{
 			From:            fromAddress.String(),
 			To:              tx.To().String(),
-			ContractAddress: EVMErcZeroAddress,
+			ContractAddress: "",
 			Index:           -1,
 			Value:           tx.Value(),
 		})

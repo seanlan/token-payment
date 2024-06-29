@@ -68,6 +68,7 @@ func ReadNextBlock(ctx context.Context, ch *sqlmodel.Chain) {
 		),
 		blockQ.ID.Desc())
 	if err != nil && !errors.Is(err, dao.ErrNotFound) {
+		zap.S().Errorw("fetch chain block error", "chain", ch.ChainSymbol, "error", err)
 		return
 	}
 	// TODO: 获取链的rpc client
@@ -80,12 +81,17 @@ func ReadNextBlock(ctx context.Context, ch *sqlmodel.Chain) {
 	var (
 		wg           sync.WaitGroup
 		chainBlocks  = make([]sqlmodel.ChainBlock, 0)
-		lastBlockNum = ch.LatestBlock + 1
+		lastBlockNum int64
 		newBlocks    = make([]*chain.Block, 0)
 		newBlocksMap = make(map[int64]*chain.Block)
 		rebaseBlock  int64
 		rpcErr       error
 	)
+	if ch.LatestBlock == 0 {
+		lastBlockNum, err = chainClient.GetLatestBlockNumber(ctx)
+	} else {
+		lastBlockNum = ch.LatestBlock + 1
+	}
 	// 并发读取区块
 	for i := 0; i < int(ch.Concurrent); i++ {
 		wg.Add(1)
@@ -208,7 +214,8 @@ func RebaseBlock(ctx context.Context, ch *sqlmodel.Chain) {
 			zap.S().Errorw("new chain client error", "chain", ch.ChainSymbol, "error", err)
 			return
 		}
-		newBlock, err := chainClient.GetBlock(ctx, ch.RebaseBlock)
+		var newBlock *chain.Block
+		newBlock, err = chainClient.GetBlock(ctx, ch.RebaseBlock)
 		if err != nil {
 			if errors.Is(err, chain.ErrorNotFound) {
 				return
