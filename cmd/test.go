@@ -4,9 +4,13 @@ Copyright © 2023 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
-	"github.com/btcsuite/btcd/rpcclient"
+	"context"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
+	"time"
+	"token-payment/internal/dao"
+	"token-payment/internal/dao/sqlmodel"
+	"token-payment/internal/handler"
 )
 
 // testCmd represents the test command
@@ -20,19 +24,17 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		//crontab.CronReadNextBlock()
-		client, err := rpcclient.New(&rpcclient.ConnConfig{
-			Host: "https://rpc.ankr.com/btc",
-		}, nil)
-		if err != nil {
-			panic(err)
+		ctx := context.TODO()
+		var chain sqlmodel.Chain
+		_err := dao.FetchChain(ctx, &chain, nil)
+		if _err != nil {
+			zap.S().Errorf("fetch chain error: %v", _err)
+			return
 		}
-		defer client.Shutdown()
-		blockCount, err := client.GetBlockCount()
-		if err != nil {
-			panic(err)
-		}
-		zap.S().Info("blockCount:", blockCount)
+		t1 := time.Now().Unix()
+		_ = handler.GenerateAddress(ctx, &chain, 1)
+		t2 := time.Now().Unix()
+		zap.S().Infof("time used: %d s", t2-t1)
 	},
 }
 

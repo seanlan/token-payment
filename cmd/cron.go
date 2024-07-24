@@ -35,7 +35,10 @@ func cronFunc(cmd *cobra.Command, args []string) {
 		zap.S().Fatalf("cron add func error: %#v", err)
 	}
 	// 检查地址池
-	_, err = c.AddFunc("@every 1s", crontab.CronCheckAddressPool)
+	//_, err = c.AddFunc("@every 1s", crontab.CronCheckAddressPool)
+	//if err != nil {
+	//	zap.S().Fatalf("cron add func error: %#v", err)
+	//}
 	c.Start()
 	select {}
 }
