@@ -36,13 +36,13 @@ var ChainBlockColumns = struct {
 	Checked     FieldBase
 	Removed     FieldBase
 }{
-	ID:          FieldBase{"`id`"},
-	ChainSymbol: FieldBase{"`chain_symbol`"},
-	BlockNumber: FieldBase{"`block_number`"},
-	BlockHash:   FieldBase{"`block_hash`"},
-	ParentHash:  FieldBase{"`parent_hash`"},
-	Checked:     FieldBase{"`checked`"},
-	Removed:     FieldBase{"`removed`"},
+	ID:          FieldBase{"id", "id"},
+	ChainSymbol: FieldBase{"chain_symbol", "chain_symbol"},
+	BlockNumber: FieldBase{"block_number", "block_number"},
+	BlockHash:   FieldBase{"block_hash", "block_hash"},
+	ParentHash:  FieldBase{"parent_hash", "parent_hash"},
+	Checked:     FieldBase{"checked", "checked"},
+	Removed:     FieldBase{"removed", "removed"},
 }
 
 type ChainBlock struct {

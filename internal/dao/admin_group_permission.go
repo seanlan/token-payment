@@ -95,6 +95,9 @@ func AddsAdminGroupPermission(ctx context.Context, d *[]sqlmodel.AdminGroupPermi
 }
 
 func UpdateAdminGroupPermission(ctx context.Context, updated *sqlmodel.AdminGroupPermission) (RowsAffected int64, err error) {
+	if updated.ID == 0 {
+		return -1, ErrUpdateFailed
+	}
 	db := GetDB(ctx).WithContext(ctx).Save(updated)
 	if err = db.Error; err != nil {
 		return -1, ErrUpdateFailed
@@ -114,9 +117,14 @@ func UpdatesAdminGroupPermission(ctx context.Context, expr clause.Expression, up
 	return db.RowsAffected, nil
 }
 
-func UpsertAdminGroupPermission(ctx context.Context, d *sqlmodel.AdminGroupPermission, upsert map[string]interface{}) (RowsAffected int64, err error) {
+func UpsertAdminGroupPermission(ctx context.Context, d *sqlmodel.AdminGroupPermission, upsert map[string]interface{}, columns ...string) (RowsAffected int64, err error) {
+	var cols []clause.Column
+	for _, col := range columns {
+		cols = append(cols, clause.Column{Name: col})
+	}
 	db := GetDB(ctx).WithContext(ctx).Model(&sqlmodel.AdminGroupPermission{}).Clauses(clause.OnConflict{
 		DoUpdates: clause.Assignments(upsert),
+		Columns:   cols,
 	}).Create(d)
 	if err = db.Error; err != nil {
 		return -1, ErrInsertFailed

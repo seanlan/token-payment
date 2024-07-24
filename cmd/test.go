@@ -32,7 +32,7 @@ to quickly create a Cobra application.`,
 			return
 		}
 		t1 := time.Now().Unix()
-		_ = handler.GenerateAddress(ctx, &chain, 1)
+		_ = handler.GenerateAddressBatch(ctx, &chain, 1)
 		t2 := time.Now().Unix()
 		zap.S().Infof("time used: %d s", t2-t1)
 	},

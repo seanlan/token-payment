@@ -32,9 +32,9 @@ var AdminGroupUserColumns = struct {
 	UserID  FieldBase
 	GroupID FieldBase
 }{
-	ID:      FieldBase{"`id`"},
-	UserID:  FieldBase{"`user_id`"},
-	GroupID: FieldBase{"`group_id`"},
+	ID:      FieldBase{"id", "id"},
+	UserID:  FieldBase{"user_id", "user_id"},
+	GroupID: FieldBase{"group_id", "group_id"},
 }
 
 type AdminGroupUser struct {

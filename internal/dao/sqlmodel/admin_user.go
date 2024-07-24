@@ -40,17 +40,17 @@ var AdminUserColumns = struct {
 	HideArticle FieldBase
 	CreateAt    FieldBase
 }{
-	ID:          FieldBase{"`id`"},
-	Account:     FieldBase{"`account`"},
-	Password:    FieldBase{"`password`"},
-	Username:    FieldBase{"`username`"},
-	Phone:       FieldBase{"`phone`"},
-	Email:       FieldBase{"`email`"},
-	IsSuper:     FieldBase{"`is_super`"},
-	IsFrozen:    FieldBase{"`is_frozen`"},
-	IsDelete:    FieldBase{"`is_delete`"},
-	HideArticle: FieldBase{"`hide_article`"},
-	CreateAt:    FieldBase{"`create_at`"},
+	ID:          FieldBase{"id", "id"},
+	Account:     FieldBase{"account", "account"},
+	Password:    FieldBase{"password", "password"},
+	Username:    FieldBase{"username", "username"},
+	Phone:       FieldBase{"phone", "phone"},
+	Email:       FieldBase{"email", "email"},
+	IsSuper:     FieldBase{"is_super", "is_super"},
+	IsFrozen:    FieldBase{"is_frozen", "is_frozen"},
+	IsDelete:    FieldBase{"is_delete", "is_delete"},
+	HideArticle: FieldBase{"hide_article", "hide_article"},
+	CreateAt:    FieldBase{"create_at", "create_at"},
 }
 
 type AdminUser struct {

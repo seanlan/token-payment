@@ -95,6 +95,9 @@ func AddsChainRPC(ctx context.Context, d *[]sqlmodel.ChainRPC) (RowsAffected int
 }
 
 func UpdateChainRPC(ctx context.Context, updated *sqlmodel.ChainRPC) (RowsAffected int64, err error) {
+	if updated.ID == 0 {
+		return -1, ErrUpdateFailed
+	}
 	db := GetDB(ctx).WithContext(ctx).Save(updated)
 	if err = db.Error; err != nil {
 		return -1, ErrUpdateFailed
@@ -114,9 +117,14 @@ func UpdatesChainRPC(ctx context.Context, expr clause.Expression, updated map[st
 	return db.RowsAffected, nil
 }
 
-func UpsertChainRPC(ctx context.Context, d *sqlmodel.ChainRPC, upsert map[string]interface{}) (RowsAffected int64, err error) {
+func UpsertChainRPC(ctx context.Context, d *sqlmodel.ChainRPC, upsert map[string]interface{}, columns ...string) (RowsAffected int64, err error) {
+	var cols []clause.Column
+	for _, col := range columns {
+		cols = append(cols, clause.Column{Name: col})
+	}
 	db := GetDB(ctx).WithContext(ctx).Model(&sqlmodel.ChainRPC{}).Clauses(clause.OnConflict{
 		DoUpdates: clause.Assignments(upsert),
+		Columns:   cols,
 	}).Create(d)
 	if err = db.Error; err != nil {
 		return -1, ErrInsertFailed

@@ -95,6 +95,9 @@ func AddsAdminUserMessage(ctx context.Context, d *[]sqlmodel.AdminUserMessage) (
 }
 
 func UpdateAdminUserMessage(ctx context.Context, updated *sqlmodel.AdminUserMessage) (RowsAffected int64, err error) {
+	if updated.ID == 0 {
+		return -1, ErrUpdateFailed
+	}
 	db := GetDB(ctx).WithContext(ctx).Save(updated)
 	if err = db.Error; err != nil {
 		return -1, ErrUpdateFailed
@@ -114,9 +117,14 @@ func UpdatesAdminUserMessage(ctx context.Context, expr clause.Expression, update
 	return db.RowsAffected, nil
 }
 
-func UpsertAdminUserMessage(ctx context.Context, d *sqlmodel.AdminUserMessage, upsert map[string]interface{}) (RowsAffected int64, err error) {
+func UpsertAdminUserMessage(ctx context.Context, d *sqlmodel.AdminUserMessage, upsert map[string]interface{}, columns ...string) (RowsAffected int64, err error) {
+	var cols []clause.Column
+	for _, col := range columns {
+		cols = append(cols, clause.Column{Name: col})
+	}
 	db := GetDB(ctx).WithContext(ctx).Model(&sqlmodel.AdminUserMessage{}).Clauses(clause.OnConflict{
 		DoUpdates: clause.Assignments(upsert),
+		Columns:   cols,
 	}).Create(d)
 	if err = db.Error; err != nil {
 		return -1, ErrInsertFailed

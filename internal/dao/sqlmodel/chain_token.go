@@ -35,12 +35,12 @@ var ChainTokenColumns = struct {
 	Symbol          FieldBase
 	Decimals        FieldBase
 }{
-	ID:              FieldBase{"`id`"},
-	Chain:           FieldBase{"`chain`"},
-	ContractAddress: FieldBase{"`contract_address`"},
-	Name:            FieldBase{"`name`"},
-	Symbol:          FieldBase{"`symbol`"},
-	Decimals:        FieldBase{"`decimals`"},
+	ID:              FieldBase{"id", "id"},
+	Chain:           FieldBase{"chain", "chain"},
+	ContractAddress: FieldBase{"contract_address", "contract_address"},
+	Name:            FieldBase{"name", "name"},
+	Symbol:          FieldBase{"symbol", "symbol"},
+	Decimals:        FieldBase{"decimals", "decimals"},
 }
 
 type ChainToken struct {

@@ -95,6 +95,9 @@ func AddsAdminLog(ctx context.Context, d *[]sqlmodel.AdminLog) (RowsAffected int
 }
 
 func UpdateAdminLog(ctx context.Context, updated *sqlmodel.AdminLog) (RowsAffected int64, err error) {
+	if updated.ID == 0 {
+		return -1, ErrUpdateFailed
+	}
 	db := GetDB(ctx).WithContext(ctx).Save(updated)
 	if err = db.Error; err != nil {
 		return -1, ErrUpdateFailed
@@ -114,9 +117,14 @@ func UpdatesAdminLog(ctx context.Context, expr clause.Expression, updated map[st
 	return db.RowsAffected, nil
 }
 
-func UpsertAdminLog(ctx context.Context, d *sqlmodel.AdminLog, upsert map[string]interface{}) (RowsAffected int64, err error) {
+func UpsertAdminLog(ctx context.Context, d *sqlmodel.AdminLog, upsert map[string]interface{}, columns ...string) (RowsAffected int64, err error) {
+	var cols []clause.Column
+	for _, col := range columns {
+		cols = append(cols, clause.Column{Name: col})
+	}
 	db := GetDB(ctx).WithContext(ctx).Model(&sqlmodel.AdminLog{}).Clauses(clause.OnConflict{
 		DoUpdates: clause.Assignments(upsert),
+		Columns:   cols,
 	}).Create(d)
 	if err = db.Error; err != nil {
 		return -1, ErrInsertFailed

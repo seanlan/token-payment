@@ -3,7 +3,8 @@ package sqlmodel
 import "gorm.io/gorm/clause"
 
 type FieldBase struct {
-	FieldName string // 字段名
+	Name      string // 字段名
+	FieldName string // 完整字段名
 }
 
 func (field FieldBase) Eq(value interface{}) clause.Expression {
@@ -67,6 +68,20 @@ func (field FieldBase) IFAdd(symbol string, target, delta, value interface{}) cl
 	return clause.Expr{
 		SQL:  "IF(" + field.FieldName + symbol + " ? ," + field.FieldName + "+ ?, ?)",
 		Vars: []interface{}{target, delta, value},
+	}
+}
+
+func (field FieldBase) Any(value interface{}) clause.Expression {
+	return clause.Expr{
+		SQL:  "? = ANY(" + field.FieldName + ")",
+		Vars: []interface{}{value},
+	}
+}
+
+func (field FieldBase) All(value interface{}) clause.Expression {
+	return clause.Expr{
+		SQL:  "? = ALL(" + field.FieldName + ")",
+		Vars: []interface{}{value},
 	}
 }
 

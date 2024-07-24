@@ -33,10 +33,10 @@ var ChainRPCColumns = struct {
 	RPCURL      FieldBase
 	Disable     FieldBase
 }{
-	ID:          FieldBase{"`id`"},
-	ChainSymbol: FieldBase{"`chain_symbol`"},
-	RPCURL:      FieldBase{"`rpc_url`"},
-	Disable:     FieldBase{"`disable`"},
+	ID:          FieldBase{"id", "id"},
+	ChainSymbol: FieldBase{"chain_symbol", "chain_symbol"},
+	RPCURL:      FieldBase{"rpc_url", "rpc_url"},
+	Disable:     FieldBase{"disable", "disable"},
 }
 
 type ChainRPC struct {

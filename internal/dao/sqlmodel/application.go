@@ -35,12 +35,12 @@ var ApplicationColumns = struct {
 	HookURL   FieldBase
 	CreateAt  FieldBase
 }{
-	ID:        FieldBase{"`id`"},
-	AppKey:    FieldBase{"`app_key`"},
-	AppSecret: FieldBase{"`app_secret`"},
-	AppName:   FieldBase{"`app_name`"},
-	HookURL:   FieldBase{"`hook_url`"},
-	CreateAt:  FieldBase{"`create_at`"},
+	ID:        FieldBase{"id", "id"},
+	AppKey:    FieldBase{"app_key", "app_key"},
+	AppSecret: FieldBase{"app_secret", "app_secret"},
+	AppName:   FieldBase{"app_name", "app_name"},
+	HookURL:   FieldBase{"hook_url", "hook_url"},
+	CreateAt:  FieldBase{"create_at", "create_at"},
 }
 
 type Application struct {

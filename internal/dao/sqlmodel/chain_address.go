@@ -38,15 +38,15 @@ var ChainAddressColumns = struct {
 	CreateAt      FieldBase
 	Used          FieldBase
 }{
-	ID:            FieldBase{"`id`"},
-	ApplicationID: FieldBase{"`application_id`"},
-	ChainSymbol:   FieldBase{"`chain_symbol`"},
-	Address:       FieldBase{"`address`"},
-	EncKey:        FieldBase{"`enc_key`"},
-	Hook:          FieldBase{"`hook`"},
-	Watch:         FieldBase{"`watch`"},
-	CreateAt:      FieldBase{"`create_at`"},
-	Used:          FieldBase{"`used`"},
+	ID:            FieldBase{"id", "id"},
+	ApplicationID: FieldBase{"application_id", "application_id"},
+	ChainSymbol:   FieldBase{"chain_symbol", "chain_symbol"},
+	Address:       FieldBase{"address", "address"},
+	EncKey:        FieldBase{"enc_key", "enc_key"},
+	Hook:          FieldBase{"hook", "hook"},
+	Watch:         FieldBase{"watch", "watch"},
+	CreateAt:      FieldBase{"create_at", "create_at"},
+	Used:          FieldBase{"used", "used"},
 }
 
 type ChainAddress struct {
