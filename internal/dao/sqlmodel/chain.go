@@ -40,6 +40,8 @@ var ChainColumns = struct {
 	LatestBlock FieldBase
 	RebaseBlock FieldBase
 	Concurrent  FieldBase
+	AddressPool FieldBase
+	Watch       FieldBase
 }{
 	ID:          FieldBase{"`id`"},
 	ChainSymbol: FieldBase{"`chain_symbol`"},
@@ -53,6 +55,8 @@ var ChainColumns = struct {
 	LatestBlock: FieldBase{"`latest_block`"},
 	RebaseBlock: FieldBase{"`rebase_block`"},
 	Concurrent:  FieldBase{"`concurrent`"},
+	AddressPool: FieldBase{"`address_pool`"},
+	Watch:       FieldBase{"`watch`"},
 }
 
 type Chain struct {
@@ -68,6 +72,8 @@ type Chain struct {
 	LatestBlock int64  `json:"latest_block" gorm:"column:latest_block;type:bigint;not null"`          //最新区块
 	RebaseBlock int64  `json:"rebase_block" gorm:"column:rebase_block;type:bigint;not null"`          //重新构建区块
 	Concurrent  int32  `json:"concurrent" gorm:"column:concurrent;type:int;not null"`                 //并发量
+	AddressPool int32  `json:"address_pool" gorm:"column:address_pool;type:int;not null"`             //地址池
+	Watch       int32  `json:"watch" gorm:"column:watch;type:tinyint;not null"`                       //是否监听
 }
 
 // TableName Chain's table name

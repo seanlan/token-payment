@@ -77,6 +77,16 @@ func (e *EvmChain) selectRpc() string {
 	return e.RpcURLs[rand.Intn(len(e.RpcURLs))]
 }
 
+func (e *EvmChain) getClient() (*ethclient.Client, error) {
+	rpcUrl := e.selectRpc()
+	client, err := ethclient.Dial(rpcUrl)
+	if err != nil {
+		zap.S().Errorw("get client error", "rpc", rpcUrl, "error", err)
+		return nil, err
+	}
+	return client, nil
+}
+
 func (e *EvmChain) GetLatestBlockNumber(ctx context.Context) (int64, error) {
 	rpcUrl := e.selectRpc()
 	client, err := ethclient.Dial(rpcUrl)

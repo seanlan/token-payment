@@ -1,3 +1,5 @@
+// Package crontab
+// 区块更新
 package crontab
 
 import (
@@ -10,10 +12,14 @@ import (
 	"token-payment/internal/handler"
 )
 
+// CronReadNextBlock 读取下一个区块
+//
+//	@Description: 读取下一个区块
 func CronReadNextBlock() {
 	var (
 		timeout = time.Minute * 10
 		ctx     = context.Background()
+		chainQ  = sqlmodel.ChainColumns
 		chains  []sqlmodel.Chain
 		lockKey = "cron_read_block"
 		wg      sync.WaitGroup
@@ -34,7 +40,7 @@ func CronReadNextBlock() {
 		}
 	}()
 	// 获取所有的链
-	err := dao.FetchAllChain(ctx, &chains, nil, 0, 0)
+	err := dao.FetchAllChain(ctx, &chains, chainQ.Watch.Eq(1), 0, 0)
 	if err != nil {
 		zap.S().Errorf("fetch all chain error: %#v", err)
 		return
@@ -56,10 +62,14 @@ func CronReadNextBlock() {
 	wg.Wait()
 }
 
+// CronRebaseBlock 更新区块
+//
+//	@Description: 更新区块
 func CronRebaseBlock() {
 	var (
 		timeout = time.Minute * 10
 		ctx     = context.TODO()
+		chainQ  = sqlmodel.ChainColumns
 		chains  []sqlmodel.Chain
 		lockKey = "cron_rebase_block"
 	)
@@ -72,7 +82,7 @@ func CronRebaseBlock() {
 		return
 	}
 	// 获取所有的链
-	err := dao.FetchAllChain(ctx, &chains, nil, 0, 0)
+	err := dao.FetchAllChain(ctx, &chains, chainQ.Watch.Eq(1), 0, 0)
 	if err != nil {
 		zap.S().Errorf("fetch all chain error: %#v", err)
 		return

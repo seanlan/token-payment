@@ -53,6 +53,10 @@ func GetChainRpcClient(ctx context.Context, ch *sqlmodel.Chain) (client chain.Ba
 }
 
 // ReadNextBlock 读取后续区块
+//
+//	@Description: 读取后续区块
+//	@param ctx
+//	@param ch
 func ReadNextBlock(ctx context.Context, ch *sqlmodel.Chain) {
 	var (
 		lastChainBlock sqlmodel.ChainBlock
@@ -171,7 +175,11 @@ func ReadNextBlock(ctx context.Context, ch *sqlmodel.Chain) {
 	})
 }
 
-// RebaseBlock 重新设置区块
+// RebaseBlock
+//
+//	@Description: 重新设置区块
+//	@param ctx
+//	@param ch
 func RebaseBlock(ctx context.Context, ch *sqlmodel.Chain) {
 	var (
 		rebaseChainBlock sqlmodel.ChainBlock

@@ -28,31 +28,37 @@ package sqlmodel
 const TableNameChainAddress = "chain_address"
 
 var ChainAddressColumns = struct {
-	ID          FieldBase
-	AppKey      FieldBase
-	ChainSymbol FieldBase
-	Address     FieldBase
-	EncKey      FieldBase
-	Hook        FieldBase
-	CreateAt    FieldBase
+	ID            FieldBase
+	ApplicationID FieldBase
+	ChainSymbol   FieldBase
+	Address       FieldBase
+	EncKey        FieldBase
+	Hook          FieldBase
+	Watch         FieldBase
+	CreateAt      FieldBase
+	Used          FieldBase
 }{
-	ID:          FieldBase{"`id`"},
-	AppKey:      FieldBase{"`app_key`"},
-	ChainSymbol: FieldBase{"`chain_symbol`"},
-	Address:     FieldBase{"`address`"},
-	EncKey:      FieldBase{"`enc_key`"},
-	Hook:        FieldBase{"`hook`"},
-	CreateAt:    FieldBase{"`create_at`"},
+	ID:            FieldBase{"`id`"},
+	ApplicationID: FieldBase{"`application_id`"},
+	ChainSymbol:   FieldBase{"`chain_symbol`"},
+	Address:       FieldBase{"`address`"},
+	EncKey:        FieldBase{"`enc_key`"},
+	Hook:          FieldBase{"`hook`"},
+	Watch:         FieldBase{"`watch`"},
+	CreateAt:      FieldBase{"`create_at`"},
+	Used:          FieldBase{"`used`"},
 }
 
 type ChainAddress struct {
-	ID          int64  `json:"id" gorm:"column:id;type:bigint;primaryKey;autoIncrement"`      //
-	AppKey      string `json:"app_key" gorm:"column:app_key;type:varchar;not null"`           //app key
-	ChainSymbol string `json:"chain_symbol" gorm:"column:chain_symbol;type:varchar;not null"` //链的符号
-	Address     string `json:"address" gorm:"column:address;type:varchar;not null"`           //地址
-	EncKey      string `json:"enc_key" gorm:"column:enc_key;type:varchar;not null"`           //加密后的私钥
-	Hook        string `json:"hook" gorm:"column:hook;type:varchar;not null"`                 //账号变动通知url
-	CreateAt    int64  `json:"create_at" gorm:"column:create_at;type:bigint;not null"`        //创建时间
+	ID            int64  `json:"id" gorm:"column:id;type:bigint;primaryKey;autoIncrement"`         //
+	ApplicationID int64  `json:"application_id" gorm:"column:application_id;type:bigint;not null"` //应用ID
+	ChainSymbol   string `json:"chain_symbol" gorm:"column:chain_symbol;type:varchar;not null"`    //链的符号
+	Address       string `json:"address" gorm:"column:address;type:varchar;not null"`              //地址
+	EncKey        string `json:"enc_key" gorm:"column:enc_key;type:varchar;not null"`              //加密后的私钥
+	Hook          string `json:"hook" gorm:"column:hook;type:varchar;not null"`                    //到账变动通知url
+	Watch         int32  `json:"watch" gorm:"column:watch;type:int;not null"`                      //是否监听
+	CreateAt      int64  `json:"create_at" gorm:"column:create_at;type:bigint;not null"`           //创建时间
+	Used          int32  `json:"used" gorm:"column:used;type:int;not null"`                        //是否已使用
 }
 
 // TableName ChainAddress's table name
