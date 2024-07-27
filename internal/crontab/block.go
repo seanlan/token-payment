@@ -95,3 +95,49 @@ func CronRebaseBlock() {
 		}
 	}
 }
+
+// CronCheckBlock
+//
+//	@Description: 检查区块
+func CronCheckBlock() {
+	var (
+		timeout = time.Minute * 10
+		ctx     = context.Background()
+		chainQ  = sqlmodel.ChainColumns
+		chains  []sqlmodel.Chain
+		lockKey = "cron_check_block"
+		wg      sync.WaitGroup
+	)
+
+	// 获取锁
+	if dao.Redis.GetLock(ctx, lockKey, timeout) {
+		// 释放锁
+		defer dao.Redis.ReleaseLock(ctx, lockKey)
+	} else {
+		// 未获取到锁
+		zap.S().Info("CronCheckBlock locked !!!")
+		return
+	}
+	defer func() {
+		if _err := recover(); _err != nil {
+			zap.S().Errorw("cron check block error", "error", _err)
+		}
+	}()
+	// 获取所有的链
+	err := dao.FetchAllChain(ctx, &chains, chainQ.Watch.Eq(1), 0, 0)
+	if err != nil {
+		zap.S().Errorf("fetch all chain error: %#v", err)
+		return
+	}
+	// 读取区块
+	for _, ch := range chains {
+		wg.Add(1)
+		go func(ch sqlmodel.Chain) {
+			defer wg.Done()
+			// TODO: 检测区块
+			zap.S().Infow("check block", "chain", ch.ChainSymbol)
+			handler.CheckBlock(ctx, &ch)
+		}(ch)
+	}
+	wg.Wait()
+}

@@ -133,7 +133,6 @@ func ReadNextBlock(ctx context.Context, ch *sqlmodel.Chain) {
 		newBlock := newBlocksMap[lastBlockNum+int64(i)]
 		if newBlock == nil {
 			zap.S().Errorw("new block is nil", "chain", ch.ChainSymbol, "block", lastBlockNum+int64(i))
-			zap.S().Errorw("new blocks", "newBlocksMap", newBlocksMap)
 			break
 		}
 		chainBlocks = append(chainBlocks, sqlmodel.ChainBlock{
@@ -155,12 +154,16 @@ func ReadNextBlock(ctx context.Context, ch *sqlmodel.Chain) {
 			}
 		}
 	}
+	if len(chainBlocks) == 0 {
+		return
+	}
 	err = dao.GetDB(ctx).Transaction(func(tx *gorm.DB) (txErr error) {
 		c := dao.CtxWithTransaction(ctx, tx)
 		// 保存区块
 		_, txErr = dao.AddsChainBlock(c, &chainBlocks)
 		if txErr != nil {
-			zap.S().Errorw("add chain block error", "chain", ch.ChainSymbol, "error", txErr)
+			// 打印错误的sql语句
+			zap.S().Errorw("ReadNextBlock add chain block error", "block", chainBlocks, "error", txErr)
 			return
 		}
 		// 更新链的最新区块
@@ -261,5 +264,59 @@ func RebaseBlock(ctx context.Context, ch *sqlmodel.Chain) {
 			}
 			return
 		})
+	}
+}
+
+// CheckBlock
+//
+//	@Description: 检查区块
+//	@param ctx
+//	@param ch
+func CheckBlock(ctx context.Context, ch *sqlmodel.Chain) {
+	var (
+		chainBlocks []sqlmodel.ChainBlock
+		blockQ      = sqlmodel.ChainBlockColumns
+		err         error
+		wg          sync.WaitGroup
+	)
+	// 获取需要检查的区块
+	err = dao.FetchAllChainBlock(ctx, &chainBlocks,
+		dao.And(
+			blockQ.ChainSymbol.Eq(ch.ChainSymbol),
+			blockQ.Checked.Eq(0),
+			blockQ.Removed.Eq(0),
+		),
+		0, int(ch.Concurrent), blockQ.ID.Asc())
+	if err != nil {
+		zap.S().Errorw("fetch all chain block error", "chain", ch.ChainSymbol, "error", err)
+		return
+	}
+	// 获取链的rpc client
+	chainClient, err := GetChainRpcClient(ctx, ch)
+	if err != nil {
+		zap.S().Errorw("new chain client error", "chain", ch.ChainSymbol, "error", err)
+		return
+	}
+	// 检查区块
+	for _, block := range chainBlocks {
+		wg.Add(1)
+		go func(block sqlmodel.ChainBlock) {
+			zap.S().Infow("check block", "chain", ch.ChainSymbol, "block", block.BlockNumber)
+			// TODO: 检查区块
+			transactions, _err := chainClient.GetBlockTransactions(ctx, block.BlockNumber)
+			if _err != nil {
+				return
+			}
+			_ = dao.GetDB(ctx).Transaction(func(tx *gorm.DB) (txErr error) {
+				c := dao.CtxWithTransaction(ctx, tx)
+				block.Checked = 1
+				txErr = CheckTransactions(c, ch, transactions)
+				if txErr != nil {
+					return
+				}
+				_, txErr = dao.UpdateChainBlock(c, &block)
+				return
+			})
+		}(block)
 	}
 }

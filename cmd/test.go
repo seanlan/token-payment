@@ -4,14 +4,29 @@ Copyright © 2023 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
-	"context"
+	"fmt"
+	"github.com/ethereum/go-ethereum/common/hexutil"
+	"github.com/ethereum/go-ethereum/rpc"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
-	"time"
-	"token-payment/internal/dao"
-	"token-payment/internal/dao/sqlmodel"
-	"token-payment/internal/handler"
+	"math/big"
+	"token-payment/pkg/evmclient"
 )
+
+func toBlockNumArg(number *big.Int) string {
+	if number == nil {
+		return "latest"
+	}
+	if number.Sign() >= 0 {
+		return hexutil.EncodeBig(number)
+	}
+	// It's negative.
+	if number.IsInt64() {
+		return rpc.BlockNumber(number.Int64()).String()
+	}
+	// It's negative and large, which is invalid.
+	return fmt.Sprintf("<invalid %d>", number)
+}
 
 // testCmd represents the test command
 var testCmd = &cobra.Command{
@@ -24,17 +39,17 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		ctx := context.TODO()
-		var chain sqlmodel.Chain
-		_err := dao.FetchChain(ctx, &chain, nil)
-		if _err != nil {
-			zap.S().Errorf("fetch chain error: %v", _err)
+		var (
+			ctx = cmd.Context()
+		)
+		uri := "https://rpc.ankr.com/polygon_amoy/f60b6a29d8551b2156461783d5ebc4b00983609c846db245e42bf3c5aa51af5c"
+		cli := evmclient.NewEvmClient(uri)
+		block, err := cli.BlockByNumber(ctx, 9907696)
+		if err != nil {
+			zap.S().Errorf("GetBlockByNumber err: %v", err)
 			return
 		}
-		t1 := time.Now().Unix()
-		_ = handler.GenerateAddressBatch(ctx, &chain, 1)
-		t2 := time.Now().Unix()
-		zap.S().Infof("time used: %d s", t2-t1)
+		zap.S().Infof("block: %+v", block)
 	},
 }
 

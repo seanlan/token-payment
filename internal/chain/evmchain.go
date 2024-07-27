@@ -16,6 +16,7 @@ import (
 	"math/big"
 	"math/rand"
 	"strings"
+	"token-payment/pkg/evmclient"
 )
 
 const (
@@ -111,14 +112,10 @@ func (e *EvmChain) GetLatestBlockNumber(ctx context.Context) (int64, error) {
 //	@param tx 交易
 //	@return *Transaction 交易
 //	@return error 错误
-func (e *EvmChain) _receiptToTransaction(ctx context.Context, txReceipt *types.Receipt, tx *types.Transaction) (*Transaction, error) {
-	rpcUrl := e.selectRpc()
-	client, err := ethclient.Dial(rpcUrl)
-	if err != nil {
-		return nil, err
-	}
+func (e *EvmChain) _receiptToTransaction(ctx context.Context, txReceipt *types.Receipt, tx *evmclient.Transaction) (*Transaction, error) {
 	var (
 		erc20Abi, erc721Abi, erc1155Abi abi.ABI
+		err                             error
 	)
 	erc20Abi, err = abi.JSON(strings.NewReader(EVMErc20ABI))
 	if err != nil {
@@ -142,27 +139,23 @@ func (e *EvmChain) _receiptToTransaction(ctx context.Context, txReceipt *types.R
 		transaction = Transaction{
 			BlockNumber: txReceipt.BlockNumber.Int64(),
 			BlockHash:   txReceipt.BlockHash.String(),
-			Hash:        tx.Hash().String(),
+			Hash:        tx.Hash.String(),
 			Bills:       nil,
-			Time:        tx.Time(),
+			Time:        tx.Time,
 		}
 		transferBills = make([]*TransferBill, 0)
 	)
 	// 交易成功
 	var fromAddress common.Address
-	fromAddress, err = client.TransactionSender(ctx, tx, txReceipt.BlockHash, txReceipt.TransactionIndex)
-	if err != nil {
-		zap.S().Errorw("get transaction sender error", "hash", tx.Hash().String(), "rpc", rpcUrl, "error", err)
-		return nil, err
-	}
+	fromAddress = tx.From
 	// 1. 普通转账
-	if tx.To() != nil && tx.Value() != nil && tx.Value().String() != "0" {
+	if tx.To.String() != EVMErcZeroAddress && tx.Value != nil && tx.Value.Int64() != 0 {
 		transferBills = append(transferBills, &TransferBill{
 			From:            fromAddress.String(),
-			To:              tx.To().String(),
+			To:              tx.To.String(),
 			ContractAddress: "",
 			Index:           -1,
-			Value:           tx.Value(),
+			Value:           tx.Value,
 		})
 	}
 	// 2. 合约转账
@@ -174,8 +167,13 @@ func (e *EvmChain) _receiptToTransaction(ctx context.Context, txReceipt *types.R
 			toAddress      common.Address
 			value, tokenID *big.Int
 		)
-		zap.S().Infof("log topics 0: %v", log.Topics[0].String())
+		if len(log.Topics) == 0 {
+			continue
+		}
 		if log.Topics[0].String() == erc20Abi.Events[EVMErc20TransferEvent].ID.String() && len(log.Data) > 0 {
+			if len(log.Topics) < 3 {
+				continue
+			}
 			fromAddress = common.HexToAddress(log.Topics[1].String())
 			toAddress = common.HexToAddress(log.Topics[2].String())
 			value = new(big.Int).SetBytes(log.Data)
@@ -256,15 +254,15 @@ func (e *EvmChain) _receiptToTransaction(ctx context.Context, txReceipt *types.R
 //	@param tx 交易
 //	@return *Transaction 交易
 //	@return error 错误
-func (e *EvmChain) _getTransaction(ctx context.Context, tx *types.Transaction) (*Transaction, error) {
+func (e *EvmChain) _getTransaction(ctx context.Context, tx *evmclient.Transaction) (*Transaction, error) {
 	rpcUrl := e.selectRpc()
 	client, err := ethclient.Dial(rpcUrl)
 	if err != nil {
 		return nil, err
 	}
-	txReceipt, err := client.TransactionReceipt(ctx, tx.Hash())
+	txReceipt, err := client.TransactionReceipt(ctx, tx.Hash)
 	if err != nil {
-		zap.S().Errorw("get transaction receipt error", "hash", tx.Hash().String(), "rpc", rpcUrl, "error", err)
+		zap.S().Errorw("get transaction receipt error", "hash", tx.Hash.String(), "rpc", rpcUrl, "error", err)
 		return nil, err
 	}
 	return e._receiptToTransaction(ctx, txReceipt, tx)
@@ -280,11 +278,8 @@ func (e *EvmChain) _getTransaction(ctx context.Context, tx *types.Transaction) (
 //	@return error
 func (e *EvmChain) GetTransaction(ctx context.Context, hash string) (*Transaction, error) {
 	rpcUrl := e.selectRpc()
-	client, err := ethclient.Dial(rpcUrl)
-	if err != nil {
-		return nil, err
-	}
-	tx, _, err := client.TransactionByHash(ctx, common.HexToHash(hash))
+	cli := evmclient.NewEvmClient(rpcUrl)
+	tx, err := cli.TransactionByHash(ctx, common.HexToHash(hash))
 	if err != nil {
 		zap.S().Errorw("get transaction error", "hash", hash, "rpc", rpcUrl, "error", err)
 		return nil, err
@@ -302,11 +297,11 @@ func (e *EvmChain) GetTransaction(ctx context.Context, hash string) (*Transactio
 //	@return err 错误
 func (e *EvmChain) GetBlock(ctx context.Context, number int64) (block *Block, err error) {
 	rpcUrl := e.selectRpc()
-	client, err := ethclient.Dial(rpcUrl)
+	client := evmclient.NewEvmClient(rpcUrl)
 	if err != nil {
 		return nil, err
 	}
-	b, err := client.BlockByNumber(ctx, big.NewInt(number))
+	b, err := client.BlockByNumber(ctx, number)
 	if err != nil {
 		if errors.Is(err, ethereum.NotFound) {
 			err = ErrorNotFound
@@ -316,10 +311,10 @@ func (e *EvmChain) GetBlock(ctx context.Context, number int64) (block *Block, er
 		return nil, err
 	}
 	block = &Block{
-		Number:     b.Number().Int64(),
-		Hash:       b.Hash().String(),
-		ParentHash: b.ParentHash().String(),
-		ReceiveAt:  b.ReceivedAt,
+		Number:     b.Number,
+		Hash:       b.Hash.String(),
+		ParentHash: b.ParentHash.String(),
+		ReceiveAt:  b.Timestamp,
 	}
 	return block, nil
 }
@@ -335,18 +330,19 @@ func (e *EvmChain) GetBlock(ctx context.Context, number int64) (block *Block, er
 func (e *EvmChain) GetBlockTransactions(ctx context.Context, number int64) ([]*Transaction, error) {
 	var trans = make([]*Transaction, 0)
 	urlRpc := e.selectRpc()
-	client, err := ethclient.Dial(e.selectRpc())
+	client, err := ethclient.Dial(urlRpc)
 	if err != nil {
-		return trans, err
+		return nil, err
 	}
-	b, err := client.BlockByNumber(ctx, big.NewInt(number))
+	cli := evmclient.NewEvmClient(urlRpc)
+	b, err := cli.BlockByNumber(ctx, number)
 	if err != nil {
 		zap.S().Infow("get block error", "number", number, "rpc", urlRpc, "error", err)
 		return trans, err
 	}
 	var (
 		receipts   []*types.Receipt
-		ReceiptMap = make(map[common.Hash]*types.Receipt)
+		ReceiptMap = make(map[string]*types.Receipt)
 	)
 	receipts, err = client.BlockReceipts(ctx, rpc.BlockNumberOrHashWithNumber(rpc.BlockNumber(number)))
 	if err != nil {
@@ -354,11 +350,13 @@ func (e *EvmChain) GetBlockTransactions(ctx context.Context, number int64) ([]*T
 		return trans, err
 	}
 	for _, receipt := range receipts {
-		ReceiptMap[receipt.TxHash] = receipt
+		ReceiptMap[receipt.TxHash.String()] = receipt
 	}
-	for _, tx := range b.Transactions() {
-		receipt := ReceiptMap[tx.Hash()]
+	for _, tx := range b.Transactions {
+		receipt := ReceiptMap[tx.Hash.String()]
 		if receipt == nil {
+			hash := tx.Hash.String()
+			zap.S().Errorw("receipt not found", "hash", hash)
 			return nil, errors.New("receipt not found")
 		}
 		_tx, _err := e._receiptToTransaction(ctx, receipt, tx)
