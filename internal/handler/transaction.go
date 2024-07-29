@@ -2,7 +2,9 @@ package handler
 
 import (
 	"context"
+	"math"
 	"strings"
+	"sync"
 	"token-payment/internal/chain"
 	"token-payment/internal/dao"
 	"token-payment/internal/dao/sqlmodel"
@@ -100,5 +102,62 @@ func CheckRechargeTransaction(ctx context.Context, ch *sqlmodel.Chain, tx *chain
 //	@return err
 func CheckWithdrawTransaction(ctx context.Context, ch *sqlmodel.Chain, tx *chain.Transaction) (err error) {
 	// TODO: 检查提现交易
+	return
+}
+
+// UpdateTransactionsConfirm
+//
+//	@Description: 更新交易确认数
+//	@param ctx
+//	@param ch
+//	@param currentBlockNumber
+//	@return err
+func UpdateTransactionsConfirm(ctx context.Context, ch *sqlmodel.Chain) (err error) {
+	var (
+		transQ = sqlmodel.ChainTxColumns
+		txList = make([]sqlmodel.ChainTx, 0)
+		wg     sync.WaitGroup
+	)
+	err = dao.FetchAllChainTx(ctx, &txList, dao.And(
+		transQ.ChainSymbol.Eq(ch.ChainSymbol),
+		transQ.Removed.Eq(0),
+		transQ.BlockNumber.Lte(ch.RebaseBlock),
+		transQ.Confirm.Lt(ch.Confirm)), 0, 0)
+	if err != nil {
+		return
+	}
+	for _, tx := range txList {
+		wg.Add(1)
+		go func(tx sqlmodel.ChainTx) {
+			defer wg.Done()
+			_ = UpdateTransactionConfirm(ctx, ch, &tx)
+		}(tx)
+	}
+	return
+}
+
+// UpdateTransactionConfirm
+//
+//	@Description: 更新交易确认数
+//	@param ctx
+//	@param ch
+//	@param tx
+//	@return err
+func UpdateTransactionConfirm(ctx context.Context, ch *sqlmodel.Chain, tx *sqlmodel.ChainTx) (err error) {
+	var (
+		blockQ = sqlmodel.ChainBlockColumns
+		count  int64
+	)
+	count, err = dao.CountChainBlock(ctx, blockQ.BlockHash.Eq(tx.BlockHash))
+	if err != nil || count == 0 { // 未找到区块
+		return
+	}
+	if count == 0 {
+		tx.Removed = 1
+	} else {
+		confirm := ch.RebaseBlock - tx.BlockNumber
+		tx.Confirm = int32(math.Min(float64(ch.Confirm), float64(confirm)))
+	}
+	_, err = dao.UpdateChainTx(ctx, tx)
 	return
 }

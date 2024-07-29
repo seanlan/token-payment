@@ -28,61 +28,73 @@ package sqlmodel
 const TableNameChainTx = "chain_tx"
 
 var ChainTxColumns = struct {
-	ID              FieldBase
-	ApplicationID   FieldBase
-	ChainSymbol     FieldBase
-	BlockNumber     FieldBase
-	BlockHash       FieldBase
-	TxHash          FieldBase
-	FromAddress     FieldBase
-	ToAddress       FieldBase
-	ContractAddress FieldBase
-	Symbol          FieldBase
-	Value           FieldBase
-	TxIndex         FieldBase
-	BatchIndex      FieldBase
-	Confirm         FieldBase
-	Removed         FieldBase
-	TransferType    FieldBase
-	CreateAt        FieldBase
+	ID                FieldBase
+	ApplicationID     FieldBase
+	ChainSymbol       FieldBase
+	BlockNumber       FieldBase
+	BlockHash         FieldBase
+	TxHash            FieldBase
+	FromAddress       FieldBase
+	ToAddress         FieldBase
+	ContractAddress   FieldBase
+	Symbol            FieldBase
+	Value             FieldBase
+	TxIndex           FieldBase
+	BatchIndex        FieldBase
+	Confirm           FieldBase
+	Removed           FieldBase
+	TransferType      FieldBase
+	Arranged          FieldBase
+	CreateAt          FieldBase
+	NotifySuccess     FieldBase
+	NotifyFailedTimes FieldBase
+	NotifyNextTime    FieldBase
 }{
-	ID:              FieldBase{"id", "id"},
-	ApplicationID:   FieldBase{"application_id", "application_id"},
-	ChainSymbol:     FieldBase{"chain_symbol", "chain_symbol"},
-	BlockNumber:     FieldBase{"block_number", "block_number"},
-	BlockHash:       FieldBase{"block_hash", "block_hash"},
-	TxHash:          FieldBase{"tx_hash", "tx_hash"},
-	FromAddress:     FieldBase{"from_address", "from_address"},
-	ToAddress:       FieldBase{"to_address", "to_address"},
-	ContractAddress: FieldBase{"contract_address", "contract_address"},
-	Symbol:          FieldBase{"symbol", "symbol"},
-	Value:           FieldBase{"value", "value"},
-	TxIndex:         FieldBase{"tx_index", "tx_index"},
-	BatchIndex:      FieldBase{"batch_index", "batch_index"},
-	Confirm:         FieldBase{"confirm", "confirm"},
-	Removed:         FieldBase{"removed", "removed"},
-	TransferType:    FieldBase{"transfer_type", "transfer_type"},
-	CreateAt:        FieldBase{"create_at", "create_at"},
+	ID:                FieldBase{"id", "id"},
+	ApplicationID:     FieldBase{"application_id", "application_id"},
+	ChainSymbol:       FieldBase{"chain_symbol", "chain_symbol"},
+	BlockNumber:       FieldBase{"block_number", "block_number"},
+	BlockHash:         FieldBase{"block_hash", "block_hash"},
+	TxHash:            FieldBase{"tx_hash", "tx_hash"},
+	FromAddress:       FieldBase{"from_address", "from_address"},
+	ToAddress:         FieldBase{"to_address", "to_address"},
+	ContractAddress:   FieldBase{"contract_address", "contract_address"},
+	Symbol:            FieldBase{"symbol", "symbol"},
+	Value:             FieldBase{"value", "value"},
+	TxIndex:           FieldBase{"tx_index", "tx_index"},
+	BatchIndex:        FieldBase{"batch_index", "batch_index"},
+	Confirm:           FieldBase{"confirm", "confirm"},
+	Removed:           FieldBase{"removed", "removed"},
+	TransferType:      FieldBase{"transfer_type", "transfer_type"},
+	Arranged:          FieldBase{"arranged", "arranged"},
+	CreateAt:          FieldBase{"create_at", "create_at"},
+	NotifySuccess:     FieldBase{"notify_success", "notify_success"},
+	NotifyFailedTimes: FieldBase{"notify_failed_times", "notify_failed_times"},
+	NotifyNextTime:    FieldBase{"notify_next_time", "notify_next_time"},
 }
 
 type ChainTx struct {
-	ID              int64  `json:"id" gorm:"column:id;type:bigint;primaryKey;autoIncrement"`              //
-	ApplicationID   int64  `json:"application_id" gorm:"column:application_id;type:bigint;not null"`      //应用ID
-	ChainSymbol     string `json:"chain_symbol" gorm:"column:chain_symbol;type:varchar;not null"`         //链的符号
-	BlockNumber     int64  `json:"block_number" gorm:"column:block_number;type:bigint;not null"`          //区块高度
-	BlockHash       string `json:"block_hash" gorm:"column:block_hash;type:varchar;not null"`             //区块hash值
-	TxHash          string `json:"tx_hash" gorm:"column:tx_hash;type:varchar;not null"`                   //交易hash值
-	FromAddress     string `json:"from_address" gorm:"column:from_address;type:varchar;not null"`         //支付地址
-	ToAddress       string `json:"to_address" gorm:"column:to_address;type:varchar;not null"`             //收款地址
-	ContractAddress string `json:"contract_address" gorm:"column:contract_address;type:varchar;not null"` //代币合约地址，如果是空表示是主币
-	Symbol          string `json:"symbol" gorm:"column:symbol;type:varchar;not null"`                     //代币符号
-	Value           string `json:"value" gorm:"column:value;type:varchar;not null"`                       //数量 字符串表示
-	TxIndex         int64  `json:"tx_index" gorm:"column:tx_index;type:bigint;not null"`                  //交易序号
-	BatchIndex      int64  `json:"batch_index" gorm:"column:batch_index;type:bigint;not null"`            //交易批次号
-	Confirm         int32  `json:"confirm" gorm:"column:confirm;type:int;not null"`                       //确认次数
-	Removed         int32  `json:"removed" gorm:"column:removed;type:int;not null"`                       //是否已移除
-	TransferType    int32  `json:"transfer_type" gorm:"column:transfer_type;type:int;not null"`           //交易类型 1到账 2提币
-	CreateAt        int64  `json:"create_at" gorm:"column:create_at;type:bigint;not null"`                //交易时间
+	ID                int64  `json:"id" gorm:"column:id;type:bigint;primaryKey;autoIncrement"`                //
+	ApplicationID     int64  `json:"application_id" gorm:"column:application_id;type:bigint;not null"`        //应用ID
+	ChainSymbol       string `json:"chain_symbol" gorm:"column:chain_symbol;type:varchar;not null"`           //链的符号
+	BlockNumber       int64  `json:"block_number" gorm:"column:block_number;type:bigint;not null"`            //区块高度
+	BlockHash         string `json:"block_hash" gorm:"column:block_hash;type:varchar;not null"`               //区块hash值
+	TxHash            string `json:"tx_hash" gorm:"column:tx_hash;type:varchar;not null"`                     //交易hash值
+	FromAddress       string `json:"from_address" gorm:"column:from_address;type:varchar;not null"`           //支付地址
+	ToAddress         string `json:"to_address" gorm:"column:to_address;type:varchar;not null"`               //收款地址
+	ContractAddress   string `json:"contract_address" gorm:"column:contract_address;type:varchar;not null"`   //代币合约地址，如果是空表示是主币
+	Symbol            string `json:"symbol" gorm:"column:symbol;type:varchar;not null"`                       //代币符号
+	Value             string `json:"value" gorm:"column:value;type:varchar;not null"`                         //数量 字符串表示
+	TxIndex           int64  `json:"tx_index" gorm:"column:tx_index;type:bigint;not null"`                    //交易序号
+	BatchIndex        int64  `json:"batch_index" gorm:"column:batch_index;type:bigint;not null"`              //交易批次号
+	Confirm           int32  `json:"confirm" gorm:"column:confirm;type:int;not null"`                         //确认次数
+	Removed           int32  `json:"removed" gorm:"column:removed;type:int;not null"`                         //是否已移除
+	TransferType      int32  `json:"transfer_type" gorm:"column:transfer_type;type:int;not null"`             //交易类型 1到账 2提币
+	Arranged          int32  `json:"arranged" gorm:"column:arranged;type:int;not null"`                       //是否整理过
+	CreateAt          int64  `json:"create_at" gorm:"column:create_at;type:bigint;not null"`                  //交易时间
+	NotifySuccess     int32  `json:"notify_success" gorm:"column:notify_success;type:int;not null"`           //是否通知成功
+	NotifyFailedTimes int32  `json:"notify_failed_times" gorm:"column:notify_failed_times;type:int;not null"` //通知失败次数
+	NotifyNextTime    int64  `json:"notify_next_time" gorm:"column:notify_next_time;type:bigint;not null"`    //下次通知时间
 }
 
 // TableName ChainTx's table name

@@ -29,7 +29,7 @@ func cronFunc(cmd *cobra.Command, args []string) {
 	if err != nil {
 		zap.S().Fatalf("cron add func error: %#v", err)
 	}
-	// 检查是否有分叉 1s
+	// 检查是否有分叉
 	_, err = c.AddFunc("@every 1s", crontab.CronCheckRebase)
 	if err != nil {
 		zap.S().Fatalf("cron add func error: %#v", err)
@@ -41,6 +41,11 @@ func cronFunc(cmd *cobra.Command, args []string) {
 	}
 	// 检测区块
 	_, err = c.AddFunc("@every 1s", crontab.CronCheckBlock)
+	if err != nil {
+		zap.S().Fatalf("cron add func error: %#v", err)
+	}
+	// 更新交易
+	_, err = c.AddFunc("@every 1s", crontab.CronUpdateTransactions)
 	if err != nil {
 		zap.S().Fatalf("cron add func error: %#v", err)
 	}
