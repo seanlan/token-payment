@@ -34,7 +34,6 @@ var ChainBlockColumns = struct {
 	BlockHash   FieldBase
 	ParentHash  FieldBase
 	Checked     FieldBase
-	Removed     FieldBase
 }{
 	ID:          FieldBase{"id", "id"},
 	ChainSymbol: FieldBase{"chain_symbol", "chain_symbol"},
@@ -42,7 +41,6 @@ var ChainBlockColumns = struct {
 	BlockHash:   FieldBase{"block_hash", "block_hash"},
 	ParentHash:  FieldBase{"parent_hash", "parent_hash"},
 	Checked:     FieldBase{"checked", "checked"},
-	Removed:     FieldBase{"removed", "removed"},
 }
 
 type ChainBlock struct {
@@ -52,7 +50,6 @@ type ChainBlock struct {
 	BlockHash   string `json:"block_hash" gorm:"column:block_hash;type:varchar;not null"`     //区块hash值
 	ParentHash  string `json:"parent_hash" gorm:"column:parent_hash;type:varchar;not null"`   //上一个区块hash值
 	Checked     int32  `json:"checked" gorm:"column:checked;type:int;not null"`               //是否检测完成
-	Removed     int32  `json:"removed" gorm:"column:removed;type:int;not null"`               //是否已移除
 }
 
 // TableName ChainBlock's table name

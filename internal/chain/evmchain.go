@@ -14,7 +14,6 @@ import (
 	"github.com/ethereum/go-ethereum/rpc"
 	"go.uber.org/zap"
 	"math/big"
-	"math/rand"
 	"strings"
 	"token-payment/pkg/evmclient"
 )
@@ -43,13 +42,14 @@ const (
 )
 
 func init() {
-	addChainFactory("evm", func(c Config) (BaseChain, error) {
+	addChainFactory("evm", func(ctx context.Context, c Config) (BaseChain, error) {
 		if c.ChainType != "evm" {
 			return nil, errors.New("chain type error")
 		}
 		if len(c.RpcURLs) == 0 {
 			return nil, errors.New("rpc urls error")
 		}
+		equalizerName := "chain_" + c.ChainSymbol + "_equalizer"
 		return &EvmChain{
 			Name:        c.Name,
 			ChainType:   c.ChainType,
@@ -58,6 +58,7 @@ func init() {
 			Currency:    c.Currency,
 			RpcURLs:     c.RpcURLs,
 			GasPrice:    c.GasPrice,
+			equalizer:   NewEqualizer(ctx, equalizerName, c.RpcURLs),
 		}, nil
 	})
 
@@ -71,33 +72,42 @@ type EvmChain struct {
 	Currency    string
 	RpcURLs     []string
 	GasPrice    int64
+	equalizer   *Equalizer
 }
 
-// selectRpc 随机选择一个rpc url
-func (e *EvmChain) selectRpc() string {
-	return e.RpcURLs[rand.Intn(len(e.RpcURLs))]
+// selectRpc
+//
+//	@Description: 获取一个rpc url
+//	@receiver e
+//	@param ctx
+//	@return string
+//	@return error
+func (e *EvmChain) selectRpc(ctx context.Context) (string, error) {
+	return e.equalizer.Get(ctx)
 }
 
-func (e *EvmChain) getClient() (*ethclient.Client, error) {
-	rpcUrl := e.selectRpc()
-	client, err := ethclient.Dial(rpcUrl)
-	if err != nil {
-		zap.S().Errorw("get client error", "rpc", rpcUrl, "error", err)
-		return nil, err
-	}
-	return client, nil
-}
-
+// GetLatestBlockNumber
+//
+//	@Description: 获取最新区块号
+//	@receiver e
+//	@param ctx
+//	@return int64
+//	@return error
 func (e *EvmChain) GetLatestBlockNumber(ctx context.Context) (int64, error) {
-	rpcUrl := e.selectRpc()
+	rpcUrl, err := e.selectRpc(ctx)
+	if err != nil {
+		return 0, err
+	}
 	client, err := ethclient.Dial(rpcUrl)
 	if err != nil {
+		e.equalizer.Skip(ctx, rpcUrl)
 		return 0, err
 	}
 	var latestID uint64
 	latestID, err = client.BlockNumber(ctx)
 	if err != nil {
 		zap.S().Errorw("get block number error", "rpc", rpcUrl, "error", err)
+		e.equalizer.Skip(ctx, rpcUrl) // 跳过
 		return 0, err
 	}
 	return int64(latestID), nil
@@ -246,28 +256,6 @@ func (e *EvmChain) _receiptToTransaction(ctx context.Context, txReceipt *types.R
 	return &transaction, nil
 }
 
-// _getTransaction
-//
-//	@Description: 获取交易
-//	@receiver e
-//	@param ctx
-//	@param tx 交易
-//	@return *Transaction 交易
-//	@return error 错误
-func (e *EvmChain) _getTransaction(ctx context.Context, tx *evmclient.Transaction) (*Transaction, error) {
-	rpcUrl := e.selectRpc()
-	client, err := ethclient.Dial(rpcUrl)
-	if err != nil {
-		return nil, err
-	}
-	txReceipt, err := client.TransactionReceipt(ctx, tx.Hash)
-	if err != nil {
-		zap.S().Errorw("get transaction receipt error", "hash", tx.Hash.String(), "rpc", rpcUrl, "error", err)
-		return nil, err
-	}
-	return e._receiptToTransaction(ctx, txReceipt, tx)
-}
-
 // GetTransaction
 //
 //	@Description: 获取交易
@@ -277,14 +265,29 @@ func (e *EvmChain) _getTransaction(ctx context.Context, tx *evmclient.Transactio
 //	@return *Transaction 交易
 //	@return error
 func (e *EvmChain) GetTransaction(ctx context.Context, hash string) (*Transaction, error) {
-	rpcUrl := e.selectRpc()
+	rpcUrl, err := e.selectRpc(ctx)
+	if err != nil {
+		return nil, err
+	}
 	cli := evmclient.NewEvmClient(rpcUrl)
+	client, err := ethclient.Dial(rpcUrl)
+	if err != nil {
+		e.equalizer.Skip(ctx, rpcUrl)
+		return nil, err
+	}
 	tx, err := cli.TransactionByHash(ctx, common.HexToHash(hash))
 	if err != nil {
 		zap.S().Errorw("get transaction error", "hash", hash, "rpc", rpcUrl, "error", err)
+		e.equalizer.Skip(ctx, rpcUrl) // 跳过
 		return nil, err
 	}
-	return e._getTransaction(ctx, tx)
+	txReceipt, err := client.TransactionReceipt(ctx, tx.Hash)
+	if err != nil {
+		zap.S().Errorw("get transaction receipt error", "hash", tx.Hash.String(), "rpc", rpcUrl, "error", err)
+		e.equalizer.Skip(ctx, rpcUrl) // 跳过
+		return nil, err
+	}
+	return e._receiptToTransaction(ctx, txReceipt, tx)
 }
 
 // GetBlock
@@ -296,58 +299,36 @@ func (e *EvmChain) GetTransaction(ctx context.Context, hash string) (*Transactio
 //	@return block 区块
 //	@return err 错误
 func (e *EvmChain) GetBlock(ctx context.Context, number int64) (block *Block, err error) {
-	rpcUrl := e.selectRpc()
-	client := evmclient.NewEvmClient(rpcUrl)
+	rpcUrl, err := e.selectRpc(ctx)
 	if err != nil {
 		return nil, err
 	}
-	b, err := client.BlockByNumber(ctx, number)
+	cli := evmclient.NewEvmClient(rpcUrl)
+	client, err := ethclient.Dial(rpcUrl)
+	if err != nil {
+		e.equalizer.Skip(ctx, rpcUrl)
+		return nil, err
+	}
+	b, err := cli.BlockByNumber(ctx, number)
 	if err != nil {
 		if errors.Is(err, ethereum.NotFound) {
 			err = ErrorNotFound
 		} else {
 			zap.S().Errorw("get block error", "number", number, "rpc", rpcUrl, "error", err)
+			e.equalizer.Skip(ctx, rpcUrl)
 		}
 		return nil, err
-	}
-	block = &Block{
-		Number:     b.Number,
-		Hash:       b.Hash.String(),
-		ParentHash: b.ParentHash.String(),
-		ReceiveAt:  b.Timestamp,
-	}
-	return block, nil
-}
-
-// GetBlockTransactions
-//
-//	@Description: 获取区块内的交易
-//	@receiver e
-//	@param ctx
-//	@param number 区块号
-//	@return []*Transaction 交易列表
-//	@return error 错误
-func (e *EvmChain) GetBlockTransactions(ctx context.Context, number int64) ([]*Transaction, error) {
-	var trans = make([]*Transaction, 0)
-	urlRpc := e.selectRpc()
-	client, err := ethclient.Dial(urlRpc)
-	if err != nil {
-		return nil, err
-	}
-	cli := evmclient.NewEvmClient(urlRpc)
-	b, err := cli.BlockByNumber(ctx, number)
-	if err != nil {
-		zap.S().Infow("get block error", "number", number, "rpc", urlRpc, "error", err)
-		return trans, err
 	}
 	var (
 		receipts   []*types.Receipt
 		ReceiptMap = make(map[string]*types.Receipt)
+		trans      []*Transaction
 	)
 	receipts, err = client.BlockReceipts(ctx, rpc.BlockNumberOrHashWithNumber(rpc.BlockNumber(number)))
 	if err != nil {
-		zap.S().Errorw("get block receipts error", "number", number, "rpc", urlRpc, "error", err)
-		return trans, err
+		zap.S().Errorw("get block receipts error", "number", number, "rpc", rpcUrl, "error", err)
+		e.equalizer.Skip(ctx, rpcUrl)
+		return nil, err
 	}
 	for _, receipt := range receipts {
 		ReceiptMap[receipt.TxHash.String()] = receipt
@@ -365,7 +346,14 @@ func (e *EvmChain) GetBlockTransactions(ctx context.Context, number int64) ([]*T
 		}
 		trans = append(trans, _tx)
 	}
-	return trans, nil
+	block = &Block{
+		Number:       b.Number,
+		Hash:         b.Hash.String(),
+		ParentHash:   b.ParentHash.String(),
+		ReceiveAt:    b.Timestamp,
+		Transactions: trans,
+	}
+	return block, nil
 }
 
 // GenerateAddress
@@ -398,7 +386,11 @@ func (e *EvmChain) GenerateAddress(ctx context.Context) (address string, private
 	return
 }
 
-func (e *EvmChain) Transfer(privateKey, to string, amount string, contract ...string) (string, error) {
+func (e *EvmChain) Transfer(ctx context.Context, privateKey, to string, amount string, contract ...string) (string, error) {
+	urlRpc, err := e.selectRpc(ctx)
+	if err != nil {
+		return "", err
+	}
 	value, ok := new(big.Int).SetString(amount, 10)
 	if !ok {
 		return "", errors.New("amount error")
@@ -409,18 +401,21 @@ func (e *EvmChain) Transfer(privateKey, to string, amount string, contract ...st
 		return "", err
 	}
 	// 创建一个rpc client
-	client, err := ethclient.Dial(e.selectRpc())
+	client, err := ethclient.Dial(urlRpc)
 	if err != nil {
+		e.equalizer.Skip(ctx, urlRpc)
 		return "", err
 	}
 	// 获取nonce
 	nonce, err := client.PendingNonceAt(context.Background(), crypto.PubkeyToAddress(_privateKey.PublicKey))
 	if err != nil {
+		e.equalizer.Skip(ctx, urlRpc)
 		return "", err
 	}
 	// 获取gasPrice
 	gasPrice, err := client.SuggestGasPrice(context.Background())
 	if err != nil {
+		e.equalizer.Skip(ctx, urlRpc)
 		return "", err
 	}
 	// 创建交易
@@ -462,6 +457,7 @@ func (e *EvmChain) Transfer(privateKey, to string, amount string, contract ...st
 	// 发送交易
 	err = client.SendTransaction(context.Background(), signedTx)
 	if err != nil {
+		e.equalizer.Skip(ctx, urlRpc)
 		return "", err
 	}
 	return signedTx.Hash().String(), nil

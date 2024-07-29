@@ -26,24 +26,25 @@ var (
 	ErrorChain    = errors.New("chain error")
 )
 
-type newChainFunc func(Config) (BaseChain, error)
+type newChainFunc func(context.Context, Config) (BaseChain, error)
 
 func addChainFactory(chainType string, f newChainFunc) {
 	chainFactory[chainType] = f
 }
 
-func NewChain(c Config) (BaseChain, error) {
+func NewChain(ctx context.Context, c Config) (BaseChain, error) {
 	if chainFactory[c.ChainType] == nil {
 		return nil, ErrorChain
 	}
-	return chainFactory[c.ChainType](c)
+	return chainFactory[c.ChainType](ctx, c)
 }
 
 type Block struct {
-	Number     int64     // 区块高度
-	Hash       string    // 区块hash
-	ParentHash string    // 父区块hash
-	ReceiveAt  time.Time // 区块时间
+	Number       int64          // 区块高度
+	Hash         string         // 区块hash
+	ParentHash   string         // 父区块hash
+	ReceiveAt    time.Time      // 区块时间
+	Transactions []*Transaction // 交易
 }
 
 type Transaction struct {
@@ -65,9 +66,8 @@ type TransferBill struct {
 }
 
 type BaseChain interface {
-	GetLatestBlockNumber(ctx context.Context) (int64, error)                        // 获取最新区块
-	GetBlock(ctx context.Context, number int64) (*Block, error)                     // 获取区块
-	GetBlockTransactions(ctx context.Context, number int64) ([]*Transaction, error) // 获取区块交易
-	GetTransaction(ctx context.Context, hash string) (*Transaction, error)          // 获取交易
-	GenerateAddress(ctx context.Context) (string, string, error)                    // 生成地址
+	GetLatestBlockNumber(ctx context.Context) (int64, error)               // 获取最新区块
+	GetBlock(ctx context.Context, number int64) (*Block, error)            // 获取区块
+	GetTransaction(ctx context.Context, hash string) (*Transaction, error) // 获取交易
+	GenerateAddress(ctx context.Context) (string, string, error)           // 生成地址
 }

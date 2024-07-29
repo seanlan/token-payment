@@ -39,6 +39,7 @@ var ChainColumns = struct {
 	GasPrice    FieldBase
 	LatestBlock FieldBase
 	RebaseBlock FieldBase
+	HasBranch   FieldBase
 	Concurrent  FieldBase
 	AddressPool FieldBase
 	Watch       FieldBase
@@ -54,6 +55,7 @@ var ChainColumns = struct {
 	GasPrice:    FieldBase{"gas_price", "gas_price"},
 	LatestBlock: FieldBase{"latest_block", "latest_block"},
 	RebaseBlock: FieldBase{"rebase_block", "rebase_block"},
+	HasBranch:   FieldBase{"has_branch", "has_branch"},
 	Concurrent:  FieldBase{"concurrent", "concurrent"},
 	AddressPool: FieldBase{"address_pool", "address_pool"},
 	Watch:       FieldBase{"watch", "watch"},
@@ -71,6 +73,7 @@ type Chain struct {
 	GasPrice    int64  `json:"gas_price" gorm:"column:gas_price;type:bigint;not null"`                //gas price 配置
 	LatestBlock int64  `json:"latest_block" gorm:"column:latest_block;type:bigint;not null"`          //最新区块
 	RebaseBlock int64  `json:"rebase_block" gorm:"column:rebase_block;type:bigint;not null"`          //重新构建区块
+	HasBranch   int32  `json:"has_branch" gorm:"column:has_branch;type:tinyint;not null"`             //是否出现分叉
 	Concurrent  int32  `json:"concurrent" gorm:"column:concurrent;type:int;not null"`                 //并发量
 	AddressPool int32  `json:"address_pool" gorm:"column:address_pool;type:int;not null"`             //地址池
 	Watch       int32  `json:"watch" gorm:"column:watch;type:tinyint;not null"`                       //是否监听

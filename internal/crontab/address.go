@@ -46,7 +46,6 @@ func CronCheckAddressPool() {
 		go func(ch sqlmodel.Chain) {
 			defer wg.Done()
 			// TODO: 读取下一个区块
-			zap.S().Infow("read block", "chain", ch.ChainSymbol)
 			handler.CheckAddressPool(ctx, &ch)
 		}(ch)
 	}

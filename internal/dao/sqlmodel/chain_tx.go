@@ -44,6 +44,7 @@ var ChainTxColumns = struct {
 	Confirm         FieldBase
 	Removed         FieldBase
 	TransferType    FieldBase
+	CreateAt        FieldBase
 }{
 	ID:              FieldBase{"id", "id"},
 	ApplicationID:   FieldBase{"application_id", "application_id"},
@@ -61,6 +62,7 @@ var ChainTxColumns = struct {
 	Confirm:         FieldBase{"confirm", "confirm"},
 	Removed:         FieldBase{"removed", "removed"},
 	TransferType:    FieldBase{"transfer_type", "transfer_type"},
+	CreateAt:        FieldBase{"create_at", "create_at"},
 }
 
 type ChainTx struct {
@@ -80,6 +82,7 @@ type ChainTx struct {
 	Confirm         int32  `json:"confirm" gorm:"column:confirm;type:int;not null"`                       //确认次数
 	Removed         int32  `json:"removed" gorm:"column:removed;type:int;not null"`                       //是否已移除
 	TransferType    int32  `json:"transfer_type" gorm:"column:transfer_type;type:int;not null"`           //交易类型 1到账 2提币
+	CreateAt        int64  `json:"create_at" gorm:"column:create_at;type:bigint;not null"`                //交易时间
 }
 
 // TableName ChainTx's table name

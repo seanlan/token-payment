@@ -82,6 +82,7 @@ func CheckRechargeTransaction(ctx context.Context, ch *sqlmodel.Chain, tx *chain
 			TxIndex:         int64(bill.Index),
 			BatchIndex:      int64(bill.BatchIndex),
 			TransferType:    int32(types.TransferTypeIn),
+			CreateAt:        tx.Time.Unix(),
 		})
 	}
 	if len(bills) > 0 {
