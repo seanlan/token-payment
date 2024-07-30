@@ -3,18 +3,31 @@ package handler
 import (
 	"context"
 	"errors"
+	"math"
+	"time"
 	"token-payment/internal/dao"
 	"token-payment/internal/dao/sqlmodel"
+	"token-payment/internal/tokenpay"
 	"token-payment/internal/types"
 )
 
+// NotifyTransaction
+//
+//	@Description: 通知交易
+//	@param ctx
+//	@param tx
+//	@return err
 func NotifyTransaction(ctx context.Context, tx *sqlmodel.ChainTx) (err error) {
 	var (
 		notifyUrl   string
 		addressQ    = sqlmodel.ChainAddressColumns
 		appQ        = sqlmodel.ApplicationColumns
+		chainQ      = sqlmodel.ChainColumns
+		tokenQ      = sqlmodel.ChainTokenColumns
 		address     sqlmodel.ChainAddress
 		application sqlmodel.Application
+		chain       sqlmodel.Chain
+		token       sqlmodel.ChainToken
 	)
 	switch types.TransferType(tx.TransferType) {
 	case types.TransferTypeIn:
@@ -34,12 +47,56 @@ func NotifyTransaction(ctx context.Context, tx *sqlmodel.ChainTx) (err error) {
 		_, err = dao.UpdateChainTx(ctx, tx)
 		return
 	}
+	// 获取应用信息
 	err = dao.FetchApplication(ctx, &application, appQ.ID.Eq(tx.ApplicationID))
 	if err != nil {
 		return
 	}
+	// 获取链信息
+	err = dao.FetchChain(ctx, &chain, chainQ.ChainSymbol.Eq(tx.ChainSymbol))
+	if err != nil {
+		return
+	}
+	// 获取token信息
+	err = dao.FetchChainToken(ctx, &token, dao.And(
+		tokenQ.ChainSymbol.Eq(tx.ChainSymbol),
+		tokenQ.Symbol.Eq(tx.Symbol),
+		tokenQ.ContractAddress.Eq(tx.ContractAddress),
+	))
+	if err != nil {
+		return
+	}
 	// 进行http通知
-	client := NewHttpClient()
-
-	return nil
+	ntx := tokenpay.NotifyTx{
+		ApplicationID:   tx.ApplicationID,
+		ChainSymbol:     tx.ChainSymbol,
+		TxHash:          tx.TxHash,
+		FromAddress:     tx.FromAddress,
+		ToAddress:       tx.ToAddress,
+		ContractAddress: tx.ContractAddress,
+		Symbol:          tx.Symbol,
+		Decimals:        token.Decimals,
+		Value:           tx.Value,
+		TxIndex:         tx.TxIndex,
+		BatchIndex:      tx.BatchIndex,
+		Confirm:         tx.Confirm,
+		MaxConfirm:      chain.Confirm,
+		TransferType:    tx.TransferType,
+		SerialNo:        tx.SerialNo,
+		CreateAt:        tx.CreateAt,
+	}
+	client := tokenpay.NewClient(application.AppName, application.AppKey, "")
+	success, notifyErr := client.NotifyTransaction(ntx, notifyUrl)
+	if notifyErr != nil {
+		success = false
+	}
+	if success {
+		tx.NotifySuccess = 1
+	} else {
+		tx.NotifyFailedTimes++
+		scale := math.Max(2, float64(tx.NotifyFailedTimes))
+		tx.NotifyNextTime = time.Now().Unix() + int64(scale)*30
+	}
+	_, err = dao.UpdateChainTx(ctx, tx)
+	return
 }

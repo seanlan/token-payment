@@ -46,6 +46,7 @@ var ChainTxColumns = struct {
 	TransferType      FieldBase
 	Arranged          FieldBase
 	CreateAt          FieldBase
+	SerialNo          FieldBase
 	NotifySuccess     FieldBase
 	NotifyFailedTimes FieldBase
 	NotifyNextTime    FieldBase
@@ -68,6 +69,7 @@ var ChainTxColumns = struct {
 	TransferType:      FieldBase{"transfer_type", "transfer_type"},
 	Arranged:          FieldBase{"arranged", "arranged"},
 	CreateAt:          FieldBase{"create_at", "create_at"},
+	SerialNo:          FieldBase{"serial_no", "serial_no"},
 	NotifySuccess:     FieldBase{"notify_success", "notify_success"},
 	NotifyFailedTimes: FieldBase{"notify_failed_times", "notify_failed_times"},
 	NotifyNextTime:    FieldBase{"notify_next_time", "notify_next_time"},
@@ -92,6 +94,7 @@ type ChainTx struct {
 	TransferType      int32  `json:"transfer_type" gorm:"column:transfer_type;type:int;not null"`             //交易类型 1到账 2提币
 	Arranged          int32  `json:"arranged" gorm:"column:arranged;type:int;not null"`                       //是否整理过
 	CreateAt          int64  `json:"create_at" gorm:"column:create_at;type:bigint;not null"`                  //交易时间
+	SerialNo          string `json:"serial_no" gorm:"column:serial_no;type:varchar;not null"`                 //订单序列号
 	NotifySuccess     int32  `json:"notify_success" gorm:"column:notify_success;type:int;not null"`           //是否通知成功
 	NotifyFailedTimes int32  `json:"notify_failed_times" gorm:"column:notify_failed_times;type:int;not null"` //通知失败次数
 	NotifyNextTime    int64  `json:"notify_next_time" gorm:"column:notify_next_time;type:bigint;not null"`    //下次通知时间
