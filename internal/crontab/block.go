@@ -34,11 +34,6 @@ func CronReadNextBlock() {
 		zap.S().Info("CronReadNextBlock locked !!!")
 		return
 	}
-	defer func() {
-		if _err := recover(); _err != nil {
-			zap.S().Errorw("cron read block error", "error", _err)
-		}
-	}()
 	// 获取所有的链
 	err := dao.FetchAllChain(ctx, &chains, chainQ.Watch.Eq(1), 0, 0)
 	if err != nil {
@@ -83,11 +78,6 @@ func CronCheckRebase() {
 		zap.S().Info("CronReadNextBlock locked !!!")
 		return
 	}
-	defer func() {
-		if _err := recover(); _err != nil {
-			zap.S().Errorw("cron read block error", "error", _err)
-		}
-	}()
 	// 获取所有的链
 	err := dao.FetchAllChain(ctx, &chains, chainQ.Watch.Eq(1), 0, 0)
 	if err != nil {
@@ -122,7 +112,6 @@ func CronRebaseBlock() {
 	if dao.Redis.GetLock(ctx, lockKey, timeout) {
 		// 结束后释放锁
 		defer dao.Redis.ReleaseLock(ctx, lockKey)
-
 	} else {
 		return
 	}
@@ -163,11 +152,6 @@ func CronCheckBlock() {
 		zap.S().Info("CronCheckBlock locked !!!")
 		return
 	}
-	defer func() {
-		if _err := recover(); _err != nil {
-			zap.S().Errorw("cron check block error", "error", _err)
-		}
-	}()
 	// 获取所有的链
 	err := dao.FetchAllChain(ctx, &chains, chainQ.Watch.Eq(1), 0, 0)
 	if err != nil {

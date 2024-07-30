@@ -157,6 +157,9 @@ func UpdateTransactionConfirm(ctx context.Context, ch *sqlmodel.Chain, tx *sqlmo
 	} else {
 		confirm := ch.RebaseBlock - tx.BlockNumber
 		tx.Confirm = int32(math.Min(float64(ch.Confirm), float64(confirm)))
+		tx.NotifyNextTime = 0
+		tx.NotifySuccess = 0
+		tx.NotifyFailedTimes = 0
 	}
 	_, err = dao.UpdateChainTx(ctx, tx)
 	return
