@@ -10,16 +10,13 @@ import (
 	"token-payment/internal/handler"
 )
 
-// CronUpdateTransactions
-//
-//	@Description: 更新交易
-func CronUpdateTransactions() {
+func CronGenerateTransactions() {
 	var (
 		timeout = time.Minute * 10
 		ctx     = context.Background()
 		chainQ  = sqlmodel.ChainColumns
 		chains  []sqlmodel.Chain
-		lockKey = "cron_update_transactions"
+		lockKey = "cron_generate_transactions"
 		wg      sync.WaitGroup
 	)
 	// 获取锁
@@ -28,14 +25,9 @@ func CronUpdateTransactions() {
 		defer dao.Redis.ReleaseLock(ctx, lockKey)
 	} else {
 		// 未获取到锁
-		zap.S().Info("CronUpdateTransactions locked !!!")
+		zap.S().Info("CronReadNextBlock locked !!!")
 		return
 	}
-	defer func() {
-		if _err := recover(); _err != nil {
-			zap.S().Errorw("cron update transaction error", "error", _err)
-		}
-	}()
 	// 获取所有的链
 	err := dao.FetchAllChain(ctx, &chains, chainQ.Watch.Eq(1), 0, 0)
 	if err != nil {
@@ -47,9 +39,13 @@ func CronUpdateTransactions() {
 		wg.Add(1)
 		go func(ch sqlmodel.Chain) {
 			defer wg.Done()
-			// TODO: 检测区块
-			zap.S().Infow("update transaction", "chain", ch.ChainSymbol)
-			_ = handler.UpdateTransactionsConfirm(ctx, &ch)
+			// TODO: 读取下一个区块
+			zap.S().Infow("read next block", "chain", ch.ChainSymbol)
+			if ch.HasBranch > 0 { // 有区块分叉需要更新
+				zap.S().Infow("update rebase block", "chain", ch.ChainSymbol, "block", ch.RebaseBlock)
+			} else {
+				handler.ReadNextBlock(ctx, &ch)
+			}
 		}(ch)
 	}
 	wg.Wait()

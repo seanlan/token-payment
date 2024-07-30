@@ -99,12 +99,12 @@ func ReadNextBlock(ctx context.Context, ch *sqlmodel.Chain) {
 	} else {
 		lastBlockNum = ch.LatestBlock
 	}
-	if latestChainBlockNum-lastBlockNum < int64(ch.Concurrent) {
-		// 区块不足
-		return
-	}
+	//if latestChainBlockNum-lastBlockNum < int64(ch.Concurrent) {
+	//	// 区块不足
+	//	return
+	//}
 	// 并发读取区块
-	for i := 0; i < int(ch.Concurrent); i++ {
+	for i := 0; i < int(latestChainBlockNum-lastBlockNum); i++ {
 		lastBlockNum++
 		chainBlocks = append(chainBlocks, sqlmodel.ChainBlock{
 			ChainSymbol: ch.ChainSymbol,
@@ -149,7 +149,7 @@ func CheckRebase(ctx context.Context, ch *sqlmodel.Chain) {
 		block := chainBlocks[i]
 		lastBlock := chainBlocks[i-1]
 		if block.Checked == 0 || lastBlock.Checked == 0 {
-			// 未检查的区块
+			// 存在未检查的区块
 			return
 		}
 		if block.ParentHash != lastBlock.BlockHash {
@@ -162,6 +162,7 @@ func CheckRebase(ctx context.Context, ch *sqlmodel.Chain) {
 		zap.S().Errorw("update chain error", "chain", ch.ChainSymbol, "error", err)
 		return
 	}
+	_ = UpdateTransactionsConfirm(ctx, ch)
 }
 
 // RebaseBlock

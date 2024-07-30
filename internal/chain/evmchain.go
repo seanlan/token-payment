@@ -386,14 +386,14 @@ func (e *EvmChain) GenerateAddress(ctx context.Context) (address string, private
 	return
 }
 
-func (e *EvmChain) Transfer(ctx context.Context, privateKey, to string, amount string, contract ...string) (string, error) {
+func (e *EvmChain) GenerateTransaction(ctx context.Context, order *TransferOrder) error {
+	return nil
+}
+
+func (e *EvmChain) Transfer(ctx context.Context, privateKey string, order *TransferOrder) (string, error) {
 	urlRpc, err := e.selectRpc(ctx)
 	if err != nil {
 		return "", err
-	}
-	value, ok := new(big.Int).SetString(amount, 10)
-	if !ok {
-		return "", errors.New("amount error")
 	}
 	// 创建一个新的私钥
 	_privateKey, err := crypto.HexToECDSA(privateKey)
@@ -406,49 +406,34 @@ func (e *EvmChain) Transfer(ctx context.Context, privateKey, to string, amount s
 		e.equalizer.Skip(ctx, urlRpc)
 		return "", err
 	}
-	// 获取nonce
-	nonce, err := client.PendingNonceAt(context.Background(), crypto.PubkeyToAddress(_privateKey.PublicKey))
-	if err != nil {
-		e.equalizer.Skip(ctx, urlRpc)
-		return "", err
-	}
-	// 获取gasPrice
-	gasPrice, err := client.SuggestGasPrice(context.Background())
-	if err != nil {
-		e.equalizer.Skip(ctx, urlRpc)
-		return "", err
-	}
 	// 创建交易
-	var tx *types.Transaction
-	if len(contract) > 0 { // ERC20 token 交易
-		contractAddress := common.HexToAddress(contract[0])
-		erc20Abi, err := abi.JSON(strings.NewReader(EVMErc20ABI))
-		if err != nil {
-			return "", err
+	var (
+		tx        *types.Transaction
+		txData    []byte
+		toAddress common.Address
+	)
+	if len(order.ContractAddress) > 0 { // ERC20 token 交易
+		toAddress = common.HexToAddress(order.ContractAddress)
+		erc20Abi, _err := abi.JSON(strings.NewReader(EVMErc20ABI))
+		if _err != nil {
+			return "", _err
 		}
-		data, err := erc20Abi.Pack("transfer", common.HexToAddress(to), value)
-		if err != nil {
-			return "", err
+		txData, _err = erc20Abi.Pack("transfer", common.HexToAddress(order.To), order.Value)
+		if _err != nil {
+			return "", _err
 		}
-		tx = types.NewTx(&types.LegacyTx{
-			Nonce:    nonce,
-			To:       &contractAddress,
-			Value:    value,
-			Gas:      200000,
-			GasPrice: gasPrice,
-			Data:     data,
-		})
+
 	} else { // 普通转账
-		toAddress := common.HexToAddress(to)
-		tx = types.NewTx(&types.LegacyTx{
-			Nonce:    nonce,
-			To:       &toAddress,
-			Value:    value,
-			Gas:      200000,
-			GasPrice: gasPrice,
-			Data:     nil,
-		})
+		toAddress = common.HexToAddress(order.To)
 	}
+	tx = types.NewTx(&types.LegacyTx{
+		Nonce:    order.Nonce,
+		To:       &toAddress,
+		Value:    order.Value,
+		Gas:      order.Gas,
+		GasPrice: order.gasPrice,
+		Data:     txData,
+	})
 	// 签名交易
 	signedTx, err := types.SignTx(tx, types.NewEIP155Signer(big.NewInt(e.ChainID)), _privateKey)
 	if err != nil {

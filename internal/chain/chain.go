@@ -65,9 +65,24 @@ type TransferBill struct {
 	BatchIndex      int      // 交易批次序号
 }
 
+type TransferOrder struct {
+	TxHash          string   // 交易hash
+	From            string   // 转出地址
+	FromPrivateKey  string   // 转出地址私钥
+	To              string   // 转入地址
+	ContractAddress string   // 合约地址
+	Value           *big.Int // 转账金额
+	TokenID         *big.Int // token id (erc721)
+	Gas             uint64   // gas
+	gasPrice        *big.Int // gas price
+	Nonce           uint64   // nonce
+}
+
 type BaseChain interface {
-	GetLatestBlockNumber(ctx context.Context) (int64, error)               // 获取最新区块
-	GetBlock(ctx context.Context, number int64) (*Block, error)            // 获取区块
-	GetTransaction(ctx context.Context, hash string) (*Transaction, error) // 获取交易
-	GenerateAddress(ctx context.Context) (string, string, error)           // 生成地址
+	GetLatestBlockNumber(ctx context.Context) (int64, error)                               // 获取最新区块
+	GetBlock(ctx context.Context, number int64) (*Block, error)                            // 获取区块
+	GetTransaction(ctx context.Context, hash string) (*Transaction, error)                 // 获取交易
+	GenerateAddress(ctx context.Context) (string, string, error)                           // 生成地址
+	GenerateTransaction(ctx context.Context, order *TransferOrder) error                   // 生成交易订单
+	Transfer(ctx context.Context, privateKey string, order *TransferOrder) (string, error) // 转账
 }

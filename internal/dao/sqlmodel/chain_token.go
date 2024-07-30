@@ -34,6 +34,7 @@ var ChainTokenColumns = struct {
 	Name            FieldBase
 	Symbol          FieldBase
 	Decimals        FieldBase
+	Threshold       FieldBase
 }{
 	ID:              FieldBase{"id", "id"},
 	ChainSymbol:     FieldBase{"chain_symbol", "chain_symbol"},
@@ -41,15 +42,17 @@ var ChainTokenColumns = struct {
 	Name:            FieldBase{"name", "name"},
 	Symbol:          FieldBase{"symbol", "symbol"},
 	Decimals:        FieldBase{"decimals", "decimals"},
+	Threshold:       FieldBase{"threshold", "threshold"},
 }
 
 type ChainToken struct {
-	ID              int64  `json:"id" gorm:"column:id;type:bigint;primaryKey;autoIncrement"`              //
-	ChainSymbol     string `json:"chain_symbol" gorm:"column:chain_symbol;type:varchar;not null"`         //链的符号
-	ContractAddress string `json:"contract_address" gorm:"column:contract_address;type:varchar;not null"` //代币合约地址，如果是空表示是主币
-	Name            string `json:"name" gorm:"column:name;type:varchar;not null"`                         //币种名称
-	Symbol          string `json:"symbol" gorm:"column:symbol;type:varchar;not null"`                     //币种符号
-	Decimals        int32  `json:"decimals" gorm:"column:decimals;type:int;not null"`                     //小数位
+	ID              int64   `json:"id" gorm:"column:id;type:bigint;primaryKey;autoIncrement"`              //
+	ChainSymbol     string  `json:"chain_symbol" gorm:"column:chain_symbol;type:varchar;not null"`         //链的符号
+	ContractAddress string  `json:"contract_address" gorm:"column:contract_address;type:varchar;not null"` //代币合约地址，如果是空表示是主币
+	Name            string  `json:"name" gorm:"column:name;type:varchar;not null"`                         //币种名称
+	Symbol          string  `json:"symbol" gorm:"column:symbol;type:varchar;not null"`                     //币种符号
+	Decimals        int32   `json:"decimals" gorm:"column:decimals;type:int;not null"`                     //小数位
+	Threshold       float64 `json:"threshold" gorm:"column:threshold;type:decimal;not null"`               //
 }
 
 // TableName ChainToken's table name

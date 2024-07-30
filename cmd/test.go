@@ -5,12 +5,13 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
+	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/rpc"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
 	"math/big"
-	"token-payment/pkg/evmclient"
 )
 
 func toBlockNumArg(number *big.Int) string {
@@ -39,17 +40,16 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		var (
-			ctx = cmd.Context()
-		)
-		uri := "https://rpc.ankr.com/polygon_amoy/f60b6a29d8551b2156461783d5ebc4b00983609c846db245e42bf3c5aa51af5c"
-		cli := evmclient.NewEvmClient(uri)
-		block, err := cli.BlockByNumber(ctx, 9907696)
-		if err != nil {
-			zap.S().Errorf("GetBlockByNumber err: %v", err)
-			return
-		}
-		zap.S().Infof("block: %+v", block)
+		toAddress := common.HexToAddress("0x0d49ea539217d011faec8c48ec864941aab1cf17")
+		tx := types.NewTx(&types.LegacyTx{
+			Nonce:    1,
+			To:       &toAddress,
+			Value:    big.NewInt(100),
+			Gas:      20000,
+			GasPrice: big.NewInt(100),
+			Data:     nil,
+		})
+		zap.S().Infof("tx hash: %s", tx.Hash().String())
 	},
 }
 

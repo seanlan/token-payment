@@ -49,9 +49,10 @@ func CheckRechargeTransaction(ctx context.Context, ch *sqlmodel.Chain, tx *chain
 	)
 	for _, bill := range tx.Bills {
 		var (
-			address sqlmodel.ChainAddress
-			token   sqlmodel.ChainToken
-			toAddr  = strings.ToLower(bill.To)
+			address    sqlmodel.ChainAddress
+			token      sqlmodel.ChainToken
+			toAddr     = strings.ToLower(bill.To)
+			nftTokenID int64
 		)
 		_ = dao.FetchChainAddress(ctx, &address, dao.And(
 			addressQ.ChainSymbol.Eq(ch.ChainSymbol),
@@ -70,6 +71,9 @@ func CheckRechargeTransaction(ctx context.Context, ch *sqlmodel.Chain, tx *chain
 			// 不是监控token
 			continue
 		}
+		if bill.TokenID != nil {
+			nftTokenID = bill.TokenID.Int64()
+		}
 		bills = append(bills, sqlmodel.ChainTx{
 			ApplicationID:   address.ApplicationID,
 			ChainSymbol:     ch.ChainSymbol,
@@ -80,7 +84,8 @@ func CheckRechargeTransaction(ctx context.Context, ch *sqlmodel.Chain, tx *chain
 			ToAddress:       strings.ToLower(bill.To),
 			ContractAddress: bill.ContractAddress,
 			Symbol:          token.Symbol,
-			Value:           bill.Value.String(),
+			Value:           float64(bill.Value.Int64()) / math.Pow10(int(token.Decimals)),
+			TokenID:         nftTokenID,
 			TxIndex:         int64(bill.Index),
 			BatchIndex:      int64(bill.BatchIndex),
 			TransferType:    int32(types.TransferTypeIn),
