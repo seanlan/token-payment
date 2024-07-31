@@ -4,30 +4,9 @@ Copyright © 2023 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
-	"fmt"
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/common/hexutil"
-	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/rpc"
 	"github.com/spf13/cobra"
-	"go.uber.org/zap"
-	"math/big"
+	"token-payment/internal/crontab"
 )
-
-func toBlockNumArg(number *big.Int) string {
-	if number == nil {
-		return "latest"
-	}
-	if number.Sign() >= 0 {
-		return hexutil.EncodeBig(number)
-	}
-	// It's negative.
-	if number.IsInt64() {
-		return rpc.BlockNumber(number.Int64()).String()
-	}
-	// It's negative and large, which is invalid.
-	return fmt.Sprintf("<invalid %d>", number)
-}
 
 // testCmd represents the test command
 var testCmd = &cobra.Command{
@@ -40,16 +19,18 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		toAddress := common.HexToAddress("0x0d49ea539217d011faec8c48ec864941aab1cf17")
-		tx := types.NewTx(&types.LegacyTx{
-			Nonce:    1,
-			To:       &toAddress,
-			Value:    big.NewInt(100),
-			Gas:      20000,
-			GasPrice: big.NewInt(100),
-			Data:     nil,
-		})
-		zap.S().Infof("tx hash: %s", tx.Hash().String())
+		//crontab.CronGenerateTransactions()
+		crontab.CronSendTransactions()
+		//toAddress := common.HexToAddress("0x0d49ea539217d011faec8c48ec864941aab1cf17")
+		//tx := types.NewTx(&types.LegacyTx{
+		//	Nonce:    1,
+		//	To:       &toAddress,
+		//	Value:    big.NewInt(100),
+		//	Gas:      20000,
+		//	GasPrice: big.NewInt(100),
+		//	Data:     nil,
+		//})
+		//zap.S().Infof("tx hash: %s", tx.Hash().String())
 	},
 }
 

@@ -386,17 +386,83 @@ func (e *EvmChain) GenerateAddress(ctx context.Context) (address string, private
 	return
 }
 
+func (e *EvmChain) GetNonce(ctx context.Context, address string) (uint64, error) {
+	rpcUrl, err := e.selectRpc(ctx)
+	if err != nil {
+		return 0, err
+	}
+	client, err := ethclient.Dial(rpcUrl)
+	if err != nil {
+		e.equalizer.Skip(ctx, rpcUrl)
+		return 0, err
+	}
+	return client.PendingNonceAt(ctx, common.HexToAddress(address))
+}
+
 func (e *EvmChain) GenerateTransaction(ctx context.Context, order *TransferOrder) error {
+	urlRpc, err := e.selectRpc(ctx)
+	if err != nil {
+		return err
+	}
+	// 创建一个rpc client
+	client, err := ethclient.Dial(urlRpc)
+	if err != nil {
+		e.equalizer.Skip(ctx, urlRpc)
+		return err
+	}
+	// 创建交易
+	var (
+		tx        *types.Transaction
+		txData    []byte
+		toAddress common.Address
+		value     *big.Int
+	)
+	gasPrice, err := client.SuggestGasPrice(context.Background())
+	if err != nil {
+		zap.S().Warnf("ItemSettle SuggestGasPrice err : %v", err)
+		return err
+	}
+	if len(order.ContractAddress) > 0 { // ERC20 token 交易
+		toAddress = common.HexToAddress(order.ContractAddress)
+		erc20Abi, _err := abi.JSON(strings.NewReader(EVMErc20ABI))
+		if _err != nil {
+			return _err
+		}
+		txData, _err = erc20Abi.Pack("transfer", common.HexToAddress(order.To), order.Value)
+		if _err != nil {
+			return _err
+		}
+		value = big.NewInt(0)
+	} else { // 普通转账
+		toAddress = common.HexToAddress(order.To)
+		value = order.Value
+	}
+
+	tx = types.NewTx(&types.LegacyTx{
+		Nonce:    order.Nonce,
+		To:       &toAddress,
+		Value:    value,
+		Gas:      order.Gas,
+		GasPrice: gasPrice,
+		Data:     txData,
+	})
+	_privateKey, err := crypto.HexToECDSA(strings.Replace(order.FromPrivateKey, "0x", "", 1))
+	if err != nil {
+		return err
+	}
+	signedTx, err := types.SignTx(tx, types.NewEIP155Signer(big.NewInt(e.ChainID)), _privateKey)
+	order.TxHash = signedTx.Hash().String()
+	order.GasPrice = gasPrice
 	return nil
 }
 
-func (e *EvmChain) Transfer(ctx context.Context, privateKey string, order *TransferOrder) (string, error) {
+func (e *EvmChain) Transfer(ctx context.Context, order *TransferOrder) (string, error) {
 	urlRpc, err := e.selectRpc(ctx)
 	if err != nil {
 		return "", err
 	}
 	// 创建一个新的私钥
-	_privateKey, err := crypto.HexToECDSA(privateKey)
+	_privateKey, err := crypto.HexToECDSA(strings.Replace(order.FromPrivateKey, "0x", "", 1))
 	if err != nil {
 		return "", err
 	}
@@ -411,6 +477,7 @@ func (e *EvmChain) Transfer(ctx context.Context, privateKey string, order *Trans
 		tx        *types.Transaction
 		txData    []byte
 		toAddress common.Address
+		value     *big.Int
 	)
 	if len(order.ContractAddress) > 0 { // ERC20 token 交易
 		toAddress = common.HexToAddress(order.ContractAddress)
@@ -422,28 +489,32 @@ func (e *EvmChain) Transfer(ctx context.Context, privateKey string, order *Trans
 		if _err != nil {
 			return "", _err
 		}
-
+		value = big.NewInt(0)
 	} else { // 普通转账
 		toAddress = common.HexToAddress(order.To)
+		value = order.Value
 	}
 	tx = types.NewTx(&types.LegacyTx{
 		Nonce:    order.Nonce,
 		To:       &toAddress,
-		Value:    order.Value,
+		Value:    value,
 		Gas:      order.Gas,
-		GasPrice: order.gasPrice,
+		GasPrice: order.GasPrice,
 		Data:     txData,
 	})
+	zap.S().Infof("tx hash: %s", tx.Hash().String())
 	// 签名交易
 	signedTx, err := types.SignTx(tx, types.NewEIP155Signer(big.NewInt(e.ChainID)), _privateKey)
 	if err != nil {
 		return "", err
 	}
+	zap.S().Infof("signed tx hash: %s", signedTx.Hash().String())
 	// 发送交易
 	err = client.SendTransaction(context.Background(), signedTx)
 	if err != nil {
 		e.equalizer.Skip(ctx, urlRpc)
 		return "", err
 	}
+	zap.S().Infof("send tx hash: %s", signedTx.Hash().String())
 	return signedTx.Hash().String(), nil
 }

@@ -49,6 +49,16 @@ func cronFunc(cmd *cobra.Command, args []string) {
 	if err != nil {
 		zap.S().Fatalf("cron add func error: %#v", err)
 	}
+	// 生成交易
+	_, err = c.AddFunc("@every 1s", crontab.CronGenerateTransactions)
+	if err != nil {
+		zap.S().Fatalf("cron add func error: %#v", err)
+	}
+	// 发送交易
+	_, err = c.AddFunc("@every 1s", crontab.CronSendTransactions)
+	if err != nil {
+		zap.S().Fatalf("cron add func error: %#v", err)
+	}
 	//// 更新交易
 	//_, err = c.AddFunc("@every 1s", crontab.CronUpdateTransactions)
 	//if err != nil {
