@@ -511,7 +511,7 @@ func (e *EvmChain) Transfer(ctx context.Context, order *TransferOrder) (string, 
 	zap.S().Infof("signed tx hash: %s", signedTx.Hash().String())
 	// 发送交易
 	err = client.SendTransaction(context.Background(), signedTx)
-	if err != nil {
+	if err != nil && strings.Contains(err.Error(), "known transaction") {
 		e.equalizer.Skip(ctx, urlRpc)
 		return "", err
 	}

@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"go.uber.org/zap"
 	"math"
 	"math/big"
 	"time"
@@ -287,6 +288,7 @@ func SendTransaction(ctx context.Context, ch *sqlmodel.Chain, order *sqlmodel.Ap
 	}
 	_, _err := client.Transfer(ctx, &transferOrder)
 	if _err != nil {
+		zap.S().Warnf("transfer failed, err: %v", _err)
 		order.TransferSuccess = 0
 		order.TransferFailedTimes++
 		order.TransferNextTime = time.Now().Unix() + 60*5 // 5分钟后重试
