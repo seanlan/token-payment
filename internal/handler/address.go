@@ -36,7 +36,7 @@ func CheckAddressPool(ctx context.Context, ch *sqlmodel.Chain) {
 //	@param ch
 //	@return address
 //	@return err
-func GenerateAddress(ctx context.Context, ch *sqlmodel.Chain) (address sqlmodel.ChainAddress, err error) {
+func GenerateAddress(ctx context.Context, ch *sqlmodel.Chain, appId int64, hook string, watch bool) (address sqlmodel.ChainAddress, err error) {
 	client, err := GetChainRpcClient(ctx, ch)
 	if err != nil {
 		return
@@ -50,9 +50,14 @@ func GenerateAddress(ctx context.Context, ch *sqlmodel.Chain) (address sqlmodel.
 		return
 	}
 	encKey, err = utils.AesEncrypt(privateKey, config.C.Secret)
+	address.ApplicationID = appId
 	address.ChainSymbol = ch.ChainSymbol
 	address.EncKey = encKey
-	address.Hook = ""
+	if watch {
+		address.Watch = 1
+	}
+	address.Used = 1
+	address.Hook = hook
 	address.CreateAt = time.Now().Unix()
 	_, err = dao.AddChainAddress(ctx, &address)
 	return

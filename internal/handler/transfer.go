@@ -177,6 +177,9 @@ func GenerateTransaction(ctx context.Context, ch *sqlmodel.Chain, order *sqlmode
 	order.Nonce = int64(transferOrder.Nonce)
 	order.Generated = 1
 	order.TransferNextTime = time.Now().Unix()
+	if order.GasPrice < ch.GasPrice { // 不能低于预设的gasPrice
+		order.GasPrice = ch.GasPrice
+	}
 	_, err = dao.UpdateApplicationWithdrawOrder(ctx, order)
 	return
 }
@@ -286,7 +289,7 @@ func SendTransaction(ctx context.Context, ch *sqlmodel.Chain, order *sqlmodel.Ap
 	if err != nil {
 		return
 	}
-	_, _err := client.Transfer(ctx, &transferOrder)
+	txHash, _err := client.Transfer(ctx, &transferOrder)
 	if _err != nil {
 		zap.S().Warnf("transfer failed, err: %v", _err)
 		order.TransferSuccess = 0
@@ -295,6 +298,7 @@ func SendTransaction(ctx context.Context, ch *sqlmodel.Chain, order *sqlmodel.Ap
 	} else {
 		order.TransferSuccess = 1
 	}
+	order.TxHash = txHash                // 更新txHash
 	order.TransferAt = time.Now().Unix() // 记录发送时间 方便查询pending时间过长的交易 防止交易卡住 后面可以定时检索并处理
 	_, err = dao.UpdateApplicationWithdrawOrder(ctx, order)
 	return
