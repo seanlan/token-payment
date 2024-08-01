@@ -1,6 +1,6 @@
 # Token Payment
 
-`token-payment` 是一个区块链收提币系统，旨在为各种应用提供强大的收款和转账功能。它支持所有 EVM 兼容的区块链，并计划在未来支持更多的链。该系统提供了到账检测、到账通知和转账等功能，通过 API 接口可以方便地集成到您的应用中。
+`token-payment` 是一个区块链收提币系统，旨在为各种应用提供的收款和转账功能。它支持所有 EVM 兼容的区块链，并计划在未来支持更多的链。该系统提供了到账检测、到账通知和转账等功能，通过 API 接口可以方便地集成到您的应用中。
 
 ## 特性
 
@@ -247,6 +247,21 @@ Content-Type: application/json
 - [ ] 数据统计
 - [ ] 其它非EVM链支持
 - [ ] NFT转账功能
+
+关于其它链的功能，可以通过实现`internal/chain/chain.go`接口来实现。
+```go
+type BaseChain interface {
+	GetLatestBlockNumber(ctx context.Context) (int64, error)               // 获取最新区块
+	GetBlock(ctx context.Context, number int64) (*Block, error)            // 获取区块
+	GetTransaction(ctx context.Context, hash string) (*Transaction, error) // 获取交易
+	GenerateAddress(ctx context.Context) (string, string, error)           // 生成地址
+	GetNonce(ctx context.Context, address string) (uint64, error)          // 获取nonce
+	GenerateTransaction(ctx context.Context, order *TransferOrder) error   // 生成交易订单
+	Transfer(ctx context.Context, order *TransferOrder) (string, error)    // 转账
+}
+```
+
+具体的实现可以参考`internal/chain/evmchain.go`。
 
 ## 问题反馈
 
