@@ -243,6 +243,9 @@ Content-Type: application/json
 ## 开发计划
 
 - [ ] 零钱整理。收款地址到账后自动转到冷钱包
+- [ ] 警报机制
+- [ ] pending交易处理
+- [ ] NFT转账功能
 - [ ] 管理后台
 - [ ] 数据统计
 - [ ] 其它非EVM链支持
@@ -265,4 +268,4 @@ type BaseChain interface {
 
 ## 问题反馈
 
-如果您在使用过程中遇到问题，请在 [GitHub Issues](https://github.com/yourusername/token-payment/issues) 中报告。
+如果您在使用过程中遇到问题，请在 [GitHub Issues](https://github.com/seanlan/token-payment/issues) 中报告。
