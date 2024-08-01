@@ -24,8 +24,13 @@ func (*CronZapLogger) Error(err error, msg string, keysAndValues ...interface{})
 func cronFunc(cmd *cobra.Command, args []string) {
 	var err error
 	c := cron.New(cron.WithLogger(&CronZapLogger{}), cron.WithChain(cron.Recover(&CronZapLogger{})))
-	// 读取新的区块
+	// 索引新的区块(优先生成交易高度，并做好排序） 方便后面可以并发的读取区块
 	_, err = c.AddFunc("@every 1s", crontab.CronReadNextBlock)
+	if err != nil {
+		zap.S().Fatalf("cron add func error: %#v", err)
+	}
+	// 检测区块（检索交易） 由于前面已经排序，所以可以并发的读取区块
+	_, err = c.AddFunc("@every 1s", crontab.CronCheckBlock)
 	if err != nil {
 		zap.S().Fatalf("cron add func error: %#v", err)
 	}
@@ -34,13 +39,8 @@ func cronFunc(cmd *cobra.Command, args []string) {
 	if err != nil {
 		zap.S().Fatalf("cron add func error: %#v", err)
 	}
-	// 更新rebase区块
+	// 更新rebase区块(修复分叉)
 	_, err = c.AddFunc("@every 1s", crontab.CronRebaseBlock)
-	if err != nil {
-		zap.S().Fatalf("cron add func error: %#v", err)
-	}
-	// 检测区块
-	_, err = c.AddFunc("@every 1s", crontab.CronCheckBlock)
 	if err != nil {
 		zap.S().Fatalf("cron add func error: %#v", err)
 	}
@@ -59,12 +59,7 @@ func cronFunc(cmd *cobra.Command, args []string) {
 	if err != nil {
 		zap.S().Fatalf("cron add func error: %#v", err)
 	}
-	//// 更新交易
-	//_, err = c.AddFunc("@every 1s", crontab.CronUpdateTransactions)
-	//if err != nil {
-	//	zap.S().Fatalf("cron add func error: %#v", err)
-	//}
-	// 检查地址池
+	// 检查地址池 已废弃 改成同步生成地址
 	//_, err = c.AddFunc("@every 1s", crontab.CronCheckAddressPool)
 	//if err != nil {
 	//	zap.S().Fatalf("cron add func error: %#v", err)

@@ -295,6 +295,7 @@ func SendTransaction(ctx context.Context, ch *sqlmodel.Chain, order *sqlmodel.Ap
 	} else {
 		order.TransferSuccess = 1
 	}
+	order.TransferAt = time.Now().Unix() // 记录发送时间 方便查询pending时间过长的交易 防止交易卡住 后面可以定时检索并处理
 	_, err = dao.UpdateApplicationWithdrawOrder(ctx, order)
 	return
 }
