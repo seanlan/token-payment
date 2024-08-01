@@ -40,11 +40,15 @@ var ApplicationWithdrawOrderColumns = struct {
 	TokenID             FieldBase
 	TxHash              FieldBase
 	Nonce               FieldBase
+	Hook                FieldBase
 	CreateAt            FieldBase
+	TransferAt          FieldBase
 	Generated           FieldBase
 	TransferSuccess     FieldBase
 	TransferFailedTimes FieldBase
 	TransferNextTime    FieldBase
+	Received            FieldBase
+	ReceiveAt           FieldBase
 }{
 	ID:                  FieldBase{"id", "id"},
 	ApplicationID:       FieldBase{"application_id", "application_id"},
@@ -58,11 +62,15 @@ var ApplicationWithdrawOrderColumns = struct {
 	TokenID:             FieldBase{"token_id", "token_id"},
 	TxHash:              FieldBase{"tx_hash", "tx_hash"},
 	Nonce:               FieldBase{"nonce", "nonce"},
+	Hook:                FieldBase{"hook", "hook"},
 	CreateAt:            FieldBase{"create_at", "create_at"},
+	TransferAt:          FieldBase{"transfer_at", "transfer_at"},
 	Generated:           FieldBase{"generated", "generated"},
 	TransferSuccess:     FieldBase{"transfer_success", "transfer_success"},
 	TransferFailedTimes: FieldBase{"transfer_failed_times", "transfer_failed_times"},
 	TransferNextTime:    FieldBase{"transfer_next_time", "transfer_next_time"},
+	Received:            FieldBase{"received", "received"},
+	ReceiveAt:           FieldBase{"receive_at", "receive_at"},
 }
 
 type ApplicationWithdrawOrder struct {
@@ -78,11 +86,15 @@ type ApplicationWithdrawOrder struct {
 	TokenID             int64   `json:"token_id" gorm:"column:token_id;type:bigint;not null"`                        //tokenid （NFT）
 	TxHash              string  `json:"tx_hash" gorm:"column:tx_hash;type:varchar;not null"`                         //交易hash值
 	Nonce               int64   `json:"nonce" gorm:"column:nonce;type:bigint;not null;default:-1"`                   //交易nonce
+	Hook                string  `json:"hook" gorm:"column:hook;type:varchar;not null"`                               //到账变动通知url
 	CreateAt            int64   `json:"create_at" gorm:"column:create_at;type:bigint;not null"`                      //申请时间
+	TransferAt          int64   `json:"transfer_at" gorm:"column:transfer_at;type:bigint;not null"`                  //转账时间
 	Generated           int32   `json:"generated" gorm:"column:generated;type:int;not null"`                         //是否生成
 	TransferSuccess     int32   `json:"transfer_success" gorm:"column:transfer_success;type:tinyint;not null"`       //是否转账成功
 	TransferFailedTimes int32   `json:"transfer_failed_times" gorm:"column:transfer_failed_times;type:int;not null"` //转账失败次数
 	TransferNextTime    int64   `json:"transfer_next_time" gorm:"column:transfer_next_time;type:bigint;not null"`    //下次转账时间
+	Received            int32   `json:"received" gorm:"column:received;type:tinyint;not null"`                       //是否到账
+	ReceiveAt           int64   `json:"receive_at" gorm:"column:receive_at;type:bigint;not null"`                    //到账时间
 }
 
 // TableName ApplicationWithdrawOrder's table name

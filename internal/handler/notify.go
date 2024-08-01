@@ -24,10 +24,12 @@ func NotifyTransaction(ctx context.Context, tx *sqlmodel.ChainTx) (err error) {
 		appQ        = sqlmodel.ApplicationColumns
 		chainQ      = sqlmodel.ChainColumns
 		tokenQ      = sqlmodel.ChainTokenColumns
+		orderQ      = sqlmodel.ApplicationWithdrawOrderColumns
 		address     sqlmodel.ChainAddress
 		application sqlmodel.Application
 		chain       sqlmodel.Chain
 		token       sqlmodel.ChainToken
+		order       sqlmodel.ApplicationWithdrawOrder
 	)
 	switch types.TransferType(tx.TransferType) {
 	case types.TransferTypeIn:
@@ -41,6 +43,19 @@ func NotifyTransaction(ctx context.Context, tx *sqlmodel.ChainTx) (err error) {
 			return err
 		}
 		notifyUrl = address.Hook
+	case types.TransferTypeOut:
+		// 提现
+		err = dao.FetchApplicationWithdrawOrder(ctx, &order, dao.And(
+			orderQ.ChainSymbol.Eq(tx.ChainSymbol),
+			orderQ.TxHash.Eq(tx.TxHash),
+		))
+		if err != nil && !errors.Is(err, dao.ErrNotFound) {
+			return err
+		}
+		notifyUrl = order.Hook
+	case types.TransferTypeFee:
+		// 手续费转账
+		notifyUrl = ""
 	}
 	if notifyUrl == "" { // 不需要通知
 		tx.NotifySuccess = 1
@@ -94,7 +109,7 @@ func NotifyTransaction(ctx context.Context, tx *sqlmodel.ChainTx) (err error) {
 		tx.NotifySuccess = 1
 	} else {
 		tx.NotifyFailedTimes++
-		scale := math.Max(2, float64(tx.NotifyFailedTimes))
+		scale := math.Pow(2, float64(tx.NotifyFailedTimes))
 		tx.NotifyNextTime = time.Now().Unix() + int64(scale)*30
 	}
 	_, err = dao.UpdateChainTx(ctx, tx)

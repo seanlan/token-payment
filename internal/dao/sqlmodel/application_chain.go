@@ -33,12 +33,14 @@ var ApplicationChainColumns = struct {
 	ChainSymbol   FieldBase
 	HotWallet     FieldBase
 	ColdWallet    FieldBase
+	FeeWallet     FieldBase
 }{
 	ID:            FieldBase{"id", "id"},
 	ApplicationID: FieldBase{"application_id", "application_id"},
 	ChainSymbol:   FieldBase{"chain_symbol", "chain_symbol"},
 	HotWallet:     FieldBase{"hot_wallet", "hot_wallet"},
 	ColdWallet:    FieldBase{"cold_wallet", "cold_wallet"},
+	FeeWallet:     FieldBase{"fee_wallet", "fee_wallet"},
 }
 
 type ApplicationChain struct {
@@ -47,6 +49,7 @@ type ApplicationChain struct {
 	ChainSymbol   string `json:"chain_symbol" gorm:"column:chain_symbol;type:varchar;not null"`    //链的符号
 	HotWallet     string `json:"hot_wallet" gorm:"column:hot_wallet;type:varchar;not null"`        //热钱包地址
 	ColdWallet    string `json:"cold_wallet" gorm:"column:cold_wallet;type:varchar;not null"`      //冷钱包地址
+	FeeWallet     string `json:"fee_wallet" gorm:"column:fee_wallet;type:varchar;not null"`        //零钱整理费用钱包
 }
 
 // TableName ApplicationChain's table name

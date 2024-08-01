@@ -161,8 +161,8 @@ func (e *EvmChain) _receiptToTransaction(ctx context.Context, txReceipt *types.R
 	// 1. 普通转账
 	if tx.To.String() != EVMErcZeroAddress && tx.Value != nil && tx.Value.Int64() != 0 {
 		transferBills = append(transferBills, &TransferBill{
-			From:            fromAddress.String(),
-			To:              tx.To.String(),
+			From:            strings.ToLower(fromAddress.String()),
+			To:              strings.ToLower(tx.To.String()),
 			ContractAddress: "",
 			Index:           -1,
 			Value:           tx.Value,
@@ -188,9 +188,9 @@ func (e *EvmChain) _receiptToTransaction(ctx context.Context, txReceipt *types.R
 			toAddress = common.HexToAddress(log.Topics[2].String())
 			value = new(big.Int).SetBytes(log.Data)
 			transferBills = append(transferBills, &TransferBill{
-				From:            fromAddress.String(),
-				To:              toAddress.String(),
-				ContractAddress: log.Address.String(),
+				From:            strings.ToLower(fromAddress.String()),
+				To:              strings.ToLower(toAddress.String()),
+				ContractAddress: strings.ToLower(log.Address.String()),
 				Index:           index,
 				Value:           value,
 			})
