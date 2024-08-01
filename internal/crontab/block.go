@@ -21,14 +21,13 @@ func CronReadNextBlock() {
 		ctx     = context.Background()
 		chainQ  = sqlmodel.ChainColumns
 		chains  []sqlmodel.Chain
-		lockKey = "cron_read_block"
 		wg      sync.WaitGroup
 	)
 
 	// 获取锁
-	if dao.Redis.GetLock(ctx, lockKey, timeout) {
+	if dao.Redis.GetLock(ctx, ReadBlockLockKey, timeout) {
 		// 释放锁
-		defer dao.Redis.ReleaseLock(ctx, lockKey)
+		defer dao.Redis.ReleaseLock(ctx, ReadBlockLockKey)
 	} else {
 		// 未获取到锁
 		zap.S().Info("CronReadNextBlock locked !!!")
@@ -66,13 +65,12 @@ func CronCheckRebase() {
 		ctx     = context.Background()
 		chainQ  = sqlmodel.ChainColumns
 		chains  []sqlmodel.Chain
-		lockKey = "cron_read_block"
 		wg      sync.WaitGroup
 	)
 	// 获取锁
-	if dao.Redis.GetLock(ctx, lockKey, timeout) {
+	if dao.Redis.GetLock(ctx, CheckRebaseLockKey, timeout) {
 		// 释放锁
-		defer dao.Redis.ReleaseLock(ctx, lockKey)
+		defer dao.Redis.ReleaseLock(ctx, CheckRebaseLockKey)
 	} else {
 		// 未获取到锁
 		zap.S().Info("CronReadNextBlock locked !!!")
@@ -84,14 +82,16 @@ func CronCheckRebase() {
 		zap.S().Errorf("fetch all chain error: %#v", err)
 		return
 	}
-	// 读取区块
+	// 检查区块
 	for _, ch := range chains {
 		wg.Add(1)
 		go func(ch sqlmodel.Chain) {
 			defer wg.Done()
 			// TODO: 读取下一个区块
 			zap.S().Infow("check rebase block", "chain", ch.ChainSymbol)
-			handler.CheckRebase(ctx, &ch)
+			if ch.HasBranch == 0 { // 没有区块分叉需要更新
+				handler.CheckRebase(ctx, &ch)
+			}
 		}(ch)
 	}
 	wg.Wait()
@@ -106,12 +106,12 @@ func CronRebaseBlock() {
 		ctx     = context.TODO()
 		chainQ  = sqlmodel.ChainColumns
 		chains  []sqlmodel.Chain
-		lockKey = "cron_rebase_block"
+		wg      sync.WaitGroup
 	)
 	// 获取锁
-	if dao.Redis.GetLock(ctx, lockKey, timeout) {
+	if dao.Redis.GetLock(ctx, RebaseBlockLockKey, timeout) {
 		// 结束后释放锁
-		defer dao.Redis.ReleaseLock(ctx, lockKey)
+		defer dao.Redis.ReleaseLock(ctx, RebaseBlockLockKey)
 	} else {
 		return
 	}
@@ -123,10 +123,14 @@ func CronRebaseBlock() {
 	}
 	for _, ch := range chains {
 		// TODO: 更新区块
-		if ch.HasBranch > 0 { // 有区块分叉需要更新
-			zap.S().Infow("read block", "chain", ch.ChainSymbol)
-			handler.RebaseBlock(ctx, &ch)
-		}
+		wg.Add(1)
+		go func(ch sqlmodel.Chain) {
+			defer wg.Done()
+			zap.S().Infow("rebase block", "chain", ch.ChainSymbol)
+			if ch.HasBranch > 0 { // 有区块分叉需要更新
+				handler.RebaseBlock(ctx, &ch)
+			}
+		}(ch)
 	}
 }
 
@@ -139,14 +143,13 @@ func CronCheckBlock() {
 		ctx     = context.Background()
 		chainQ  = sqlmodel.ChainColumns
 		chains  []sqlmodel.Chain
-		lockKey = "cron_check_block"
 		wg      sync.WaitGroup
 	)
 
 	// 获取锁
-	if dao.Redis.GetLock(ctx, lockKey, timeout) {
+	if dao.Redis.GetLock(ctx, CheckBlockLockKey, timeout) {
 		// 释放锁
-		defer dao.Redis.ReleaseLock(ctx, lockKey)
+		defer dao.Redis.ReleaseLock(ctx, CheckBlockLockKey)
 	} else {
 		// 未获取到锁
 		zap.S().Info("CronCheckBlock locked !!!")

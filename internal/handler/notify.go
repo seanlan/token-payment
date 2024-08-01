@@ -106,7 +106,7 @@ func NotifyTransaction(ctx context.Context, tx *sqlmodel.ChainTx) (err error) {
 	if notifyErr != nil {
 		success = false
 	}
-	if success {
+	if success || tx.NotifyFailedTimes >= 10 {
 		tx.NotifySuccess = 1
 	} else {
 		tx.NotifyFailedTimes++

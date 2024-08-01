@@ -20,8 +20,8 @@ func init() {
 	var err error
 	// 初始化随机种子
 	rand.Seed(time.Now().Unix())
-	// 初始化时区 设置时区为中国时区
-	local, err := time.LoadLocation("Asia/Shanghai")
+	// 初始化时区 设置时区为UTC
+	local, err := time.LoadLocation("UTC")
 	if err != nil {
 		panic(err)
 	}

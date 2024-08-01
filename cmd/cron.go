@@ -22,6 +22,7 @@ func (*CronZapLogger) Error(err error, msg string, keysAndValues ...interface{})
 }
 
 func cronFunc(cmd *cobra.Command, args []string) {
+	crontab.ClearRedisLock(cmd.Context())
 	var err error
 	c := cron.New(cron.WithLogger(&CronZapLogger{}), cron.WithChain(cron.Recover(&CronZapLogger{})))
 	// 索引新的区块(优先生成交易高度，并做好排序） 方便后面可以并发的读取区块

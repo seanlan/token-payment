@@ -176,7 +176,7 @@ func CheckRebase(ctx context.Context, ch *sqlmodel.Chain) {
 func RebaseBlock(ctx context.Context, ch *sqlmodel.Chain) {
 	var (
 		rebaseChainBlock sqlmodel.ChainBlock
-		lastChainBlock   sqlmodel.ChainBlock
+		nextChainBlock   sqlmodel.ChainBlock
 		blockQ           = sqlmodel.ChainBlockColumns
 	)
 	// 获取rebase的区块
@@ -185,19 +185,19 @@ func RebaseBlock(ctx context.Context, ch *sqlmodel.Chain) {
 			blockQ.ChainSymbol.Eq(ch.ChainSymbol),
 			blockQ.BlockNumber.Eq(ch.RebaseBlock),
 		))
-	if err != nil {
+	if err != nil && !errors.Is(err, dao.ErrNotFound) {
 		return
 	}
 	// 获取下一个区块
-	err = dao.FetchChainBlock(ctx, &lastChainBlock,
+	err = dao.FetchChainBlock(ctx, &nextChainBlock,
 		dao.And(
 			blockQ.ChainSymbol.Eq(ch.ChainSymbol),
-			blockQ.BlockNumber.Eq(ch.RebaseBlock-1),
+			blockQ.BlockNumber.Eq(ch.RebaseBlock+1),
 		))
 	if err != nil && !errors.Is(err, dao.ErrNotFound) { // 发生查询错误
 		return
 	}
-	if lastChainBlock.BlockHash == "" || rebaseChainBlock.ParentHash == lastChainBlock.BlockHash { // 没有发生rebase
+	if rebaseChainBlock.ID == 0 || rebaseChainBlock.BlockHash == nextChainBlock.ParentHash { // 没有发生rebase
 		ch.HasBranch = 0
 		_, err = dao.UpdateChain(ctx, ch)
 		if err != nil {

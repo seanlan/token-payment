@@ -7,7 +7,7 @@ web:
   secret: "token-payment"
 #db配置
 db:
-  uri: mysql://root:q145145145@tcp(127.0.0.1:3306)/tokenpay?parseTime=true&loc=Local&charset=utf8mb4&collation=utf8mb4_unicode_ci
+  uri: mysql://xxxx:xxxx@tcp(127.0.0.1:3306)/tokenpay?parseTime=true&loc=Local&charset=utf8mb4&collation=utf8mb4_unicode_ci
 #redis配置
 redis:
   hosts: "127.0.0.1:6379"

@@ -16,14 +16,13 @@ func CronCheckAddressPool() {
 		ctx     = context.Background()
 		chainQ  = sqlmodel.ChainColumns
 		chains  []sqlmodel.Chain
-		lockKey = "cron_check_address_pool"
 		wg      sync.WaitGroup
 	)
 
 	// 获取锁
-	if dao.Redis.GetLock(ctx, lockKey, timeout) {
+	if dao.Redis.GetLock(ctx, CheckAddressPoolLockKey, timeout) {
 		// 释放锁
-		defer dao.Redis.ReleaseLock(ctx, lockKey)
+		defer dao.Redis.ReleaseLock(ctx, CheckAddressPoolLockKey)
 	} else {
 		// 未获取到锁
 		zap.S().Info("CronCheckAddressPool locked !!!")

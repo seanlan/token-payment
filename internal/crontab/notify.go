@@ -23,13 +23,12 @@ func CronTransactionNotify() {
 		ctx     = context.Background()
 		txQ     = sqlmodel.ChainTxColumns
 		txs     []sqlmodel.ChainTx
-		lockKey = "cron_transaction_notify"
 		wg      sync.WaitGroup
 	)
 	// 获取锁
-	if dao.Redis.GetLock(ctx, lockKey, timeout) {
+	if dao.Redis.GetLock(ctx, NotifyLockKey, timeout) {
 		// 释放锁
-		defer dao.Redis.ReleaseLock(ctx, lockKey)
+		defer dao.Redis.ReleaseLock(ctx, NotifyLockKey)
 	} else {
 		// 未获取到锁
 		zap.S().Info("CronReadNextBlock locked !!!")

@@ -16,13 +16,12 @@ func CronGenerateTransactions() {
 		ctx     = context.Background()
 		chainQ  = sqlmodel.ChainColumns
 		chains  []sqlmodel.Chain
-		lockKey = "cron_generate_transactions"
 		wg      sync.WaitGroup
 	)
 	// 获取锁
-	if dao.Redis.GetLock(ctx, lockKey, timeout) {
+	if dao.Redis.GetLock(ctx, GenerateLockKey, timeout) {
 		// 释放锁
-		defer dao.Redis.ReleaseLock(ctx, lockKey)
+		defer dao.Redis.ReleaseLock(ctx, GenerateLockKey)
 	} else {
 		// 未获取到锁
 		zap.S().Info("CronGenerateTransactions locked !!!")
@@ -51,13 +50,12 @@ func CronSendTransactions() {
 		ctx     = context.Background()
 		chainQ  = sqlmodel.ChainColumns
 		chains  []sqlmodel.Chain
-		lockKey = "cron_send_transactions"
 		wg      sync.WaitGroup
 	)
 	// 获取锁
-	if dao.Redis.GetLock(ctx, lockKey, timeout) {
+	if dao.Redis.GetLock(ctx, SendLockKey, timeout) {
 		// 释放锁
-		defer dao.Redis.ReleaseLock(ctx, lockKey)
+		defer dao.Redis.ReleaseLock(ctx, SendLockKey)
 	} else {
 		// 未获取到锁
 		zap.S().Info("CronSendTransactions locked !!!")
