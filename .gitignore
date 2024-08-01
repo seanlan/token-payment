@@ -18,6 +18,7 @@ ssl/
 go.sum
 main
 conf.yaml
+*.log
 
 # Vue gitignore
 node_modules/
