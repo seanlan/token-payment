@@ -19,18 +19,7 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		//crontab.CronGenerateTransactions()
-		crontab.CronSendTransactions()
-		//toAddress := common.HexToAddress("0x0d49ea539217d011faec8c48ec864941aab1cf17")
-		//tx := types.NewTx(&types.LegacyTx{
-		//	Nonce:    1,
-		//	To:       &toAddress,
-		//	Value:    big.NewInt(100),
-		//	Gas:      20000,
-		//	GasPrice: big.NewInt(100),
-		//	Data:     nil,
-		//})
-		//zap.S().Infof("tx hash: %s", tx.Hash().String())
+		crontab.CronCheckBlock()
 	},
 }
 

@@ -139,7 +139,10 @@ func CheckRebase(ctx context.Context, ch *sqlmodel.Chain) {
 	)
 	// 获取需要检查的区块
 	err = dao.FetchAllChainBlock(ctx, &chainBlocks,
-		dao.And(blockQ.Checked.Eq(1), blockQ.ChainSymbol.Eq(ch.ChainSymbol), blockQ.BlockNumber.Gte(ch.RebaseBlock)),
+		dao.And(
+			blockQ.Checked.Eq(1),
+			blockQ.ChainSymbol.Eq(ch.ChainSymbol),
+			blockQ.BlockNumber.Gte(ch.RebaseBlock)),
 		0, int(ch.Concurrent)*2, blockQ.BlockNumber.Asc())
 	if err != nil || len(chainBlocks) == 0 {
 		return
@@ -248,9 +251,11 @@ func CheckBlocks(ctx context.Context, ch *sqlmodel.Chain) {
 	for _, block := range blocks {
 		wg.Add(1)
 		go func(b sqlmodel.ChainBlock) {
+			defer wg.Done()
 			_ = CheckChainBlock(ctx, ch, &b)
 		}(block)
 	}
+	wg.Wait()
 }
 
 // CheckChainBlock
@@ -271,7 +276,7 @@ func CheckChainBlock(ctx context.Context, ch *sqlmodel.Chain, block *sqlmodel.Ch
 	if err != nil {
 		return
 	}
-	_ = dao.GetDB(ctx).Transaction(func(tx *gorm.DB) (txErr error) {
+	err = dao.GetDB(ctx).Transaction(func(tx *gorm.DB) (txErr error) {
 		c := dao.CtxWithTransaction(ctx, tx)
 		txErr = CheckTransactions(c, ch, chainBlock.Transactions)
 		if txErr != nil {

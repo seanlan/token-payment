@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	"errors"
 	"math"
 	"strings"
 	"sync"
@@ -160,6 +161,9 @@ func CheckWithdrawTransaction(ctx context.Context, ch *sqlmodel.Chain, tx *chain
 		orderQ.TxHash.Eq(tx.Hash),
 	))
 	if err != nil {
+		if errors.Is(err, dao.ErrNotFound) {
+			return nil
+		}
 		return
 	}
 	if order.ID == 0 {
@@ -170,6 +174,9 @@ func CheckWithdrawTransaction(ctx context.Context, ch *sqlmodel.Chain, tx *chain
 		appChainQ.ApplicationID.Eq(order.ApplicationID),
 	))
 	if err != nil {
+		if errors.Is(err, dao.ErrNotFound) {
+			return nil
+		}
 		return
 	}
 	for _, bill := range tx.Bills {

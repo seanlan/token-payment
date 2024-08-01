@@ -9,6 +9,7 @@ type NotifyTx struct {
 	ContractAddress string  `json:"contract_address"`
 	Symbol          string  `json:"symbol"`
 	Decimals        int32   `json:"decimals"`
+	TokenID         int64   `json:"token_id"`
 	Value           float64 `json:"value"`
 	TxIndex         int64   `json:"tx_index"`
 	BatchIndex      int64   `json:"batch_index"`

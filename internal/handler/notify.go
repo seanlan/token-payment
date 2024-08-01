@@ -91,6 +91,7 @@ func NotifyTransaction(ctx context.Context, tx *sqlmodel.ChainTx) (err error) {
 		ContractAddress: tx.ContractAddress,
 		Symbol:          tx.Symbol,
 		Decimals:        token.Decimals,
+		TokenID:         tx.TokenID,
 		Value:           tx.Value,
 		TxIndex:         tx.TxIndex,
 		BatchIndex:      tx.BatchIndex,
