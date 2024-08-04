@@ -201,7 +201,7 @@ func CheckWithdrawTransaction(ctx context.Context, ch *sqlmodel.Chain, tx *chain
 				TokenID:         nftTokenID,
 				TxIndex:         int64(bill.Index),
 				BatchIndex:      int64(bill.BatchIndex),
-				TransferType:    int32(types.TransferTypeIn),
+				TransferType:    int32(types.TransferTypeOut),
 				CreateAt:        tx.Time.Unix(),
 			}
 			bills = append(bills, chainTx)
