@@ -5,8 +5,7 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
-	"go.uber.org/zap"
-	"token-payment/internal/tokenpay"
+	"token-payment/internal/crontab"
 )
 
 // testCmd represents the test command
@@ -20,24 +19,25 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		sdk := tokenpay.NewClient(
-			"f4399f851e984405aa1eba51ecbce790",
-			"f4399f851e984405aa1eba51ecbce790",
-			"http://127.0.0.1:8080")
-		resp, err := sdk.Withdraw(tokenpay.WithdrawReqData{
-			Chain:           "amoy",
-			SerialNo:        "0b2695c3-a487-4102-8a9a-75b2562c660b",
-			Symbol:          "usdt",
-			ContractAddress: "",
-			TokenID:         0,
-			Value:           "145",
-			ToAddress:       "0x018b80D73C26C6882B80F134449D0D2D92d1B737",
-			NotifyUrl:       "",
-		})
-		if err != nil {
-			zap.S().Infof("err: %v", err)
-		}
-		zap.S().Infof("resp: %v", resp)
+		//sdk := tokenpay.NewClient(
+		//	"f4399f851e984405aa1eba51ecbce790",
+		//	"f4399f851e984405aa1eba51ecbce790",
+		//	"http://127.0.0.1:8080")
+		//resp, err := sdk.Withdraw(tokenpay.WithdrawReqData{
+		//	Chain:           "amoy",
+		//	SerialNo:        "0b2695c3-a487-4102-8a9a-75b2562c660b",
+		//	Symbol:          "usdt",
+		//	ContractAddress: "",
+		//	TokenID:         0,
+		//	Value:           "145",
+		//	ToAddress:       "0x018b80D73C26C6882B80F134449D0D2D92d1B737",
+		//	NotifyUrl:       "",
+		//})
+		//if err != nil {
+		//	zap.S().Infof("err: %v", err)
+		//}
+		//zap.S().Infof("resp: %v", resp)
+		crontab.CronCheckArrangeTransactions()
 	},
 }
 

@@ -35,6 +35,8 @@ var ChainTokenColumns = struct {
 	Symbol          FieldBase
 	Decimals        FieldBase
 	Threshold       FieldBase
+	GasFee          FieldBase
+	ArrangeSwitch   FieldBase
 }{
 	ID:              FieldBase{"id", "id"},
 	ChainSymbol:     FieldBase{"chain_symbol", "chain_symbol"},
@@ -43,6 +45,8 @@ var ChainTokenColumns = struct {
 	Symbol:          FieldBase{"symbol", "symbol"},
 	Decimals:        FieldBase{"decimals", "decimals"},
 	Threshold:       FieldBase{"threshold", "threshold"},
+	GasFee:          FieldBase{"gas_fee", "gas_fee"},
+	ArrangeSwitch:   FieldBase{"arrange_switch", "arrange_switch"},
 }
 
 type ChainToken struct {
@@ -52,7 +56,9 @@ type ChainToken struct {
 	Name            string  `json:"name" gorm:"column:name;type:varchar;not null"`                         //币种名称
 	Symbol          string  `json:"symbol" gorm:"column:symbol;type:varchar;not null"`                     //币种符号
 	Decimals        int32   `json:"decimals" gorm:"column:decimals;type:int;not null"`                     //小数位
-	Threshold       float64 `json:"threshold" gorm:"column:threshold;type:decimal;not null"`               //
+	Threshold       float64 `json:"threshold" gorm:"column:threshold;type:decimal;not null"`               //零钱整理阀值
+	GasFee          float64 `json:"gas_fee" gorm:"column:gas_fee;type:decimal;not null"`                   //Gas费用
+	ArrangeSwitch   int32   `json:"arrange_switch" gorm:"column:arrange_switch;type:tinyint;not null"`     //零钱整理开关
 }
 
 // TableName ChainToken's table name

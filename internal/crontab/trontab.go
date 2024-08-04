@@ -14,6 +14,7 @@ const (
 	GenerateLockKey         = "cron_generate_transactions"
 	SendLockKey             = "cron_send_transactions"
 	CheckAddressPoolLockKey = "cron_check_address_pool"
+	CheckArrangeTxLockKey   = "cron_check_arrange_tx"
 )
 
 func ClearRedisLock(ctx context.Context) {
