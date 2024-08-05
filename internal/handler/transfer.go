@@ -15,59 +15,6 @@ import (
 	"token-payment/internal/utils"
 )
 
-// GenerateTransactions
-//
-//	@Description:
-//	@param ctx
-//	@param ch
-func GenerateTransactions(ctx context.Context, ch *sqlmodel.Chain) {
-	var (
-		orderQ      = sqlmodel.ApplicationWithdrawOrderColumns
-		orders      = make([]sqlmodel.ApplicationWithdrawOrder, 0)
-		appIDs      = make([]int64, 0)
-		appChainQ   = sqlmodel.ApplicationChainColumns
-		appChains   = make([]sqlmodel.ApplicationChain, 0)
-		appChainMap = make(map[int64]sqlmodel.ApplicationChain)
-	)
-	err := dao.FetchAllApplicationWithdrawOrder(ctx, &orders, dao.And(
-		orderQ.ChainSymbol.Eq(ch.ChainSymbol),
-		orderQ.Generated.Eq(0), // 未生成交易
-	), 0, int(ch.Concurrent))
-	if len(orders) == 0 {
-		return
-	}
-	for _, order := range orders {
-		appIDs = append(appIDs, order.ApplicationID)
-	}
-	if len(appIDs) == 0 {
-		return
-	}
-	err = dao.FetchAllApplicationChain(ctx, &appChains, dao.And(
-		appChainQ.ChainSymbol.Eq(ch.ChainSymbol),
-		appChainQ.ApplicationID.In(appIDs),
-	), 0, 0)
-	if err != nil {
-		return
-	}
-	for _, appChain := range appChains {
-		appChainMap[appChain.ApplicationID] = appChain
-		err = LoadTransferNonce(ctx, ch, &appChain)
-		if err != nil {
-			return
-		}
-	}
-	if err != nil {
-		return
-	}
-	for _, order := range orders {
-		appChain, ok := appChainMap[order.ApplicationID]
-		if !ok {
-			continue
-		}
-		_ = GenerateTransaction(ctx, ch, &order, &appChain)
-	}
-}
-
 // LoadTransferNonce
 //
 //	@Description: 加载转账nonce
@@ -110,6 +57,105 @@ func LoadTransferNonce(ctx context.Context, ch *sqlmodel.Chain, appChain *sqlmod
 	}
 	err = dao.Redis.Set(ctx, nonceCacheKey, newNonce, time.Minute*30).Err() // 30分钟过期
 	return
+}
+
+// GenerateTransactions
+//
+//	@Description: 生成交易
+//	@param ctx
+//	@param ch
+func GenerateTransactions(ctx context.Context, ch *sqlmodel.Chain) {
+	var (
+		appChainQ = sqlmodel.ApplicationChainColumns
+		appChains = make([]sqlmodel.ApplicationChain, 0)
+		err       error
+	)
+	err = dao.FetchAllApplicationChain(ctx, &appChains, dao.And(
+		appChainQ.ChainSymbol.Eq(ch.ChainSymbol),
+	), 0, 0)
+	if err != nil {
+		return
+	}
+	for _, appChain := range appChains {
+		err = LoadTransferNonce(ctx, ch, &appChain)
+		if err != nil {
+			continue
+		}
+		GenerateAppChainTransactions(ctx, ch, &appChain)
+	}
+}
+
+// GenerateAppChainTransactions
+//
+//	@Description: 按照指定链，指定应用链生成交易
+//	@param ctx
+//	@param ch
+//	@param appChain
+func GenerateAppChainTransactions(ctx context.Context, ch *sqlmodel.Chain, appChain *sqlmodel.ApplicationChain) {
+	var (
+		orderQ          = sqlmodel.ApplicationWithdrawOrderColumns
+		orders          = make([]sqlmodel.ApplicationWithdrawOrder, 0)
+		tokenQ          = sqlmodel.ChainTokenColumns
+		tokenContracts  = make([]string, 0)
+		tokens          = make([]sqlmodel.ChainToken, 0)
+		tokenMap        = make(map[string]sqlmodel.ChainToken)
+		tokenConsumeMap = make(map[string]float64)
+		balanceEnough   = true
+	)
+	err := dao.FetchAllApplicationWithdrawOrder(ctx, &orders, dao.And(
+		orderQ.ChainSymbol.Eq(ch.ChainSymbol),
+		orderQ.ApplicationID.Eq(appChain.ApplicationID),
+		orderQ.Generated.Eq(0), // 未生成交易
+	), 0, 0, orderQ.ID.Asc())
+	if err != nil || len(orders) == 0 {
+		return
+	}
+	for _, order := range orders {
+		tokenContracts = append(tokenContracts, order.ContractAddress)
+	}
+	err = dao.FetchAllChainToken(ctx, &tokens, dao.And(
+		tokenQ.ChainSymbol.Eq(ch.ChainSymbol),
+		tokenQ.ContractAddress.In(tokenContracts),
+	), 0, 0)
+	if err != nil || len(tokens) == 0 {
+		return
+	}
+	for _, token := range tokens {
+		tokenMap[token.ContractAddress] = token
+	}
+	// 计算每个合约的消耗
+	for _, order := range orders {
+		token, ok := tokenMap[order.ContractAddress]
+		if !ok {
+			continue
+		}
+		tokenConsumeMap[order.ContractAddress] += order.Value * math.Pow10(int(token.Decimals))
+		tokenConsumeMap[""] += float64(ch.GasPrice) * token.GasFee
+	}
+	// 查询热钱包余额
+	client, err := GetChainRpcClient(ctx, ch)
+	if err != nil {
+		return
+	}
+	for contract, consume := range tokenConsumeMap {
+		balance, _err := client.GetBalance(ctx, appChain.HotWallet, contract)
+		if _err != nil {
+			return
+		}
+		_consume := big.NewInt(int64(consume))
+		zap.S().Infof("balance: %s, consume: %s", balance.String(), _consume.String())
+		if balance.Cmp(_consume) < 0 { // 余额不足
+			zap.S().Warnf("balance not enough, hotWallet: %s, contract: %s, balance: %s, consume: %s",
+				appChain.HotWallet, contract, balance.String(), _consume.String())
+			balanceEnough = false
+			continue
+		}
+	}
+	if balanceEnough {
+		for _, order := range orders {
+			_ = GenerateTransaction(ctx, ch, &order, appChain)
+		}
+	}
 }
 
 // GenerateTransaction

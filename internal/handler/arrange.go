@@ -18,6 +18,11 @@ type AddressArrange struct {
 	Amount        float64 `json:"amount"`
 }
 
+// CheckArrangeTransactions
+//
+//	@Description: 检查需要整理的交易
+//	@param ctx
+//	@param ch
 func CheckArrangeTransactions(ctx context.Context, ch *sqlmodel.Chain) {
 	var (
 		tokenQ = sqlmodel.ChainTokenColumns
@@ -42,6 +47,12 @@ func CheckArrangeTransactions(ctx context.Context, ch *sqlmodel.Chain) {
 	return
 }
 
+// CheckArrangeTransaction
+//
+//	@Description: 检查整理交易
+//	@param ctx
+//	@param ch
+//	@param token
 func CheckArrangeTransaction(ctx context.Context, ch *sqlmodel.Chain, token *sqlmodel.ChainToken) {
 	var (
 		txQ         = sqlmodel.ChainTxColumns
@@ -76,6 +87,13 @@ func CheckArrangeTransaction(ctx context.Context, ch *sqlmodel.Chain, token *sql
 	wg.Wait()
 }
 
+// GenerateArrangeTransaction
+//
+//	@Description: 生成整理交易
+//	@param ctx
+//	@param ch
+//	@param token
+//	@param arrange
 func GenerateArrangeTransaction(ctx context.Context, ch *sqlmodel.Chain, token *sqlmodel.ChainToken, arrange *AddressArrange) {
 	var (
 		txQ     = sqlmodel.ChainTxColumns

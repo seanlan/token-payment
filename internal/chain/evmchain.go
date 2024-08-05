@@ -356,6 +356,49 @@ func (e *EvmChain) GetBlock(ctx context.Context, number int64) (block *Block, er
 	return block, nil
 }
 
+func (e *EvmChain) GetBalance(ctx context.Context, address, contract string) (*big.Int, error) {
+	rpcUrl, err := e.selectRpc(ctx)
+	if err != nil {
+		return nil, err
+	}
+	client, err := ethclient.Dial(rpcUrl)
+	if err != nil {
+		e.equalizer.Skip(ctx, rpcUrl)
+		return nil, err
+	}
+	if len(contract) > 0 {
+		erc20Abi, _err := abi.JSON(strings.NewReader(EVMErc20ABI))
+		if _err != nil {
+			return nil, _err
+		}
+		targetAddress := common.HexToAddress(address)
+		data, _err := erc20Abi.Pack("balanceOf", targetAddress)
+		if _err != nil {
+			return nil, _err
+		}
+		// 构造调用参数
+		contractAddress := common.HexToAddress(contract)
+		callMsg := ethereum.CallMsg{
+			To:   &contractAddress,
+			Data: data,
+		}
+		// 进行调用
+		result, _err := client.CallContract(context.Background(), callMsg, nil)
+		if err != nil {
+			return nil, _err
+		}
+		// 解析返回的结果
+		var balance *big.Int
+		err = erc20Abi.UnpackIntoInterface(&balance, "balanceOf", result)
+		if err != nil {
+			return nil, err
+		}
+		return balance, nil
+	} else {
+		return client.PendingBalanceAt(ctx, common.HexToAddress(address))
+	}
+}
+
 // GenerateAddress
 //
 //	@Description: 生成一个新的地址
@@ -516,5 +559,5 @@ func (e *EvmChain) Transfer(ctx context.Context, order *TransferOrder) (string, 
 		return "", err
 	}
 	zap.S().Infof("send tx hash: %s", signedTx.Hash().String())
-	return signedTx.Hash().String(), nil
+	return signedTx.Hash().String(), err
 }

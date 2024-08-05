@@ -79,11 +79,12 @@ type TransferOrder struct {
 }
 
 type BaseChain interface {
-	GetLatestBlockNumber(ctx context.Context) (int64, error)               // 获取最新区块
-	GetBlock(ctx context.Context, number int64) (*Block, error)            // 获取区块
-	GetTransaction(ctx context.Context, hash string) (*Transaction, error) // 获取交易
-	GenerateAddress(ctx context.Context) (string, string, error)           // 生成地址
-	GetNonce(ctx context.Context, address string) (uint64, error)          // 获取nonce
-	GenerateTransaction(ctx context.Context, order *TransferOrder) error   // 生成交易订单
-	Transfer(ctx context.Context, order *TransferOrder) (string, error)    // 转账
+	GetLatestBlockNumber(ctx context.Context) (int64, error)                    // 获取最新区块
+	GetBlock(ctx context.Context, number int64) (*Block, error)                 // 获取区块
+	GetTransaction(ctx context.Context, hash string) (*Transaction, error)      // 获取交易
+	GetBalance(ctx context.Context, address, contract string) (*big.Int, error) // 获取余额
+	GenerateAddress(ctx context.Context) (string, string, error)                // 生成地址
+	GetNonce(ctx context.Context, address string) (uint64, error)               // 获取nonce
+	GenerateTransaction(ctx context.Context, order *TransferOrder) error        // 生成交易订单
+	Transfer(ctx context.Context, order *TransferOrder) (string, error)         // 转账
 }

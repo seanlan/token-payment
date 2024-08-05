@@ -59,6 +59,7 @@ func GetChainRpcClient(ctx context.Context, ch *sqlmodel.Chain) (client chain.Ba
 //	@param ch
 func ReadNextBlock(ctx context.Context, ch *sqlmodel.Chain) {
 	var (
+		chainQ    = sqlmodel.ChainColumns
 		blockQ    = sqlmodel.ChainBlockColumns
 		unChecked int64
 		err       error
@@ -99,10 +100,10 @@ func ReadNextBlock(ctx context.Context, ch *sqlmodel.Chain) {
 	} else {
 		lastBlockNum = ch.LatestBlock
 	}
-	//if latestChainBlockNum-lastBlockNum < int64(ch.Concurrent) {
-	//	// 区块不足
-	//	return
-	//}
+	if latestChainBlockNum == lastBlockNum {
+		// 没有新的区
+		return
+	}
 	// 并发读取区块
 	for i := 0; i < int(latestChainBlockNum-lastBlockNum); i++ {
 		lastBlockNum++
@@ -110,6 +111,9 @@ func ReadNextBlock(ctx context.Context, ch *sqlmodel.Chain) {
 			ChainSymbol: ch.ChainSymbol,
 			BlockNumber: lastBlockNum,
 		})
+	}
+	if len(chainBlocks) == 0 { // 没有新的区块
+		return
 	}
 	// 存储区块
 	err = dao.GetDB(ctx).Transaction(func(tx *gorm.DB) (txErr error) {
@@ -119,8 +123,9 @@ func ReadNextBlock(ctx context.Context, ch *sqlmodel.Chain) {
 			return
 		}
 		// 更新链的最新区块
-		ch.LatestBlock = lastBlockNum
-		_, txErr = dao.UpdateChain(c, ch)
+		_, txErr = dao.UpdatesChain(c,
+			dao.And(chainQ.ChainSymbol.Eq(ch.ChainSymbol)),
+			dao.M{chainQ.LatestBlock.Name: lastBlockNum})
 		return
 	})
 	return
@@ -135,6 +140,7 @@ func CheckRebase(ctx context.Context, ch *sqlmodel.Chain) {
 	var (
 		chainBlocks []sqlmodel.ChainBlock
 		blockQ      = sqlmodel.ChainBlockColumns
+		chainQ      = sqlmodel.ChainColumns
 		err         error
 	)
 	// 获取需要检查的区块
@@ -160,7 +166,8 @@ func CheckRebase(ctx context.Context, ch *sqlmodel.Chain) {
 			break
 		}
 	}
-	_, err = dao.UpdateChain(ctx, ch)
+	_, err = dao.UpdatesChain(ctx, dao.And(chainQ.ChainSymbol.Eq(ch.ChainSymbol)),
+		dao.M{chainQ.HasBranch.Name: ch.HasBranch, chainQ.RebaseBlock.Name: ch.RebaseBlock})
 	if err != nil {
 		zap.S().Errorw("update chain error", "chain", ch.ChainSymbol, "error", err)
 		return
@@ -177,6 +184,7 @@ func RebaseBlock(ctx context.Context, ch *sqlmodel.Chain) {
 	var (
 		rebaseChainBlock sqlmodel.ChainBlock
 		nextChainBlock   sqlmodel.ChainBlock
+		chainQ           = sqlmodel.ChainColumns
 		blockQ           = sqlmodel.ChainBlockColumns
 	)
 	// 获取rebase的区块
@@ -198,8 +206,11 @@ func RebaseBlock(ctx context.Context, ch *sqlmodel.Chain) {
 		return
 	}
 	if rebaseChainBlock.ID == 0 || rebaseChainBlock.BlockHash == nextChainBlock.ParentHash { // 没有发生rebase
-		ch.HasBranch = 0
-		_, err = dao.UpdateChain(ctx, ch)
+		_, err = dao.UpdatesChain(ctx,
+			dao.And(chainQ.ChainSymbol.Eq(ch.ChainSymbol)),
+			dao.M{
+				chainQ.HasBranch.Name: 0,
+			})
 		if err != nil {
 			zap.S().Errorw("save chain error", "chain", ch.ChainSymbol, "error", err)
 			return
@@ -213,8 +224,11 @@ func RebaseBlock(ctx context.Context, ch *sqlmodel.Chain) {
 				return
 			}
 			// 更新链的最新区块
-			ch.RebaseBlock = rebaseChainBlock.BlockNumber - 1 // 重新设置
-			_, txErr = dao.UpdateChain(c, ch)
+			_, err = dao.UpdatesChain(c,
+				dao.And(chainQ.ChainSymbol.Eq(ch.ChainSymbol)),
+				dao.M{
+					chainQ.RebaseBlock.Name: rebaseChainBlock.BlockNumber - 1,
+				})
 			if txErr != nil {
 				zap.S().Errorw("update chain error", "chain", ch.ChainSymbol, "error", txErr)
 				return
