@@ -27,7 +27,7 @@ func CheckTransactions(ctx context.Context, ch *sqlmodel.Chain, txs []*chain.Tra
 		if err != nil {
 			return
 		}
-		err = CheckWithdrawTransaction(ctx, ch, tx) // 检查提现交易
+		err = CheckSendTxTransaction(ctx, ch, tx) // 检查转账交易
 		if err != nil {
 			return
 		}
@@ -140,25 +140,25 @@ func CheckRechargeTransaction(ctx context.Context, ch *sqlmodel.Chain, tx *chain
 	return
 }
 
-// CheckWithdrawTransaction
+// CheckSendTxTransaction
 //
-//	@Description: 检查提现交易
+//	@Description: 检查转账交易
 //	@param ctx
 //	@param ch
 //	@param tx
 //	@return err
-func CheckWithdrawTransaction(ctx context.Context, ch *sqlmodel.Chain, tx *chain.Transaction) (err error) {
+func CheckSendTxTransaction(ctx context.Context, ch *sqlmodel.Chain, tx *chain.Transaction) (err error) {
 	// TODO: 检查提现交易
 	var (
-		orderQ    = sqlmodel.ApplicationWithdrawOrderColumns
-		order     sqlmodel.ApplicationWithdrawOrder
-		appChainQ = sqlmodel.ApplicationChainColumns
-		appChain  sqlmodel.ApplicationChain
-		bills     = make([]sqlmodel.ChainTx, 0)
+		sendTxQ = sqlmodel.ChainSendTxColumns
+		sendTx  sqlmodel.ChainSendTx
+		//appChainQ = sqlmodel.ApplicationChainColumns
+		//appChain  sqlmodel.ApplicationChain
+		bills = make([]sqlmodel.ChainTx, 0)
 	)
-	err = dao.FetchApplicationWithdrawOrder(ctx, &order, dao.And(
-		orderQ.ChainSymbol.Eq(ch.ChainSymbol),
-		orderQ.TxHash.Eq(tx.Hash),
+	err = dao.FetchChainSendTx(ctx, &sendTx, dao.And(
+		sendTxQ.ChainSymbol.Eq(ch.ChainSymbol),
+		sendTxQ.TxHash.Eq(tx.Hash),
 	))
 	if err != nil {
 		if errors.Is(err, dao.ErrNotFound) {
@@ -166,29 +166,19 @@ func CheckWithdrawTransaction(ctx context.Context, ch *sqlmodel.Chain, tx *chain
 		}
 		return
 	}
-	if order.ID == 0 {
-		return
-	}
-	err = dao.FetchApplicationChain(ctx, &appChain, dao.And(
-		appChainQ.ChainSymbol.Eq(ch.ChainSymbol),
-		appChainQ.ApplicationID.Eq(order.ApplicationID),
-	))
-	if err != nil {
-		if errors.Is(err, dao.ErrNotFound) {
-			return nil
-		}
+	if sendTx.ID == 0 {
 		return
 	}
 	for _, bill := range tx.Bills {
-		if bill.ContractAddress == order.ContractAddress && // 合约地址相同
-			strings.ToLower(bill.To) == strings.ToLower(order.ToAddress) && // 提现地址相同
-			strings.ToLower(bill.From) == strings.ToLower(appChain.HotWallet) { // 发送地址是热钱包
+		if bill.ContractAddress == sendTx.ContractAddress && // 合约地址相同
+			strings.ToLower(bill.To) == strings.ToLower(sendTx.ToAddress) && // 提现地址相同
+			strings.ToLower(bill.From) == strings.ToLower(sendTx.FromAddress) { // 发送地址是热钱包
 			var nftTokenID int64
 			if bill.TokenID != nil {
 				nftTokenID = bill.TokenID.Int64()
 			}
 			chainTx := sqlmodel.ChainTx{
-				ApplicationID:   order.ApplicationID,
+				ApplicationID:   sendTx.ApplicationID,
 				ChainSymbol:     ch.ChainSymbol,
 				BlockNumber:     tx.BlockNumber,
 				BlockHash:       tx.BlockHash,
@@ -196,8 +186,8 @@ func CheckWithdrawTransaction(ctx context.Context, ch *sqlmodel.Chain, tx *chain
 				FromAddress:     strings.ToLower(bill.From),
 				ToAddress:       strings.ToLower(bill.To),
 				ContractAddress: bill.ContractAddress,
-				Symbol:          order.Symbol,
-				Value:           order.Value,
+				Symbol:          sendTx.Symbol,
+				Value:           sendTx.Value,
 				TokenID:         nftTokenID,
 				TxIndex:         int64(bill.Index),
 				BatchIndex:      int64(bill.BatchIndex),
@@ -208,10 +198,10 @@ func CheckWithdrawTransaction(ctx context.Context, ch *sqlmodel.Chain, tx *chain
 		}
 	}
 	// 更新提现订单状态
-	order.TransferSuccess = 1
-	order.Received = 1
-	order.ReceiveAt = tx.Time.Unix()
-	_, err = dao.UpdateApplicationWithdrawOrder(ctx, &order)
+	sendTx.TransferSuccess = 1
+	sendTx.Received = 1
+	sendTx.ReceiveAt = tx.Time.Unix()
+	_, err = dao.UpdateChainSendTx(ctx, &sendTx)
 	if err != nil {
 		return
 	}

@@ -45,13 +45,8 @@ func cronFunc(cmd *cobra.Command, args []string) {
 	if err != nil {
 		zap.S().Fatalf("cron add func error: %#v", err)
 	}
-	// 交易通知
-	_, err = c.AddFunc("@every 1s", crontab.CronTransactionNotify)
-	if err != nil {
-		zap.S().Fatalf("cron add func error: %#v", err)
-	}
-	// 生成交易
-	_, err = c.AddFunc("@every 1s", crontab.CronGenerateTransactions)
+	// 构建提币交易
+	_, err = c.AddFunc("@every 1s", crontab.CronBuildWithdrawTransactions)
 	if err != nil {
 		zap.S().Fatalf("cron add func error: %#v", err)
 	}
@@ -60,11 +55,18 @@ func cronFunc(cmd *cobra.Command, args []string) {
 	if err != nil {
 		zap.S().Fatalf("cron add func error: %#v", err)
 	}
-	// 检查地址池 已废弃 改成同步生成地址
-	//_, err = c.AddFunc("@every 1s", crontab.CronCheckAddressPool)
-	//if err != nil {
-	//	zap.S().Fatalf("cron add func error: %#v", err)
-	//}
+	// 扫描整理交易
+	_, err = c.AddFunc("@every 1s", crontab.CronScanArrangeTransactions)
+	if err != nil {
+		zap.S().Fatalf("cron add func error: %#v", err)
+	}
+	// 检测整理交易手续费
+	_, err = c.AddFunc("@every 1s", crontab.CronCheckArrangeTxFee)
+	// 交易通知
+	_, err = c.AddFunc("@every 1s", crontab.CronTransactionNotify)
+	if err != nil {
+		zap.S().Fatalf("cron add func error: %#v", err)
+	}
 	c.Start()
 	select {}
 }

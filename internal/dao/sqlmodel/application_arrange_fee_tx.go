@@ -25,9 +25,9 @@ type Member struct {
 
 package sqlmodel
 
-const TableNameApplicationArrangeTx = "application_arrange_tx"
+const TableNameApplicationArrangeFeeTx = "application_arrange_fee_tx"
 
-var ApplicationArrangeTxColumns = struct {
+var ApplicationArrangeFeeTxColumns = struct {
 	ID                  FieldBase
 	ApplicationID       FieldBase
 	ChainSymbol         FieldBase
@@ -40,7 +40,6 @@ var ApplicationArrangeTxColumns = struct {
 	GasPrice            FieldBase
 	Nonce               FieldBase
 	TxHash              FieldBase
-	ArrangeFeeTxID      FieldBase
 	Generated           FieldBase
 	TransferSuccess     FieldBase
 	TransferFailedTimes FieldBase
@@ -60,7 +59,6 @@ var ApplicationArrangeTxColumns = struct {
 	GasPrice:            FieldBase{"gas_price", "gas_price"},
 	Nonce:               FieldBase{"nonce", "nonce"},
 	TxHash:              FieldBase{"tx_hash", "tx_hash"},
-	ArrangeFeeTxID:      FieldBase{"arrange_fee_tx_id", "arrange_fee_tx_id"},
 	Generated:           FieldBase{"generated", "generated"},
 	TransferSuccess:     FieldBase{"transfer_success", "transfer_success"},
 	TransferFailedTimes: FieldBase{"transfer_failed_times", "transfer_failed_times"},
@@ -69,21 +67,20 @@ var ApplicationArrangeTxColumns = struct {
 	ReceiveAt:           FieldBase{"receive_at", "receive_at"},
 }
 
-type ApplicationArrangeTx struct {
+type ApplicationArrangeFeeTx struct {
 	ID                  int64   `json:"id" gorm:"column:id;type:bigint;primaryKey;autoIncrement"`                    //
 	ApplicationID       int64   `json:"application_id" gorm:"column:application_id;type:bigint;not null"`            //应用ID
 	ChainSymbol         string  `json:"chain_symbol" gorm:"column:chain_symbol;type:varchar;not null"`               //链的符号
 	ContractAddress     string  `json:"contract_address" gorm:"column:contract_address;type:varchar;not null"`       //代币合约地址
 	Symbol              string  `json:"symbol" gorm:"column:symbol;type:varchar;not null"`                           //代币符号
-	FromAddress         string  `json:"from_address" gorm:"column:from_address;type:varchar;not null"`               //钱包地址
-	ToAddress           string  `json:"to_address" gorm:"column:to_address;type:varchar;not null"`                   //冷钱包地址
+	FromAddress         string  `json:"from_address" gorm:"column:from_address;type:varchar;not null"`               //费用钱包地址
+	ToAddress           string  `json:"to_address" gorm:"column:to_address;type:varchar;not null"`                   //整理钱包地址
 	TokenID             int64   `json:"token_id" gorm:"column:token_id;type:bigint;not null"`                        //tokenid （NFT）
 	Value               float64 `json:"value" gorm:"column:value;type:decimal;not null"`                             //数量
 	GasPrice            int64   `json:"gas_price" gorm:"column:gas_price;type:bigint;not null"`                      //gas费用
-	Nonce               int64   `json:"nonce" gorm:"column:nonce;type:bigint;not null"`                              //交易nonce
+	Nonce               int32   `json:"nonce" gorm:"column:nonce;type:int;not null"`                                 //交易nonce
 	TxHash              string  `json:"tx_hash" gorm:"column:tx_hash;type:varchar;not null"`                         //交易hash值
-	ArrangeFeeTxID      int64   `json:"arrange_fee_tx_id" gorm:"column:arrange_fee_tx_id;type:bigint;not null"`      //手续费转账单号
-	Generated           int32   `json:"generated" gorm:"column:generated;type:tinyint;not null"`                     //费用检测
+	Generated           int32   `json:"generated" gorm:"column:generated;type:tinyint;not null"`                     //生成交易
 	TransferSuccess     int32   `json:"transfer_success" gorm:"column:transfer_success;type:tinyint;not null"`       //是否转账成功
 	TransferFailedTimes int32   `json:"transfer_failed_times" gorm:"column:transfer_failed_times;type:int;not null"` //转账失败次数
 	TransferNextTime    int64   `json:"transfer_next_time" gorm:"column:transfer_next_time;type:bigint;not null"`    //下次转账时间
@@ -91,7 +88,7 @@ type ApplicationArrangeTx struct {
 	ReceiveAt           int64   `json:"receive_at" gorm:"column:receive_at;type:bigint;not null"`                    //到账时间
 }
 
-// TableName ApplicationArrangeTx's table name
-func (*ApplicationArrangeTx) TableName() string {
-	return TableNameApplicationArrangeTx
+// TableName ApplicationArrangeFeeTx's table name
+func (*ApplicationArrangeFeeTx) TableName() string {
+	return TableNameApplicationArrangeFeeTx
 }

@@ -24,7 +24,7 @@ func NotifyTransaction(ctx context.Context, tx *sqlmodel.ChainTx) (err error) {
 		appQ        = sqlmodel.ApplicationColumns
 		chainQ      = sqlmodel.ChainColumns
 		tokenQ      = sqlmodel.ChainTokenColumns
-		orderQ      = sqlmodel.ApplicationWithdrawOrderColumns
+		orderQ      = sqlmodel.ChainSendTxColumns
 		address     sqlmodel.ChainAddress
 		application sqlmodel.Application
 		chain       sqlmodel.Chain
@@ -43,9 +43,9 @@ func NotifyTransaction(ctx context.Context, tx *sqlmodel.ChainTx) (err error) {
 			return err
 		}
 		notifyUrl = address.Hook
-	case types.TransferTypeOut:
+	default:
 		// 提现
-		err = dao.FetchApplicationWithdrawOrder(ctx, &order, dao.And(
+		err = dao.FetchChainSendTx(ctx, &order, dao.And(
 			orderQ.ChainSymbol.Eq(tx.ChainSymbol),
 			orderQ.TxHash.Eq(tx.TxHash),
 		))
@@ -53,9 +53,6 @@ func NotifyTransaction(ctx context.Context, tx *sqlmodel.ChainTx) (err error) {
 			return err
 		}
 		notifyUrl = order.Hook
-	case types.TransferTypeFee:
-		// 手续费转账
-		notifyUrl = ""
 	}
 	if notifyUrl == "" { // 不需要通知
 		tx.NotifySuccess = 1

@@ -157,6 +157,10 @@ func CheckRebase(ctx context.Context, ch *sqlmodel.Chain) {
 		ch.RebaseBlock = chainBlocks[i-1].BlockNumber
 		block := chainBlocks[i]
 		lastBlock := chainBlocks[i-1]
+		if block.BlockNumber != lastBlock.BlockNumber+1 {
+			// 存在区块缺失
+			return
+		}
 		if block.Checked == 0 || lastBlock.Checked == 0 {
 			// 存在未检查的区块
 			return

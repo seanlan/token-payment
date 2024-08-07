@@ -10,7 +10,7 @@ import (
 	"token-payment/internal/handler"
 )
 
-func CronSendTransactions() {
+func CronBuildWithdrawTransactions() {
 	var (
 		timeout = time.Minute * 10
 		ctx     = context.Background()
@@ -19,12 +19,12 @@ func CronSendTransactions() {
 		wg      sync.WaitGroup
 	)
 	// 获取锁
-	if dao.Redis.GetLock(ctx, SendLockKey, timeout) {
+	if dao.Redis.GetLock(ctx, GenerateLockKey, timeout) {
 		// 释放锁
-		defer dao.Redis.ReleaseLock(ctx, SendLockKey)
+		defer dao.Redis.ReleaseLock(ctx, GenerateLockKey)
 	} else {
 		// 未获取到锁
-		zap.S().Info("CronSendTransactions locked !!!")
+		zap.S().Info("CronGenerateTransactions locked !!!")
 		return
 	}
 	// 获取所有的链
@@ -38,7 +38,7 @@ func CronSendTransactions() {
 		wg.Add(1)
 		go func(ch sqlmodel.Chain) {
 			defer wg.Done()
-			handler.SendTransferTransactions(ctx, &ch)
+			handler.BuildWithdrawTransactions(ctx, &ch)
 		}(ch)
 	}
 	wg.Wait()

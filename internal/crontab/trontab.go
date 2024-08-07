@@ -6,15 +6,16 @@ import (
 )
 
 const (
-	ReadBlockLockKey        = "cron_read_block"
-	CheckBlockLockKey       = "cron_check_block"
-	CheckRebaseLockKey      = "cron_check_rebase"
-	RebaseBlockLockKey      = "cron_rebase_block"
-	NotifyLockKey           = "cron_transaction_notify"
-	GenerateLockKey         = "cron_generate_transactions"
-	SendLockKey             = "cron_send_transactions"
-	CheckAddressPoolLockKey = "cron_check_address_pool"
-	CheckArrangeTxLockKey   = "cron_check_arrange_tx"
+	ReadBlockLockKey         = "cron_read_block"
+	CheckBlockLockKey        = "cron_check_block"
+	CheckRebaseLockKey       = "cron_check_rebase"
+	RebaseBlockLockKey       = "cron_rebase_block"
+	NotifyLockKey            = "cron_transaction_notify"
+	GenerateLockKey          = "cron_generate_transactions"
+	SendLockKey              = "cron_send_transactions"
+	CheckAddressPoolLockKey  = "cron_check_address_pool"
+	CheckArrangeTxLockKey    = "cron_check_arrange_tx"
+	CheckArrangeTxFeeLockKey = "cron_check_arrange_tx_fee"
 )
 
 func ClearRedisLock(ctx context.Context) {

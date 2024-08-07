@@ -37,7 +37,7 @@ to quickly create a Cobra application.`,
 		//	zap.S().Infof("err: %v", err)
 		//}
 		//zap.S().Infof("resp: %v", resp)
-		crontab.CronGenerateTransactions()
+		crontab.CronSendTransactions()
 	},
 }
 
