@@ -19,9 +19,9 @@ func CronBuildWithdrawTransactions() {
 		wg      sync.WaitGroup
 	)
 	// 获取锁
-	if dao.Redis.GetLock(ctx, GenerateLockKey, timeout) {
+	if dao.Redis.GetLock(ctx, BuildWithdrawTransactionLockKey, timeout) {
 		// 释放锁
-		defer dao.Redis.ReleaseLock(ctx, GenerateLockKey)
+		defer dao.Redis.ReleaseLock(ctx, BuildWithdrawTransactionLockKey)
 	} else {
 		// 未获取到锁
 		zap.S().Info("CronGenerateTransactions locked !!!")

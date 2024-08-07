@@ -32,9 +32,9 @@ var AdminGroupPermissionColumns = struct {
 	GroupID      FieldBase
 	PermissionID FieldBase
 }{
-	ID:           FieldBase{"id", "id"},
-	GroupID:      FieldBase{"group_id", "group_id"},
-	PermissionID: FieldBase{"permission_id", "permission_id"},
+	ID:           FieldBase{"id", "admin_group_permission.id"},
+	GroupID:      FieldBase{"group_id", "admin_group_permission.group_id"},
+	PermissionID: FieldBase{"permission_id", "admin_group_permission.permission_id"},
 }
 
 type AdminGroupPermission struct {

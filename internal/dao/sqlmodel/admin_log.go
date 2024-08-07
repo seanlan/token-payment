@@ -35,12 +35,12 @@ var AdminLogColumns = struct {
 	Remarks   FieldBase
 	CreateAt  FieldBase
 }{
-	ID:        FieldBase{"id", "id"},
-	UserID:    FieldBase{"user_id", "user_id"},
-	AssetID:   FieldBase{"asset_id", "asset_id"},
-	AssetType: FieldBase{"asset_type", "asset_type"},
-	Remarks:   FieldBase{"remarks", "remarks"},
-	CreateAt:  FieldBase{"create_at", "create_at"},
+	ID:        FieldBase{"id", "admin_log.id"},
+	UserID:    FieldBase{"user_id", "admin_log.user_id"},
+	AssetID:   FieldBase{"asset_id", "admin_log.asset_id"},
+	AssetType: FieldBase{"asset_type", "admin_log.asset_type"},
+	Remarks:   FieldBase{"remarks", "admin_log.remarks"},
+	CreateAt:  FieldBase{"create_at", "admin_log.create_at"},
 }
 
 type AdminLog struct {

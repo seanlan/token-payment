@@ -28,67 +28,58 @@ package sqlmodel
 const TableNameApplicationArrangeTx = "application_arrange_tx"
 
 var ApplicationArrangeTxColumns = struct {
-	ID                  FieldBase
-	ApplicationID       FieldBase
-	ChainSymbol         FieldBase
-	ContractAddress     FieldBase
-	Symbol              FieldBase
-	FromAddress         FieldBase
-	ToAddress           FieldBase
-	TokenID             FieldBase
-	Value               FieldBase
-	GasPrice            FieldBase
-	Nonce               FieldBase
-	TxHash              FieldBase
-	ArrangeFeeTxID      FieldBase
-	Generated           FieldBase
-	TransferSuccess     FieldBase
-	TransferFailedTimes FieldBase
-	TransferNextTime    FieldBase
-	Received            FieldBase
-	ReceiveAt           FieldBase
+	ID              FieldBase
+	ApplicationID   FieldBase
+	SerialNo        FieldBase
+	ChainSymbol     FieldBase
+	ContractAddress FieldBase
+	Symbol          FieldBase
+	FromAddress     FieldBase
+	ToAddress       FieldBase
+	Value           FieldBase
+	TokenID         FieldBase
+	Hook            FieldBase
+	ArrangeFeeTxID  FieldBase
+	SendTxID        FieldBase
+	Generated       FieldBase
+	Confirmed       FieldBase
+	CreateAt        FieldBase
 }{
-	ID:                  FieldBase{"id", "id"},
-	ApplicationID:       FieldBase{"application_id", "application_id"},
-	ChainSymbol:         FieldBase{"chain_symbol", "chain_symbol"},
-	ContractAddress:     FieldBase{"contract_address", "contract_address"},
-	Symbol:              FieldBase{"symbol", "symbol"},
-	FromAddress:         FieldBase{"from_address", "from_address"},
-	ToAddress:           FieldBase{"to_address", "to_address"},
-	TokenID:             FieldBase{"token_id", "token_id"},
-	Value:               FieldBase{"value", "value"},
-	GasPrice:            FieldBase{"gas_price", "gas_price"},
-	Nonce:               FieldBase{"nonce", "nonce"},
-	TxHash:              FieldBase{"tx_hash", "tx_hash"},
-	ArrangeFeeTxID:      FieldBase{"arrange_fee_tx_id", "arrange_fee_tx_id"},
-	Generated:           FieldBase{"generated", "generated"},
-	TransferSuccess:     FieldBase{"transfer_success", "transfer_success"},
-	TransferFailedTimes: FieldBase{"transfer_failed_times", "transfer_failed_times"},
-	TransferNextTime:    FieldBase{"transfer_next_time", "transfer_next_time"},
-	Received:            FieldBase{"received", "received"},
-	ReceiveAt:           FieldBase{"receive_at", "receive_at"},
+	ID:              FieldBase{"id", "application_arrange_tx.id"},
+	ApplicationID:   FieldBase{"application_id", "application_arrange_tx.application_id"},
+	SerialNo:        FieldBase{"serial_no", "application_arrange_tx.serial_no"},
+	ChainSymbol:     FieldBase{"chain_symbol", "application_arrange_tx.chain_symbol"},
+	ContractAddress: FieldBase{"contract_address", "application_arrange_tx.contract_address"},
+	Symbol:          FieldBase{"symbol", "application_arrange_tx.symbol"},
+	FromAddress:     FieldBase{"from_address", "application_arrange_tx.from_address"},
+	ToAddress:       FieldBase{"to_address", "application_arrange_tx.to_address"},
+	Value:           FieldBase{"value", "application_arrange_tx.value"},
+	TokenID:         FieldBase{"token_id", "application_arrange_tx.token_id"},
+	Hook:            FieldBase{"hook", "application_arrange_tx.hook"},
+	ArrangeFeeTxID:  FieldBase{"arrange_fee_tx_id", "application_arrange_tx.arrange_fee_tx_id"},
+	SendTxID:        FieldBase{"send_tx_id", "application_arrange_tx.send_tx_id"},
+	Generated:       FieldBase{"generated", "application_arrange_tx.generated"},
+	Confirmed:       FieldBase{"confirmed", "application_arrange_tx.confirmed"},
+	CreateAt:        FieldBase{"create_at", "application_arrange_tx.create_at"},
 }
 
 type ApplicationArrangeTx struct {
-	ID                  int64   `json:"id" gorm:"column:id;type:bigint;primaryKey;autoIncrement"`                    //
-	ApplicationID       int64   `json:"application_id" gorm:"column:application_id;type:bigint;not null"`            //应用ID
-	ChainSymbol         string  `json:"chain_symbol" gorm:"column:chain_symbol;type:varchar;not null"`               //链的符号
-	ContractAddress     string  `json:"contract_address" gorm:"column:contract_address;type:varchar;not null"`       //代币合约地址
-	Symbol              string  `json:"symbol" gorm:"column:symbol;type:varchar;not null"`                           //代币符号
-	FromAddress         string  `json:"from_address" gorm:"column:from_address;type:varchar;not null"`               //钱包地址
-	ToAddress           string  `json:"to_address" gorm:"column:to_address;type:varchar;not null"`                   //冷钱包地址
-	TokenID             int64   `json:"token_id" gorm:"column:token_id;type:bigint;not null"`                        //tokenid （NFT）
-	Value               float64 `json:"value" gorm:"column:value;type:decimal;not null"`                             //数量
-	GasPrice            int64   `json:"gas_price" gorm:"column:gas_price;type:bigint;not null"`                      //gas费用
-	Nonce               int64   `json:"nonce" gorm:"column:nonce;type:bigint;not null"`                              //交易nonce
-	TxHash              string  `json:"tx_hash" gorm:"column:tx_hash;type:varchar;not null"`                         //交易hash值
-	ArrangeFeeTxID      int64   `json:"arrange_fee_tx_id" gorm:"column:arrange_fee_tx_id;type:bigint;not null"`      //手续费转账单号
-	Generated           int32   `json:"generated" gorm:"column:generated;type:tinyint;not null"`                     //费用检测
-	TransferSuccess     int32   `json:"transfer_success" gorm:"column:transfer_success;type:tinyint;not null"`       //是否转账成功
-	TransferFailedTimes int32   `json:"transfer_failed_times" gorm:"column:transfer_failed_times;type:int;not null"` //转账失败次数
-	TransferNextTime    int64   `json:"transfer_next_time" gorm:"column:transfer_next_time;type:bigint;not null"`    //下次转账时间
-	Received            int32   `json:"received" gorm:"column:received;type:tinyint;not null"`                       //是否到账
-	ReceiveAt           int64   `json:"receive_at" gorm:"column:receive_at;type:bigint;not null"`                    //到账时间
+	ID              int64   `json:"id" gorm:"column:id;type:bigint;primaryKey;autoIncrement"`               //
+	ApplicationID   int64   `json:"application_id" gorm:"column:application_id;type:bigint;not null"`       //应用ID
+	SerialNo        string  `json:"serial_no" gorm:"column:serial_no;type:varchar;not null"`                //订单序列号
+	ChainSymbol     string  `json:"chain_symbol" gorm:"column:chain_symbol;type:varchar;not null"`          //链的符号
+	ContractAddress string  `json:"contract_address" gorm:"column:contract_address;type:varchar;not null"`  //代币合约地址，如果是空表示是主币
+	Symbol          string  `json:"symbol" gorm:"column:symbol;type:varchar;not null"`                      //代币符号
+	FromAddress     string  `json:"from_address" gorm:"column:from_address;type:varchar;not null"`          //整理钱包地址
+	ToAddress       string  `json:"to_address" gorm:"column:to_address;type:varchar;not null"`              //冷钱包收款地址
+	Value           float64 `json:"value" gorm:"column:value;type:decimal;not null"`                        //数量
+	TokenID         int64   `json:"token_id" gorm:"column:token_id;type:bigint;not null"`                   //tokenid （NFT）
+	Hook            string  `json:"hook" gorm:"column:hook;type:varchar;not null"`                          //到账变动通知url
+	ArrangeFeeTxID  int64   `json:"arrange_fee_tx_id" gorm:"column:arrange_fee_tx_id;type:bigint;not null"` //手续费转账单号
+	SendTxID        int64   `json:"send_tx_id" gorm:"column:send_tx_id;type:bigint;not null"`               //发送交易ID
+	Generated       int32   `json:"generated" gorm:"column:generated;type:int;not null"`                    //是否生成
+	Confirmed       int32   `json:"confirmed" gorm:"column:confirmed;type:int;not null"`                    //是否确认
+	CreateAt        int64   `json:"create_at" gorm:"column:create_at;type:bigint;not null"`                 //申请时间
 }
 
 // TableName ApplicationArrangeTx's table name

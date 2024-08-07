@@ -43,6 +43,7 @@ var ChainTxColumns = struct {
 	TxIndex           FieldBase
 	BatchIndex        FieldBase
 	Confirm           FieldBase
+	Confirmed         FieldBase
 	Removed           FieldBase
 	TransferType      FieldBase
 	Arranged          FieldBase
@@ -52,29 +53,30 @@ var ChainTxColumns = struct {
 	NotifyFailedTimes FieldBase
 	NotifyNextTime    FieldBase
 }{
-	ID:                FieldBase{"id", "id"},
-	ApplicationID:     FieldBase{"application_id", "application_id"},
-	ChainSymbol:       FieldBase{"chain_symbol", "chain_symbol"},
-	BlockNumber:       FieldBase{"block_number", "block_number"},
-	BlockHash:         FieldBase{"block_hash", "block_hash"},
-	TxHash:            FieldBase{"tx_hash", "tx_hash"},
-	FromAddress:       FieldBase{"from_address", "from_address"},
-	ToAddress:         FieldBase{"to_address", "to_address"},
-	ContractAddress:   FieldBase{"contract_address", "contract_address"},
-	Symbol:            FieldBase{"symbol", "symbol"},
-	Value:             FieldBase{"value", "value"},
-	TokenID:           FieldBase{"token_id", "token_id"},
-	TxIndex:           FieldBase{"tx_index", "tx_index"},
-	BatchIndex:        FieldBase{"batch_index", "batch_index"},
-	Confirm:           FieldBase{"confirm", "confirm"},
-	Removed:           FieldBase{"removed", "removed"},
-	TransferType:      FieldBase{"transfer_type", "transfer_type"},
-	Arranged:          FieldBase{"arranged", "arranged"},
-	CreateAt:          FieldBase{"create_at", "create_at"},
-	SerialNo:          FieldBase{"serial_no", "serial_no"},
-	NotifySuccess:     FieldBase{"notify_success", "notify_success"},
-	NotifyFailedTimes: FieldBase{"notify_failed_times", "notify_failed_times"},
-	NotifyNextTime:    FieldBase{"notify_next_time", "notify_next_time"},
+	ID:                FieldBase{"id", "chain_tx.id"},
+	ApplicationID:     FieldBase{"application_id", "chain_tx.application_id"},
+	ChainSymbol:       FieldBase{"chain_symbol", "chain_tx.chain_symbol"},
+	BlockNumber:       FieldBase{"block_number", "chain_tx.block_number"},
+	BlockHash:         FieldBase{"block_hash", "chain_tx.block_hash"},
+	TxHash:            FieldBase{"tx_hash", "chain_tx.tx_hash"},
+	FromAddress:       FieldBase{"from_address", "chain_tx.from_address"},
+	ToAddress:         FieldBase{"to_address", "chain_tx.to_address"},
+	ContractAddress:   FieldBase{"contract_address", "chain_tx.contract_address"},
+	Symbol:            FieldBase{"symbol", "chain_tx.symbol"},
+	Value:             FieldBase{"value", "chain_tx.value"},
+	TokenID:           FieldBase{"token_id", "chain_tx.token_id"},
+	TxIndex:           FieldBase{"tx_index", "chain_tx.tx_index"},
+	BatchIndex:        FieldBase{"batch_index", "chain_tx.batch_index"},
+	Confirm:           FieldBase{"confirm", "chain_tx.confirm"},
+	Confirmed:         FieldBase{"confirmed", "chain_tx.confirmed"},
+	Removed:           FieldBase{"removed", "chain_tx.removed"},
+	TransferType:      FieldBase{"transfer_type", "chain_tx.transfer_type"},
+	Arranged:          FieldBase{"arranged", "chain_tx.arranged"},
+	CreateAt:          FieldBase{"create_at", "chain_tx.create_at"},
+	SerialNo:          FieldBase{"serial_no", "chain_tx.serial_no"},
+	NotifySuccess:     FieldBase{"notify_success", "chain_tx.notify_success"},
+	NotifyFailedTimes: FieldBase{"notify_failed_times", "chain_tx.notify_failed_times"},
+	NotifyNextTime:    FieldBase{"notify_next_time", "chain_tx.notify_next_time"},
 }
 
 type ChainTx struct {
@@ -93,6 +95,7 @@ type ChainTx struct {
 	TxIndex           int64   `json:"tx_index" gorm:"column:tx_index;type:bigint;not null"`                    //交易序号
 	BatchIndex        int64   `json:"batch_index" gorm:"column:batch_index;type:bigint;not null"`              //交易批次号
 	Confirm           int32   `json:"confirm" gorm:"column:confirm;type:int;not null"`                         //确认次数
+	Confirmed         int32   `json:"confirmed" gorm:"column:confirmed;type:int;not null"`                     //确认过的
 	Removed           int32   `json:"removed" gorm:"column:removed;type:int;not null"`                         //是否已移除
 	TransferType      int32   `json:"transfer_type" gorm:"column:transfer_type;type:int;not null"`             //交易类型 1到账 2提币
 	Arranged          int32   `json:"arranged" gorm:"column:arranged;type:int;not null"`                       //是否整理过

@@ -36,13 +36,13 @@ var AdminUserMessageColumns = struct {
 	IsRead   FieldBase
 	CreateAt FieldBase
 }{
-	ID:       FieldBase{"id", "id"},
-	UserID:   FieldBase{"user_id", "user_id"},
-	Title:    FieldBase{"title", "title"},
-	Message:  FieldBase{"message", "message"},
-	Path:     FieldBase{"path", "path"},
-	IsRead:   FieldBase{"is_read", "is_read"},
-	CreateAt: FieldBase{"create_at", "create_at"},
+	ID:       FieldBase{"id", "admin_user_message.id"},
+	UserID:   FieldBase{"user_id", "admin_user_message.user_id"},
+	Title:    FieldBase{"title", "admin_user_message.title"},
+	Message:  FieldBase{"message", "admin_user_message.message"},
+	Path:     FieldBase{"path", "admin_user_message.path"},
+	IsRead:   FieldBase{"is_read", "admin_user_message.is_read"},
+	CreateAt: FieldBase{"create_at", "admin_user_message.create_at"},
 }
 
 type AdminUserMessage struct {

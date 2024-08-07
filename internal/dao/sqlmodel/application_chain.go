@@ -35,12 +35,12 @@ var ApplicationChainColumns = struct {
 	ColdWallet    FieldBase
 	FeeWallet     FieldBase
 }{
-	ID:            FieldBase{"id", "id"},
-	ApplicationID: FieldBase{"application_id", "application_id"},
-	ChainSymbol:   FieldBase{"chain_symbol", "chain_symbol"},
-	HotWallet:     FieldBase{"hot_wallet", "hot_wallet"},
-	ColdWallet:    FieldBase{"cold_wallet", "cold_wallet"},
-	FeeWallet:     FieldBase{"fee_wallet", "fee_wallet"},
+	ID:            FieldBase{"id", "application_chain.id"},
+	ApplicationID: FieldBase{"application_id", "application_chain.application_id"},
+	ChainSymbol:   FieldBase{"chain_symbol", "application_chain.chain_symbol"},
+	HotWallet:     FieldBase{"hot_wallet", "application_chain.hot_wallet"},
+	ColdWallet:    FieldBase{"cold_wallet", "application_chain.cold_wallet"},
+	FeeWallet:     FieldBase{"fee_wallet", "application_chain.fee_wallet"},
 }
 
 type ApplicationChain struct {

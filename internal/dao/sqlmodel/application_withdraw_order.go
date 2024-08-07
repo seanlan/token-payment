@@ -40,25 +40,23 @@ var ApplicationWithdrawOrderColumns = struct {
 	Hook            FieldBase
 	SendTxID        FieldBase
 	Generated       FieldBase
-	Received        FieldBase
 	Confirmed       FieldBase
 	CreateAt        FieldBase
 }{
-	ID:              FieldBase{"id", "id"},
-	ApplicationID:   FieldBase{"application_id", "application_id"},
-	SerialNo:        FieldBase{"serial_no", "serial_no"},
-	ChainSymbol:     FieldBase{"chain_symbol", "chain_symbol"},
-	ContractAddress: FieldBase{"contract_address", "contract_address"},
-	Symbol:          FieldBase{"symbol", "symbol"},
-	ToAddress:       FieldBase{"to_address", "to_address"},
-	Value:           FieldBase{"value", "value"},
-	TokenID:         FieldBase{"token_id", "token_id"},
-	Hook:            FieldBase{"hook", "hook"},
-	SendTxID:        FieldBase{"send_tx_id", "send_tx_id"},
-	Generated:       FieldBase{"generated", "generated"},
-	Received:        FieldBase{"received", "received"},
-	Confirmed:       FieldBase{"confirmed", "confirmed"},
-	CreateAt:        FieldBase{"create_at", "create_at"},
+	ID:              FieldBase{"id", "application_withdraw_order.id"},
+	ApplicationID:   FieldBase{"application_id", "application_withdraw_order.application_id"},
+	SerialNo:        FieldBase{"serial_no", "application_withdraw_order.serial_no"},
+	ChainSymbol:     FieldBase{"chain_symbol", "application_withdraw_order.chain_symbol"},
+	ContractAddress: FieldBase{"contract_address", "application_withdraw_order.contract_address"},
+	Symbol:          FieldBase{"symbol", "application_withdraw_order.symbol"},
+	ToAddress:       FieldBase{"to_address", "application_withdraw_order.to_address"},
+	Value:           FieldBase{"value", "application_withdraw_order.value"},
+	TokenID:         FieldBase{"token_id", "application_withdraw_order.token_id"},
+	Hook:            FieldBase{"hook", "application_withdraw_order.hook"},
+	SendTxID:        FieldBase{"send_tx_id", "application_withdraw_order.send_tx_id"},
+	Generated:       FieldBase{"generated", "application_withdraw_order.generated"},
+	Confirmed:       FieldBase{"confirmed", "application_withdraw_order.confirmed"},
+	CreateAt:        FieldBase{"create_at", "application_withdraw_order.create_at"},
 }
 
 type ApplicationWithdrawOrder struct {
@@ -74,7 +72,6 @@ type ApplicationWithdrawOrder struct {
 	Hook            string  `json:"hook" gorm:"column:hook;type:varchar;not null"`                         //到账变动通知url
 	SendTxID        int64   `json:"send_tx_id" gorm:"column:send_tx_id;type:bigint;not null"`              //发送交易ID
 	Generated       int32   `json:"generated" gorm:"column:generated;type:int;not null"`                   //是否生成
-	Received        int32   `json:"received" gorm:"column:received;type:int;not null"`                     //是否到账
 	Confirmed       int32   `json:"confirmed" gorm:"column:confirmed;type:int;not null"`                   //是否确认
 	CreateAt        int64   `json:"create_at" gorm:"column:create_at;type:bigint;not null"`                //申请时间
 }

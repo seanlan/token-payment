@@ -29,7 +29,7 @@ func NotifyTransaction(ctx context.Context, tx *sqlmodel.ChainTx) (err error) {
 		application sqlmodel.Application
 		chain       sqlmodel.Chain
 		token       sqlmodel.ChainToken
-		order       sqlmodel.ApplicationWithdrawOrder
+		sendTx      sqlmodel.ChainSendTx
 	)
 	switch types.TransferType(tx.TransferType) {
 	case types.TransferTypeIn:
@@ -45,14 +45,14 @@ func NotifyTransaction(ctx context.Context, tx *sqlmodel.ChainTx) (err error) {
 		notifyUrl = address.Hook
 	default:
 		// 提现
-		err = dao.FetchChainSendTx(ctx, &order, dao.And(
+		err = dao.FetchChainSendTx(ctx, &sendTx, dao.And(
 			orderQ.ChainSymbol.Eq(tx.ChainSymbol),
 			orderQ.TxHash.Eq(tx.TxHash),
 		))
 		if err != nil && !errors.Is(err, dao.ErrNotFound) {
 			return err
 		}
-		notifyUrl = order.Hook
+		notifyUrl = sendTx.Hook
 	}
 	if notifyUrl == "" { // 不需要通知
 		tx.NotifySuccess = 1
@@ -94,7 +94,7 @@ func NotifyTransaction(ctx context.Context, tx *sqlmodel.ChainTx) (err error) {
 		BatchIndex:      tx.BatchIndex,
 		Confirm:         tx.Confirm,
 		MaxConfirm:      chain.Confirm,
-		TransferType:    tx.TransferType,
+		TransferType:    sendTx.TransferType,
 		SerialNo:        tx.SerialNo,
 		CreateAt:        tx.CreateAt,
 	}

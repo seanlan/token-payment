@@ -3,6 +3,7 @@ package handler
 import (
 	"context"
 	"errors"
+	"gorm.io/gorm"
 	"math"
 	"strings"
 	"sync"
@@ -152,9 +153,7 @@ func CheckSendTxTransaction(ctx context.Context, ch *sqlmodel.Chain, tx *chain.T
 	var (
 		sendTxQ = sqlmodel.ChainSendTxColumns
 		sendTx  sqlmodel.ChainSendTx
-		//appChainQ = sqlmodel.ApplicationChainColumns
-		//appChain  sqlmodel.ApplicationChain
-		bills = make([]sqlmodel.ChainTx, 0)
+		bills   = make([]sqlmodel.ChainTx, 0)
 	)
 	err = dao.FetchChainSendTx(ctx, &sendTx, dao.And(
 		sendTxQ.ChainSymbol.Eq(ch.ChainSymbol),
@@ -260,13 +259,55 @@ func UpdateTransactionConfirm(ctx context.Context, ch *sqlmodel.Chain, tx *sqlmo
 	}
 	if count == 0 {
 		tx.Removed = 1
+		tx.Confirmed = 0
 	} else {
 		confirm := ch.RebaseBlock - tx.BlockNumber
 		tx.Confirm = int32(math.Min(float64(ch.Confirm), float64(confirm)))
 		tx.NotifyNextTime = 0
 		tx.NotifySuccess = 0
 		tx.NotifyFailedTimes = 0
+		if tx.Confirm >= ch.Confirm {
+			tx.Confirmed = 1
+		}
 	}
-	_, err = dao.UpdateChainTx(ctx, tx)
+	err = dao.GetDB(ctx).Transaction(func(db *gorm.DB) (txErr error) {
+		c := dao.CtxWithTransaction(ctx, db)
+		_, txErr = dao.UpdateChainTx(c, tx)
+		if tx.TransferType != int32(types.TransferTypeIn) && tx.Confirmed == 1 {
+			// 不是充值交易
+			_ = ConfirmTransferOrder(c, ch, tx)
+		}
+		return
+	})
+	return
+}
+
+func ConfirmTransferOrder(ctx context.Context, ch *sqlmodel.Chain, tx *sqlmodel.ChainTx) (err error) {
+	var (
+		withdrawQ = sqlmodel.ApplicationWithdrawOrderColumns
+		arrangeQ  = sqlmodel.ApplicationArrangeTxColumns
+		feeQ      = sqlmodel.ApplicationArrangeFeeTxColumns
+		sendTxQ   = sqlmodel.ChainSendTxColumns
+		sendTx    sqlmodel.ChainSendTx
+	)
+	err = dao.FetchChainSendTx(ctx, &sendTx,
+		dao.And(
+			sendTxQ.ChainSymbol.Eq(tx.ChainSymbol),
+			sendTxQ.TxHash.Eq(tx.TxHash),
+			sendTxQ.TransferType.Eq(tx.TransferType)))
+	if err != nil {
+		return
+	}
+	switch types.TransferType(tx.TransferType) {
+	case types.TransferTypeOut:
+		// 提现交易
+		_, err = dao.UpdatesApplicationWithdrawOrder(ctx, withdrawQ.SendTxID.Eq(sendTx.ID), dao.M{withdrawQ.Confirmed.FieldName: 1})
+	case types.TransferTypeFee:
+		// 手续费交易
+		_, err = dao.UpdatesApplicationArrangeTx(ctx, feeQ.SendTxID.Eq(sendTx.ID), dao.M{feeQ.Confirmed.FieldName: 1})
+	case types.TransferTypeArrange:
+		// 整理交易
+		_, err = dao.UpdatesApplicationArrangeFeeTx(ctx, arrangeQ.SendTxID.Eq(sendTx.ID), dao.M{arrangeQ.Confirmed.FieldName: 1})
+	}
 	return
 }

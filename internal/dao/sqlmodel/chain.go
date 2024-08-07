@@ -44,21 +44,21 @@ var ChainColumns = struct {
 	AddressPool FieldBase
 	Watch       FieldBase
 }{
-	ID:          FieldBase{"id", "id"},
-	ChainSymbol: FieldBase{"chain_symbol", "chain_symbol"},
-	Name:        FieldBase{"name", "name"},
-	ChainID:     FieldBase{"chain_id", "chain_id"},
-	Currency:    FieldBase{"currency", "currency"},
-	ChainType:   FieldBase{"chain_type", "chain_type"},
-	Confirm:     FieldBase{"confirm", "confirm"},
-	Gas:         FieldBase{"gas", "gas"},
-	GasPrice:    FieldBase{"gas_price", "gas_price"},
-	LatestBlock: FieldBase{"latest_block", "latest_block"},
-	RebaseBlock: FieldBase{"rebase_block", "rebase_block"},
-	HasBranch:   FieldBase{"has_branch", "has_branch"},
-	Concurrent:  FieldBase{"concurrent", "concurrent"},
-	AddressPool: FieldBase{"address_pool", "address_pool"},
-	Watch:       FieldBase{"watch", "watch"},
+	ID:          FieldBase{"id", "chain.id"},
+	ChainSymbol: FieldBase{"chain_symbol", "chain.chain_symbol"},
+	Name:        FieldBase{"name", "chain.name"},
+	ChainID:     FieldBase{"chain_id", "chain.chain_id"},
+	Currency:    FieldBase{"currency", "chain.currency"},
+	ChainType:   FieldBase{"chain_type", "chain.chain_type"},
+	Confirm:     FieldBase{"confirm", "chain.confirm"},
+	Gas:         FieldBase{"gas", "chain.gas"},
+	GasPrice:    FieldBase{"gas_price", "chain.gas_price"},
+	LatestBlock: FieldBase{"latest_block", "chain.latest_block"},
+	RebaseBlock: FieldBase{"rebase_block", "chain.rebase_block"},
+	HasBranch:   FieldBase{"has_branch", "chain.has_branch"},
+	Concurrent:  FieldBase{"concurrent", "chain.concurrent"},
+	AddressPool: FieldBase{"address_pool", "chain.address_pool"},
+	Watch:       FieldBase{"watch", "chain.watch"},
 }
 
 type Chain struct {

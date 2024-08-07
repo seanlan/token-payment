@@ -31,8 +31,8 @@ var AdminGroupColumns = struct {
 	ID   FieldBase
 	Name FieldBase
 }{
-	ID:   FieldBase{"id", "id"},
-	Name: FieldBase{"name", "name"},
+	ID:   FieldBase{"id", "admin_group.id"},
+	Name: FieldBase{"name", "admin_group.name"},
 }
 
 type AdminGroup struct {

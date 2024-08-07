@@ -38,15 +38,15 @@ var ChainTokenColumns = struct {
 	GasFee          FieldBase
 	ArrangeSwitch   FieldBase
 }{
-	ID:              FieldBase{"id", "id"},
-	ChainSymbol:     FieldBase{"chain_symbol", "chain_symbol"},
-	ContractAddress: FieldBase{"contract_address", "contract_address"},
-	Name:            FieldBase{"name", "name"},
-	Symbol:          FieldBase{"symbol", "symbol"},
-	Decimals:        FieldBase{"decimals", "decimals"},
-	Threshold:       FieldBase{"threshold", "threshold"},
-	GasFee:          FieldBase{"gas_fee", "gas_fee"},
-	ArrangeSwitch:   FieldBase{"arrange_switch", "arrange_switch"},
+	ID:              FieldBase{"id", "chain_token.id"},
+	ChainSymbol:     FieldBase{"chain_symbol", "chain_token.chain_symbol"},
+	ContractAddress: FieldBase{"contract_address", "chain_token.contract_address"},
+	Name:            FieldBase{"name", "chain_token.name"},
+	Symbol:          FieldBase{"symbol", "chain_token.symbol"},
+	Decimals:        FieldBase{"decimals", "chain_token.decimals"},
+	Threshold:       FieldBase{"threshold", "chain_token.threshold"},
+	GasFee:          FieldBase{"gas_fee", "chain_token.gas_fee"},
+	ArrangeSwitch:   FieldBase{"arrange_switch", "chain_token.arrange_switch"},
 }
 
 type ChainToken struct {

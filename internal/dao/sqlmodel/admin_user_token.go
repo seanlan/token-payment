@@ -36,13 +36,13 @@ var AdminUserTokenColumns = struct {
 	RefreshExpireAt FieldBase
 	CreateAt        FieldBase
 }{
-	ID:              FieldBase{"id", "id"},
-	UserID:          FieldBase{"user_id", "user_id"},
-	Token:           FieldBase{"token", "token"},
-	ExpireAt:        FieldBase{"expire_at", "expire_at"},
-	RefreshToken:    FieldBase{"refresh_token", "refresh_token"},
-	RefreshExpireAt: FieldBase{"refresh_expire_at", "refresh_expire_at"},
-	CreateAt:        FieldBase{"create_at", "create_at"},
+	ID:              FieldBase{"id", "admin_user_token.id"},
+	UserID:          FieldBase{"user_id", "admin_user_token.user_id"},
+	Token:           FieldBase{"token", "admin_user_token.token"},
+	ExpireAt:        FieldBase{"expire_at", "admin_user_token.expire_at"},
+	RefreshToken:    FieldBase{"refresh_token", "admin_user_token.refresh_token"},
+	RefreshExpireAt: FieldBase{"refresh_expire_at", "admin_user_token.refresh_expire_at"},
+	CreateAt:        FieldBase{"create_at", "admin_user_token.create_at"},
 }
 
 type AdminUserToken struct {
