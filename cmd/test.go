@@ -26,11 +26,11 @@ to quickly create a Cobra application.`,
 			"http://127.0.0.1:8080")
 		resp, err := sdk.Withdraw(tokenpay.WithdrawReqData{
 			Chain:           "amoy",
-			SerialNo:        "0b2695c3-a487-4102-8a9a-75b2562c660b4",
-			Symbol:          "matic",
+			SerialNo:        "0b2695c3-a487-4102-8a9a-75b2562c660b7",
+			Symbol:          "usdt",
 			ContractAddress: "",
 			TokenID:         0,
-			Value:           "0.01",
+			Value:           "321",
 			ToAddress:       "0x92304f29496ded1314d124c1d7905be44608b709",
 			NotifyUrl:       "",
 		})

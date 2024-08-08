@@ -117,10 +117,7 @@ func GetTransferNonce(ctx context.Context, ch *sqlmodel.Chain, address string) (
 			if err != nil {
 				return 0, err
 			}
-			nonce, err = client.GetNonce(ctx, address)
-			if err != nil {
-				return
-			}
+			return client.GetNonce(ctx, address)
 		}
 		return
 	}

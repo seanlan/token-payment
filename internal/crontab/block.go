@@ -73,7 +73,7 @@ func CronCheckRebase() {
 		defer dao.Redis.ReleaseLock(ctx, CheckRebaseLockKey)
 	} else {
 		// 未获取到锁
-		zap.S().Info("CronReadNextBlock locked !!!")
+		zap.S().Info("CronCheckRebase locked !!!")
 		return
 	}
 	// 获取所有的链
@@ -113,6 +113,8 @@ func CronRebaseBlock() {
 		// 结束后释放锁
 		defer dao.Redis.ReleaseLock(ctx, RebaseBlockLockKey)
 	} else {
+		// 未获取到锁
+		zap.S().Info("CronRebaseBlock locked !!!")
 		return
 	}
 	// 获取所有的链

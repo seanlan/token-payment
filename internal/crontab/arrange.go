@@ -24,7 +24,7 @@ func CronScanArrangeTransactions() {
 		defer dao.Redis.ReleaseLock(ctx, CheckArrangeTxLockKey)
 	} else {
 		// 未获取到锁
-		zap.S().Info("CronCheckArrangeTransactions locked !!!")
+		zap.S().Info("CronScanArrangeTransactions locked !!!")
 		return
 	}
 	// 获取所有的链
@@ -92,7 +92,7 @@ func CronBuildArrangeTx() {
 		defer dao.Redis.ReleaseLock(ctx, BuildArrangeTxLockKey)
 	} else {
 		// 未获取到锁
-		zap.S().Info("CronCheckArrangeTxFee locked !!!")
+		zap.S().Info("CronBuildArrangeTx locked !!!")
 		return
 	}
 	// 获取所有的链
@@ -126,7 +126,7 @@ func CronBuildArrangeFeeTx() {
 		defer dao.Redis.ReleaseLock(ctx, BuildArrangeFeeTxLockKey)
 	} else {
 		// 未获取到锁
-		zap.S().Info("CronCheckArrangeTxFee locked !!!")
+		zap.S().Info("CronBuildArrangeFeeTx locked !!!")
 		return
 	}
 	// 获取所有的链

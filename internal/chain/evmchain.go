@@ -434,12 +434,14 @@ func (e *EvmChain) GetNonce(ctx context.Context, address string) (uint64, error)
 	if err != nil {
 		return 0, err
 	}
-	client, err := ethclient.Dial(rpcUrl)
+	client, err := rpc.Dial(rpcUrl)
 	if err != nil {
 		e.equalizer.Skip(ctx, rpcUrl)
 		return 0, err
 	}
-	return client.PendingNonceAt(ctx, common.HexToAddress(address))
+	var result hexutil.Uint64
+	err = client.CallContext(context.Background(), &result, "eth_getTransactionCount", address, "latest")
+	return uint64(result), err
 }
 
 func (e *EvmChain) GenerateTransaction(ctx context.Context, order *TransferOrder) error {
