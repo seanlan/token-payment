@@ -9,6 +9,7 @@ import (
 	"go.uber.org/zap"
 	"gorm.io/gorm/clause"
 	"strconv"
+	"strings"
 	"time"
 	"token-payment/internal/dao"
 	"token-payment/internal/dao/sqlmodel"
@@ -127,7 +128,7 @@ func Withdraw(ctx context.Context, req model.WithdrawReq) (resp model.WithdrawRe
 		ContractAddress: token.ContractAddress,
 		Symbol:          token.Symbol,
 		TokenID:         data.TokenID,
-		ToAddress:       data.ToAddress,
+		ToAddress:       strings.ToLower(data.ToAddress),
 		Value:           value,
 		Hook:            data.NotifyUrl,
 		CreateAt:        time.Now().Unix(),

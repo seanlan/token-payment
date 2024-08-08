@@ -52,15 +52,17 @@ func CheckRechargeTransaction(ctx context.Context, ch *sqlmodel.Chain, tx *chain
 		tokenContracts          = make([]string, 0)
 		tokens                  = make([]sqlmodel.ChainToken, 0)
 		tokenMap                = make(map[string]sqlmodel.ChainToken)
-		addressList             = make([]string, 0)
-		addresses               = make([]sqlmodel.ChainAddress, 0)
-		addressMap              = make(map[string]sqlmodel.ChainAddress)
+		fromAddressList         = make([]string, 0)
+		toAddressList           = make([]string, 0)
+		toAddresses             = make([]sqlmodel.ChainAddress, 0)
+		toAddressMap            = make(map[string]sqlmodel.ChainAddress)
 		chainFeeWallets         = make([]sqlmodel.ApplicationChain, 0)
 		chainFeeWalletAddresses = make(map[string]sqlmodel.ApplicationChain)
 	)
 	for _, bill := range tx.Bills {
 		tokenContracts = append(tokenContracts, bill.ContractAddress)
-		addressList = append(addressList, strings.ToLower(bill.To))
+		toAddressList = append(toAddressList, strings.ToLower(bill.To))
+		fromAddressList = append(fromAddressList, strings.ToLower(bill.From))
 	}
 	err = dao.FetchAllChainToken(ctx, &tokens, dao.And(
 		tokenQ.ChainSymbol.Eq(ch.ChainSymbol),
@@ -72,20 +74,20 @@ func CheckRechargeTransaction(ctx context.Context, ch *sqlmodel.Chain, tx *chain
 	for _, token := range tokens {
 		tokenMap[token.ContractAddress] = token
 	}
-	err = dao.FetchAllChainAddress(ctx, &addresses, dao.And(
+	err = dao.FetchAllChainAddress(ctx, &toAddresses, dao.And(
 		addressQ.ChainSymbol.Eq(ch.ChainSymbol),
 		addressQ.Watch.Eq(1), // 是否是监控地址
-		addressQ.Address.In(addressList),
+		addressQ.Address.In(toAddressList),
 	), 0, 0)
-	if err != nil {
+	if err != nil || len(toAddresses) == 0 {
 		return
 	}
-	for _, addr := range addresses {
-		addressMap[addr.Address] = addr
+	for _, addr := range toAddresses {
+		toAddressMap[addr.Address] = addr
 	}
 	err = dao.FetchAllApplicationChain(ctx, &chainFeeWallets, dao.And(
 		appChainQ.ChainSymbol.Eq(ch.ChainSymbol),
-		appChainQ.FeeWallet.In(addressList),
+		appChainQ.FeeWallet.In(fromAddressList),
 	), 0, 0)
 	if err != nil {
 		return
@@ -97,16 +99,21 @@ func CheckRechargeTransaction(ctx context.Context, ch *sqlmodel.Chain, tx *chain
 		var (
 			address    sqlmodel.ChainAddress
 			token      sqlmodel.ChainToken
+			fromAddr   = strings.ToLower(bill.From)
 			toAddr     = strings.ToLower(bill.To)
 			nftTokenID int64
 			ok         bool
 		)
-		if address, ok = addressMap[toAddr]; !ok {
+		if address, ok = toAddressMap[toAddr]; !ok {
 			// 不是监控地址
 			continue
 		}
 		if token, ok = tokenMap[bill.ContractAddress]; !ok {
 			// 不是监控token
+			continue
+		}
+		if _, ok = chainFeeWalletAddresses[fromAddr]; ok {
+			// 是手续费钱包转账的交易
 			continue
 		}
 		if bill.TokenID != nil {
@@ -128,10 +135,6 @@ func CheckRechargeTransaction(ctx context.Context, ch *sqlmodel.Chain, tx *chain
 			BatchIndex:      int64(bill.BatchIndex),
 			TransferType:    int32(types.TransferTypeIn),
 			CreateAt:        tx.Time.Unix(),
-		}
-		if _, ok = chainFeeWalletAddresses[toAddr]; ok {
-			// 是手续费钱包转账的交易
-			chainTx.TransferType = int32(types.TransferTypeFee)
 		}
 		bills = append(bills, chainTx)
 	}
@@ -190,7 +193,7 @@ func CheckSendTxTransaction(ctx context.Context, ch *sqlmodel.Chain, tx *chain.T
 				TokenID:         nftTokenID,
 				TxIndex:         int64(bill.Index),
 				BatchIndex:      int64(bill.BatchIndex),
-				TransferType:    int32(types.TransferTypeOut),
+				TransferType:    sendTx.TransferType,
 				CreateAt:        tx.Time.Unix(),
 			}
 			bills = append(bills, chainTx)
@@ -304,10 +307,10 @@ func ConfirmTransferOrder(ctx context.Context, ch *sqlmodel.Chain, tx *sqlmodel.
 		_, err = dao.UpdatesApplicationWithdrawOrder(ctx, withdrawQ.SendTxID.Eq(sendTx.ID), dao.M{withdrawQ.Confirmed.FieldName: 1})
 	case types.TransferTypeFee:
 		// 手续费交易
-		_, err = dao.UpdatesApplicationArrangeTx(ctx, feeQ.SendTxID.Eq(sendTx.ID), dao.M{feeQ.Confirmed.FieldName: 1})
+		_, err = dao.UpdatesApplicationArrangeFeeTx(ctx, feeQ.SendTxID.Eq(sendTx.ID), dao.M{feeQ.Confirmed.FieldName: 1})
 	case types.TransferTypeArrange:
 		// 整理交易
-		_, err = dao.UpdatesApplicationArrangeFeeTx(ctx, arrangeQ.SendTxID.Eq(sendTx.ID), dao.M{arrangeQ.Confirmed.FieldName: 1})
+		_, err = dao.UpdatesApplicationArrangeTx(ctx, arrangeQ.SendTxID.Eq(sendTx.ID), dao.M{arrangeQ.Confirmed.FieldName: 1})
 	}
 	return
 }

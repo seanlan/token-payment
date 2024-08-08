@@ -459,11 +459,14 @@ func (e *EvmChain) GenerateTransaction(ctx context.Context, order *TransferOrder
 		txData    []byte
 		toAddress common.Address
 		value     *big.Int
+		gasPrice  = order.GasPrice
 	)
-	gasPrice, err := client.SuggestGasPrice(context.Background())
-	if err != nil {
-		zap.S().Warnf("ItemSettle SuggestGasPrice err : %v", err)
-		return err
+	if gasPrice == nil {
+		gasPrice, err = client.SuggestGasPrice(context.Background())
+		if err != nil {
+			zap.S().Warnf("ItemSettle SuggestGasPrice err : %v", err)
+			return err
+		}
 	}
 	if len(order.ContractAddress) > 0 { // ERC20 token 交易
 		toAddress = common.HexToAddress(order.ContractAddress)

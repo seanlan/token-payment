@@ -88,7 +88,7 @@ type ChainSendTx struct {
 	GasPrice            int64   `json:"gas_price" gorm:"column:gas_price;type:bigint;not null"`                      //gas费用
 	TokenID             int64   `json:"token_id" gorm:"column:token_id;type:bigint;not null"`                        //tokenid （NFT）
 	TxHash              string  `json:"tx_hash" gorm:"column:tx_hash;type:varchar;not null"`                         //交易hash值
-	Nonce               int64   `json:"nonce" gorm:"column:nonce;type:bigint;not null;default:-1"`                   //交易nonce
+	Nonce               int64   `json:"nonce" gorm:"column:nonce;type:bigint;not null"`                              //交易nonce
 	Hook                string  `json:"hook" gorm:"column:hook;type:varchar;not null"`                               //到账变动通知url
 	TransferType        int32   `json:"transfer_type" gorm:"column:transfer_type;type:int;not null"`                 //交易类型 1到账 2提币 3整理费用 4零钱整理
 	CreateAt            int64   `json:"create_at" gorm:"column:create_at;type:bigint;not null"`                      //申请时间

@@ -5,6 +5,7 @@ import (
 	"errors"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 	"math"
 	"math/big"
 	"sync"
@@ -80,7 +81,7 @@ func ScanTokenArrangeTransaction(ctx context.Context, ch *sqlmodel.Chain, token 
 		Order("amount desc").
 		Limit(int(ch.Concurrent)).
 		Find(&arrangeList).Error
-	if err != nil {
+	if err != nil || len(arrangeList) == 0 {
 		return
 	}
 	for _, arrange := range arrangeList {
@@ -105,46 +106,48 @@ func ScanTokenArrangeTransaction(ctx context.Context, ch *sqlmodel.Chain, token 
 //	@param arrange
 func InsertArrangeTransaction(ctx context.Context, ch *sqlmodel.Chain, token *sqlmodel.ChainToken, arrange *AddressArrange) {
 	var (
-		txQ     = sqlmodel.ChainTxColumns
-		finalTx sqlmodel.ChainTx
-		amount  float64
-		effect  int64
-		err     error
+		txQ       = sqlmodel.ChainTxColumns
+		finalTx   sqlmodel.ChainTx
+		appChainQ = sqlmodel.ApplicationChainColumns
+		appChain  sqlmodel.ApplicationChain
+		amount    float64
+		effect    int64
+		err       error
+		params    = []clause.Expression{
+			txQ.ChainSymbol.Eq(ch.ChainSymbol),        // 同一个链
+			txQ.Symbol.Eq(token.Symbol),               // 同一个token
+			txQ.ToAddress.Eq(arrange.Address),         // 目标地址
+			txQ.Confirmed.Eq(1),                       // 确认过的交易
+			txQ.Arranged.Eq(0),                        // 未整理的交易
+			txQ.Removed.Eq(0),                         // 未删除的交易
+			txQ.TransferType.Eq(types.TransferTypeIn), // 转入交易
+		}
 	)
-	err = dao.FetchChainTx(ctx, &finalTx, dao.And(
-		txQ.ChainSymbol.Eq(token.ChainSymbol),
-		txQ.Symbol.Eq(token.Symbol),
-		txQ.TransferType.Eq(types.TransferTypeIn),
-		txQ.Confirm.Eq(ch.Confirm), // 确认数符合链的确认数量
-		txQ.ToAddress.Eq(arrange.Address),
-		txQ.Removed.Eq(0), // 未删除的交易
-	), txQ.ID.Desc())
+	err = dao.FetchChainTx(ctx, &finalTx, dao.And(params...), txQ.ID.Desc())
 	if err != nil || finalTx.ID == 0 {
 		return
 	}
-	// 计算交易额
-	amount, err = dao.SumChainTx(ctx, txQ.Value, dao.And(
-		txQ.ChainSymbol.Eq(ch.ChainSymbol),
-		txQ.Symbol.Eq(token.Symbol),
-		txQ.ToAddress.Eq(arrange.Address),
-		txQ.TransferType.Eq(types.TransferTypeIn),
-		txQ.ID.Lte(finalTx.ID),
+	err = dao.FetchApplicationChain(ctx, &appChain, dao.And(
+		appChainQ.ApplicationID.Eq(arrange.ApplicationID),
+		appChainQ.ChainSymbol.Eq(ch.ChainSymbol),
 	))
+	if err != nil || appChain.ColdWallet == "" {
+		// 未找到冷钱包 不生成交易
+		return
+	}
+	// 计算交易额
+	amount, err = dao.SumChainTx(ctx, txQ.Value, dao.And(append(params, txQ.ID.Lte(finalTx.ID))...))
 	if err != nil {
 		return
 	}
 	_ = dao.GetDB(ctx).Transaction(func(tx *gorm.DB) (txErr error) {
 		c := dao.CtxWithTransaction(ctx, tx)
 		// 更改交易状态
-		effect, txErr = dao.UpdatesChainTx(c, dao.And(
-			txQ.ChainSymbol.Eq(ch.ChainSymbol),
-			txQ.Symbol.Eq(token.Symbol),
-			txQ.ToAddress.Eq(arrange.Address),
-			txQ.TransferType.Eq(types.TransferTypeIn),
-			txQ.ID.Lte(finalTx.ID),
-		), dao.M{
-			txQ.Arranged.FieldName: 1,
-		})
+		effect, txErr = dao.UpdatesChainTx(c,
+			dao.And(append(params, txQ.ID.Lte(finalTx.ID))...),
+			dao.M{
+				txQ.Arranged.FieldName: 1,
+			})
 		if txErr != nil || effect == 0 {
 			err = errors.New("update chain tx error")
 			return
@@ -156,6 +159,7 @@ func InsertArrangeTransaction(ctx context.Context, ch *sqlmodel.Chain, token *sq
 			ContractAddress: token.ContractAddress,
 			Symbol:          token.Symbol,
 			FromAddress:     arrange.Address,
+			ToAddress:       appChain.ColdWallet,
 			Value:           amount,
 		})
 		return
@@ -351,19 +355,20 @@ func BuildArrangeTx(ctx context.Context, ch *sqlmodel.Chain, arrangeTx *sqlmodel
 		Value:           big.NewInt(int64(arrangeTx.Value * math.Pow10(int(token.Decimals)))),
 		TokenID:         big.NewInt(arrangeTx.TokenID),
 		Gas:             uint64(ch.Gas),
+		GasPrice:        big.NewInt(ch.GasPrice),
 		Nonce:           nonce,
 	}
-	client, err := GetChainRpcClient(ctx, ch)
-	if err != nil {
-		return
-	}
-	err = client.GenerateTransaction(ctx, &transferOrder)
-	if err != nil {
-		return
-	}
-	if transferOrder.GasPrice.Int64() < ch.GasPrice { // 不能低于预设的gasPrice
-		transferOrder.GasPrice = big.NewInt(ch.GasPrice)
-	}
+	//client, err := GetChainRpcClient(ctx, ch)
+	//if err != nil {
+	//	return
+	//}
+	//err = client.GenerateTransaction(ctx, &transferOrder)
+	//if err != nil {
+	//	return
+	//}
+	//if transferOrder.GasPrice.Int64() < ch.GasPrice { // 不能低于预设的gasPrice
+	//	transferOrder.GasPrice = big.NewInt(ch.GasPrice)
+	//}
 	err = dao.GetDB(ctx).Transaction(func(tx *gorm.DB) (txErr error) {
 		c := dao.CtxWithTransaction(ctx, tx)
 		sendTx := &sqlmodel.ChainSendTx{
@@ -403,13 +408,16 @@ func BuildArrangeFeeTxs(ctx context.Context, ch *sqlmodel.Chain) {
 	)
 	err = dao.FetchAllApplicationArrangeFeeTx(ctx, &feeTxs, dao.And(
 		feeQ.ChainSymbol.Eq(ch.ChainSymbol),
+		feeQ.Generated.Eq(0),
 	), 0, int(ch.Concurrent))
 	if err != nil {
 		return
 	}
 	for _, feeTx := range feeTxs {
 		err = BuildArrangeFeeTx(ctx, ch, &feeTx)
-		zap.S().Warnf("BuildArrangeTx: %v", err)
+		if err != nil {
+			zap.S().Warnf("BuildArrangeTx: %v", err)
+		}
 	}
 }
 
@@ -452,19 +460,20 @@ func BuildArrangeFeeTx(ctx context.Context, ch *sqlmodel.Chain, feeTx *sqlmodel.
 		Value:           big.NewInt(int64(feeTx.Value * math.Pow10(int(token.Decimals)))),
 		TokenID:         big.NewInt(feeTx.TokenID),
 		Gas:             uint64(ch.Gas),
+		GasPrice:        big.NewInt(ch.GasPrice),
 		Nonce:           nonce,
 	}
-	client, err := GetChainRpcClient(ctx, ch)
-	if err != nil {
-		return
-	}
-	err = client.GenerateTransaction(ctx, &transferOrder)
-	if err != nil {
-		return
-	}
-	if transferOrder.GasPrice.Int64() < ch.GasPrice { // 不能低于预设的gasPrice
-		transferOrder.GasPrice = big.NewInt(ch.GasPrice)
-	}
+	//client, err := GetChainRpcClient(ctx, ch)
+	//if err != nil {
+	//	return
+	//}
+	//err = client.GenerateTransaction(ctx, &transferOrder)
+	//if err != nil {
+	//	return
+	//}
+	//if transferOrder.GasPrice.Int64() < ch.GasPrice { // 不能低于预设的gasPrice
+	//	transferOrder.GasPrice = big.NewInt(ch.GasPrice)
+	//}
 	err = dao.GetDB(ctx).Transaction(func(tx *gorm.DB) (txErr error) {
 		c := dao.CtxWithTransaction(ctx, tx)
 		sendTx := &sqlmodel.ChainSendTx{
