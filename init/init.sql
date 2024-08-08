@@ -7,7 +7,7 @@
 #
 # 主机: 127.0.0.1 (MySQL 8.3.0)
 # 数据库: tokenpay
-# 生成时间: 2024-08-01 03:35:20 +0000
+# 生成时间: 2024-08-08 02:12:45 +0000
 # ************************************************************
 
 
@@ -187,6 +187,61 @@ CREATE TABLE `application` (
 
 
 
+# 转储表 application_arrange_fee_tx
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `application_arrange_fee_tx`;
+
+CREATE TABLE `application_arrange_fee_tx` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `application_id` bigint NOT NULL COMMENT '应用ID',
+  `serial_no` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '订单序列号',
+  `chain_symbol` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '链的符号',
+  `contract_address` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '代币合约地址，如果是空表示是主币',
+  `symbol` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '代币符号',
+  `from_address` varchar(200) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '费用钱包地址',
+  `to_address` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '收款地址',
+  `value` decimal(65,30) NOT NULL COMMENT '数量',
+  `token_id` bigint NOT NULL COMMENT 'tokenid （NFT）',
+  `hook` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '到账变动通知url',
+  `send_tx_id` bigint NOT NULL COMMENT '发送交易ID',
+  `generated` int NOT NULL COMMENT '是否生成',
+  `confirmed` int NOT NULL COMMENT '是否确认',
+  `create_at` bigint NOT NULL COMMENT '申请时间',
+  PRIMARY KEY (`id`),
+  KEY `chain_symbol` (`chain_symbol`,`contract_address`,`symbol`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+
+# 转储表 application_arrange_tx
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `application_arrange_tx`;
+
+CREATE TABLE `application_arrange_tx` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `application_id` bigint NOT NULL COMMENT '应用ID',
+  `serial_no` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '订单序列号',
+  `chain_symbol` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '链的符号',
+  `contract_address` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '代币合约地址，如果是空表示是主币',
+  `symbol` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '代币符号',
+  `from_address` varchar(200) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '整理钱包地址',
+  `to_address` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '冷钱包收款地址',
+  `value` decimal(65,30) NOT NULL COMMENT '数量',
+  `token_id` bigint NOT NULL COMMENT 'tokenid （NFT）',
+  `hook` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '到账变动通知url',
+  `arrange_fee_tx_id` bigint NOT NULL COMMENT '手续费转账单号',
+  `send_tx_id` bigint NOT NULL COMMENT '发送交易ID',
+  `generated` int NOT NULL COMMENT '是否生成',
+  `confirmed` int NOT NULL COMMENT '是否确认',
+  `create_at` bigint NOT NULL COMMENT '申请时间',
+  PRIMARY KEY (`id`),
+  KEY `chain_symbol` (`chain_symbol`,`contract_address`,`symbol`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+
 # 转储表 application_chain
 # ------------------------------------------------------------
 
@@ -218,20 +273,14 @@ CREATE TABLE `application_withdraw_order` (
   `symbol` varchar(200) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '代币符号',
   `to_address` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '收款地址',
   `value` decimal(65,30) NOT NULL COMMENT '数量',
-  `gas_price` bigint NOT NULL COMMENT 'gas费用',
   `token_id` bigint NOT NULL COMMENT 'tokenid （NFT）',
-  `tx_hash` varchar(200) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '交易hash值',
-  `nonce` bigint NOT NULL DEFAULT '-1' COMMENT '交易nonce',
   `hook` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '到账变动通知url',
-  `create_at` bigint NOT NULL COMMENT '申请时间',
-  `transfer_at` bigint NOT NULL COMMENT '转账时间',
+  `send_tx_id` bigint NOT NULL COMMENT '发送交易ID',
   `generated` int NOT NULL COMMENT '是否生成',
-  `transfer_success` tinyint NOT NULL COMMENT '是否转账成功',
-  `transfer_failed_times` int NOT NULL COMMENT '转账失败次数',
-  `transfer_next_time` bigint NOT NULL COMMENT '下次转账时间',
-  `received` tinyint NOT NULL COMMENT '是否到账',
-  `receive_at` bigint NOT NULL COMMENT '到账时间',
+  `confirmed` int NOT NULL COMMENT '是否确认',
+  `create_at` bigint NOT NULL COMMENT '申请时间',
   PRIMARY KEY (`id`),
+  UNIQUE KEY `application_id` (`application_id`,`serial_no`),
   KEY `chain_symbol` (`chain_symbol`,`contract_address`,`symbol`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -323,6 +372,40 @@ CREATE TABLE `chain_rpc` (
 
 
 
+# 转储表 chain_send_tx
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `chain_send_tx`;
+
+CREATE TABLE `chain_send_tx` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `application_id` bigint NOT NULL COMMENT '应用ID',
+  `serial_no` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '订单序列号',
+  `chain_symbol` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '链的符号',
+  `contract_address` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '代币合约地址，如果是空表示是主币',
+  `symbol` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '代币符号',
+  `from_address` varchar(200) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '发送地址',
+  `to_address` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '收款地址',
+  `value` decimal(65,30) NOT NULL COMMENT '数量',
+  `gas_price` bigint NOT NULL COMMENT 'gas费用',
+  `token_id` bigint NOT NULL COMMENT 'tokenid （NFT）',
+  `tx_hash` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '交易hash值',
+  `nonce` bigint NOT NULL COMMENT '交易nonce',
+  `hook` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '到账变动通知url',
+  `transfer_type` int NOT NULL COMMENT '交易类型 1到账 2提币 3整理费用 4零钱整理',
+  `create_at` bigint NOT NULL COMMENT '申请时间',
+  `transfer_at` bigint NOT NULL COMMENT '转账时间',
+  `transfer_success` tinyint NOT NULL COMMENT '是否转账成功',
+  `transfer_failed_times` int NOT NULL COMMENT '转账失败次数',
+  `transfer_next_time` bigint NOT NULL COMMENT '下次转账时间',
+  `received` tinyint NOT NULL COMMENT '是否到账',
+  `receive_at` bigint NOT NULL COMMENT '到账时间',
+  PRIMARY KEY (`id`),
+  KEY `chain_symbol` (`chain_symbol`,`contract_address`,`symbol`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+
 # 转储表 chain_token
 # ------------------------------------------------------------
 
@@ -335,7 +418,9 @@ CREATE TABLE `chain_token` (
   `name` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '币种名称',
   `symbol` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '币种符号',
   `decimals` int NOT NULL COMMENT '小数位',
-  `threshold` decimal(65,30) NOT NULL,
+  `threshold` decimal(65,30) NOT NULL COMMENT '零钱整理阀值',
+  `gas_fee` decimal(65,30) NOT NULL COMMENT 'Gas费用',
+  `arrange_switch` tinyint NOT NULL COMMENT '零钱整理开关',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -362,6 +447,7 @@ CREATE TABLE `chain_tx` (
   `tx_index` bigint NOT NULL COMMENT '交易序号',
   `batch_index` bigint NOT NULL COMMENT '交易批次号',
   `confirm` int NOT NULL COMMENT '确认次数',
+  `confirmed` int NOT NULL COMMENT '确认过的',
   `removed` int NOT NULL COMMENT '是否已移除',
   `transfer_type` int NOT NULL COMMENT '交易类型 1到账 2提币',
   `arranged` int NOT NULL COMMENT '是否整理过',
