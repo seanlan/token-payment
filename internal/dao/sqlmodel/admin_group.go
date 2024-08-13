@@ -36,8 +36,8 @@ var AdminGroupColumns = struct {
 }
 
 type AdminGroup struct {
-	ID   int32  `json:"id" gorm:"column:id;type:int;primaryKey;autoIncrement"` //
-	Name string `json:"name" gorm:"column:name;type:varchar;not null"`         //组名
+	ID   int64  `json:"id" gorm:"column:id;type:bigint;primaryKey;autoIncrement"` //
+	Name string `json:"name" gorm:"column:name;type:varchar;not null"`            //组名
 }
 
 // TableName AdminGroup's table name

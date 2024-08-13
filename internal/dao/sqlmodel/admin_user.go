@@ -28,43 +28,34 @@ package sqlmodel
 const TableNameAdminUser = "admin_user"
 
 var AdminUserColumns = struct {
-	ID          FieldBase
-	Account     FieldBase
-	Password    FieldBase
-	Username    FieldBase
-	Phone       FieldBase
-	Email       FieldBase
-	IsSuper     FieldBase
-	IsFrozen    FieldBase
-	IsDelete    FieldBase
-	HideArticle FieldBase
-	CreateAt    FieldBase
+	ID       FieldBase
+	Account  FieldBase
+	Password FieldBase
+	Username FieldBase
+	Phone    FieldBase
+	Email    FieldBase
+	IsSuper  FieldBase
+	CreateAt FieldBase
 }{
-	ID:          FieldBase{"id", "admin_user.id"},
-	Account:     FieldBase{"account", "admin_user.account"},
-	Password:    FieldBase{"password", "admin_user.password"},
-	Username:    FieldBase{"username", "admin_user.username"},
-	Phone:       FieldBase{"phone", "admin_user.phone"},
-	Email:       FieldBase{"email", "admin_user.email"},
-	IsSuper:     FieldBase{"is_super", "admin_user.is_super"},
-	IsFrozen:    FieldBase{"is_frozen", "admin_user.is_frozen"},
-	IsDelete:    FieldBase{"is_delete", "admin_user.is_delete"},
-	HideArticle: FieldBase{"hide_article", "admin_user.hide_article"},
-	CreateAt:    FieldBase{"create_at", "admin_user.create_at"},
+	ID:       FieldBase{"id", "admin_user.id"},
+	Account:  FieldBase{"account", "admin_user.account"},
+	Password: FieldBase{"password", "admin_user.password"},
+	Username: FieldBase{"username", "admin_user.username"},
+	Phone:    FieldBase{"phone", "admin_user.phone"},
+	Email:    FieldBase{"email", "admin_user.email"},
+	IsSuper:  FieldBase{"is_super", "admin_user.is_super"},
+	CreateAt: FieldBase{"create_at", "admin_user.create_at"},
 }
 
 type AdminUser struct {
-	ID          int32  `json:"id" gorm:"column:id;type:int;primaryKey;autoIncrement"`     //
-	Account     string `json:"account" gorm:"column:account;type:varchar;not null"`       //账号
-	Password    string `json:"password" gorm:"column:password;type:varchar;not null"`     //密码
-	Username    string `json:"username" gorm:"column:username;type:varchar;not null"`     //用户名
-	Phone       string `json:"phone" gorm:"column:phone;type:varchar;not null"`           //手机号
-	Email       string `json:"email" gorm:"column:email;type:varchar;not null"`           //电子邮箱
-	IsSuper     int32  `json:"is_super" gorm:"column:is_super;type:int;not null"`         //是否超级用户
-	IsFrozen    int32  `json:"is_frozen" gorm:"column:is_frozen;type:int;not null"`       //是否被封禁
-	IsDelete    int32  `json:"is_delete" gorm:"column:is_delete;type:int;not null"`       //是否已删除
-	HideArticle int32  `json:"hide_article" gorm:"column:hide_article;type:int;not null"` //是否隐藏稿件
-	CreateAt    int64  `json:"create_at" gorm:"column:create_at;type:bigint;not null"`    //创建时间
+	ID       int64  `json:"id" gorm:"column:id;type:bigint;primaryKey;autoIncrement"` //
+	Account  string `json:"account" gorm:"column:account;type:varchar;not null"`      //账号
+	Password string `json:"password" gorm:"column:password;type:varchar;not null"`    //密码
+	Username string `json:"username" gorm:"column:username;type:varchar;not null"`    //用户名
+	Phone    string `json:"phone" gorm:"column:phone;type:varchar;not null"`          //手机号
+	Email    string `json:"email" gorm:"column:email;type:varchar;not null"`          //电子邮箱
+	IsSuper  int32  `json:"is_super" gorm:"column:is_super;type:int;not null"`        //是否超级用户
+	CreateAt int64  `json:"create_at" gorm:"column:create_at;type:bigint;not null"`   //创建时间
 }
 
 // TableName AdminUser's table name

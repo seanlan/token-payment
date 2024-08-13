@@ -38,9 +38,9 @@ var AdminGroupUserColumns = struct {
 }
 
 type AdminGroupUser struct {
-	ID      int32 `json:"id" gorm:"column:id;type:int;primaryKey;autoIncrement"` //
-	UserID  int32 `json:"user_id" gorm:"column:user_id;type:int;not null"`       //用户ID
-	GroupID int32 `json:"group_id" gorm:"column:group_id;type:int;not null"`     //组ID
+	ID      int64 `json:"id" gorm:"column:id;type:bigint;primaryKey;autoIncrement"` //
+	UserID  int64 `json:"user_id" gorm:"column:user_id;type:bigint;not null"`       //用户ID
+	GroupID int64 `json:"group_id" gorm:"column:group_id;type:bigint;not null"`     //组ID
 }
 
 // TableName AdminGroupUser's table name
