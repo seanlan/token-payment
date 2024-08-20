@@ -53,6 +53,8 @@ type Transaction struct {
 	Hash        string          // 交易hash
 	Bills       []*TransferBill // 交易账单
 	Time        time.Time       // 交易时间
+	Gas         uint64          // gas
+	GasPrice    *big.Int        // gas price
 }
 
 type TransferBill struct {

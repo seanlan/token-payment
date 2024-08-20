@@ -152,6 +152,8 @@ func (e *EvmChain) _receiptToTransaction(ctx context.Context, txReceipt *types.R
 			Hash:        tx.Hash.String(),
 			Bills:       nil,
 			Time:        tx.Time,
+			Gas:         txReceipt.GasUsed,
+			GasPrice:    tx.GasPrice,
 		}
 		transferBills = make([]*TransferBill, 0)
 	)

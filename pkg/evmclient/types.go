@@ -109,8 +109,8 @@ type Transaction struct {
 	BlockHash        common.Hash
 	BlockNumber      int64
 	From             common.Address
-	Gas              int64
-	GasPrice         int64
+	Gas              *big.Int
+	GasPrice         *big.Int
 	Hash             common.Hash
 	Nonce            int64
 	To               common.Address
@@ -126,8 +126,8 @@ func (t *rpcTransaction) ToTransaction() *Transaction {
 		BlockHash:        common.HexToHash(t.BlockHash),
 		BlockNumber:      heXtoInt64(t.BlockNumber),
 		From:             common.HexToAddress(t.From),
-		Gas:              heXtoInt64(t.Gas),
-		GasPrice:         heXtoInt64(t.GasPrice),
+		Gas:              hexToBigInt(t.Gas),
+		GasPrice:         hexToBigInt(t.GasPrice),
 		Hash:             common.HexToHash(t.Hash),
 		Nonce:            heXtoInt64(t.Nonce),
 		To:               common.HexToAddress(t.To),
