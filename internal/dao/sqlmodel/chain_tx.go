@@ -39,6 +39,9 @@ var ChainTxColumns = struct {
 	ContractAddress   FieldBase
 	Symbol            FieldBase
 	Value             FieldBase
+	Gas               FieldBase
+	GasPrice          FieldBase
+	Fee               FieldBase
 	TokenID           FieldBase
 	TxIndex           FieldBase
 	BatchIndex        FieldBase
@@ -64,6 +67,9 @@ var ChainTxColumns = struct {
 	ContractAddress:   FieldBase{"contract_address", "chain_tx.contract_address"},
 	Symbol:            FieldBase{"symbol", "chain_tx.symbol"},
 	Value:             FieldBase{"value", "chain_tx.value"},
+	Gas:               FieldBase{"gas", "chain_tx.gas"},
+	GasPrice:          FieldBase{"gas_price", "chain_tx.gas_price"},
+	Fee:               FieldBase{"fee", "chain_tx.fee"},
 	TokenID:           FieldBase{"token_id", "chain_tx.token_id"},
 	TxIndex:           FieldBase{"tx_index", "chain_tx.tx_index"},
 	BatchIndex:        FieldBase{"batch_index", "chain_tx.batch_index"},
@@ -91,6 +97,9 @@ type ChainTx struct {
 	ContractAddress   string  `json:"contract_address" gorm:"column:contract_address;type:varchar;not null"`   //代币合约地址，如果是空表示是主币
 	Symbol            string  `json:"symbol" gorm:"column:symbol;type:varchar;not null"`                       //代币符号
 	Value             float64 `json:"value" gorm:"column:value;type:decimal;not null"`                         //数量
+	Gas               float64 `json:"gas" gorm:"column:gas;type:decimal;not null"`                             //gas used
+	GasPrice          float64 `json:"gas_price" gorm:"column:gas_price;type:decimal;not null"`                 //gas price
+	Fee               float64 `json:"fee" gorm:"column:fee;type:decimal;not null"`                             //订单费用
 	TokenID           int64   `json:"token_id" gorm:"column:token_id;type:bigint;not null"`                    //tokenid （NFT）
 	TxIndex           int64   `json:"tx_index" gorm:"column:tx_index;type:bigint;not null"`                    //交易序号
 	BatchIndex        int64   `json:"batch_index" gorm:"column:batch_index;type:bigint;not null"`              //交易批次号

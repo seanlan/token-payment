@@ -90,21 +90,86 @@ export const constantRoutes = [{ // 固定路由
  */
 export const asyncRoutes = [
   // {
-  //   path: '/user',
+  //   path: '/chain',
   //   component: Layout,
-  //   redirect: '/user/list',
-  //   name: '用户管理',
-  //   meta: { title: '用户管理', icon: 'el-icon-user-solid', roles: ['user_view'] },
+  //   redirect: '/chain/list',
+  //   name: '链管理',
+  //   meta: { title: '链管理', icon: 'el-icon-user-solid', roles: ['chain_view'] },
   //   alwaysShow: true,
   //   children: [
   //     {
   //       path: 'list',
   //       name: 'user-list',
-  //       component: () => import('@/views/users/list'),
-  //       meta: { title: '用户管理', icon: 'el-icon-user-solid', roles: ['user_view'] }
+  //       component: () => import('@/views/chain/list'),
+  //       meta: { title: '链管理', icon: 'el-icon-user-solid', roles: ['chain_view'] }
   //     }
   //   ]
   // },
+  {
+    path: '/staff',
+    component: Layout,
+    redirect: '/staff/staff-list',
+    name: 'staff',
+    meta: { title: '员工管理', icon: 'el-icon-s-custom', roles: ['user_view'] },
+    alwaysShow: true,
+    children: [
+      {
+        path: 'staff-list',
+        component: () => import('@/views/staff/list'),
+        name: 'staff-list',
+        meta: {
+          title: '员工列表',
+          icon: 'el-icon-s-custom',
+          roles: ['user_view'],
+          affix: true
+        }
+      },
+      {
+        path: 'staff-edit',
+        component: () => import('@/views/staff/edit'),
+        name: 'staff-edit',
+        hidden: true,
+        meta: {
+          title: '员工编辑',
+          icon: 'el-icon-circle-plus-outline',
+          roles: ['user_add', 'user_edit'],
+          affix: true
+        }
+      },
+      {
+        path: 'staff-group',
+        component: () => import('@/views/staff/group'),
+        name: 'staff-group',
+        meta: {
+          title: '员工角色',
+          icon: 'el-icon-s-flag',
+          roles: ['group_view'],
+          affix: true
+        }
+      },
+      {
+        path: 'staff-logs',
+        component: () => import('@/views/staff/log'),
+        name: 'staff-logs',
+        meta: {
+          title: '员工日志',
+          icon: 'el-icon-s-order',
+          roles: ['user_log_view'],
+          affix: true
+        }
+      },
+      {
+        path: 'staff-permission',
+        component: () => import('@/views/staff/permission'),
+        name: 'staff-permission',
+        meta: {
+          title: '权限列表',
+          icon: 'lock',
+          affix: true
+        }
+      }
+    ]
+  },
 
   // 404 page must be placed at the end !!!
   {

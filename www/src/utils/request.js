@@ -12,7 +12,7 @@ console.log('process.env.NODE_ENV', process.env.VUE_APP_BASE_API)
 const service = axios.create({
   baseURL: process.env.VUE_APP_BASE_API, // url = base url + request url
   // withCredentials: true, // send cookies when cross-domain requests
-  timeout: 5000 // request timeout
+  timeout: 5000000 // request timeout
 })
 
 // request interceptor
@@ -76,7 +76,7 @@ service.interceptors.response.use(
       }
       return Promise.reject(new Error(res.message || 'Error'))
     } else {
-      return res.data
+      return res
     }
   },
   error => {

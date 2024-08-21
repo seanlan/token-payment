@@ -45,11 +45,11 @@ func CheckTransactions(ctx context.Context, ch *sqlmodel.Chain, txs []*chain.Tra
 //	@return err
 func CheckRechargeTransaction(ctx context.Context, ch *sqlmodel.Chain, tx *chain.Transaction) (err error) {
 	var (
-		addressQ                = sqlmodel.ChainAddressColumns
-		tokenQ                  = sqlmodel.ChainTokenColumns
-		appChainQ               = sqlmodel.ApplicationChainColumns
-		bills                   = make([]sqlmodel.ChainTx, 0)
-		tokenContracts          = make([]string, 0)
+		addressQ  = sqlmodel.ChainAddressColumns
+		tokenQ    = sqlmodel.ChainTokenColumns
+		appChainQ = sqlmodel.ApplicationChainColumns
+		bills     = make([]sqlmodel.ChainTx, 0)
+		//tokenContracts          = make([]string, 0)
 		tokens                  = make([]sqlmodel.ChainToken, 0)
 		tokenMap                = make(map[string]sqlmodel.ChainToken)
 		fromAddressList         = make([]string, 0)
@@ -60,13 +60,12 @@ func CheckRechargeTransaction(ctx context.Context, ch *sqlmodel.Chain, tx *chain
 		chainFeeWalletAddresses = make(map[string]sqlmodel.ApplicationChain)
 	)
 	for _, bill := range tx.Bills {
-		tokenContracts = append(tokenContracts, bill.ContractAddress)
+		//tokenContracts = append(tokenContracts, bill.ContractAddress)
 		toAddressList = append(toAddressList, strings.ToLower(bill.To))
 		fromAddressList = append(fromAddressList, strings.ToLower(bill.From))
 	}
 	err = dao.FetchAllChainToken(ctx, &tokens, dao.And(
 		tokenQ.ChainSymbol.Eq(ch.ChainSymbol),
-		tokenQ.ContractAddress.Eq(tokenContracts),
 	), 0, 0)
 	if err != nil {
 		return
@@ -95,6 +94,7 @@ func CheckRechargeTransaction(ctx context.Context, ch *sqlmodel.Chain, tx *chain
 	for _, chainFeeWallet := range chainFeeWallets {
 		chainFeeWalletAddresses[chainFeeWallet.FeeWallet] = chainFeeWallet
 	}
+	mainToken := tokenMap[""]
 	for _, bill := range tx.Bills {
 		var (
 			address    sqlmodel.ChainAddress
@@ -119,6 +119,7 @@ func CheckRechargeTransaction(ctx context.Context, ch *sqlmodel.Chain, tx *chain
 		if bill.TokenID != nil {
 			nftTokenID = bill.TokenID.Int64()
 		}
+
 		chainTx := sqlmodel.ChainTx{
 			ApplicationID:   address.ApplicationID,
 			ChainSymbol:     ch.ChainSymbol,
@@ -130,6 +131,9 @@ func CheckRechargeTransaction(ctx context.Context, ch *sqlmodel.Chain, tx *chain
 			ContractAddress: bill.ContractAddress,
 			Symbol:          token.Symbol,
 			Value:           float64(bill.Value.Int64()) / math.Pow10(int(token.Decimals)),
+			Gas:             float64(tx.Gas),
+			GasPrice:        float64(tx.GasPrice.Int64()),
+			Fee:             float64(tx.Gas) * float64(tx.GasPrice.Int64()) / math.Pow10(int(mainToken.Decimals)),
 			TokenID:         nftTokenID,
 			TxIndex:         int64(bill.Index),
 			BatchIndex:      int64(bill.BatchIndex),

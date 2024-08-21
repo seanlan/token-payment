@@ -36,21 +36,7 @@ func getUserIDByToken(ctx context.Context, token string) (userID int64, err erro
 
 func RedisTokenAuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		r := xlhttp.Build(c)
-		var (
-			req struct {
-				Token string `json:"token" form:"token" binding:"omitempty"`
-			}
-			err    error
-			userID int64
-		)
-		err = r.RequestParser(&req)
-		if err != nil {
-			c.Abort()
-			return
-		}
-		c.Set("token", req.Token)
-		userID, err = getUserIDByToken(c, req.Token)
+		userID, _ := getUserIDByToken(c, c.GetHeader(xlhttp.RequestTokenHEAD))
 		c.Set(xlhttp.JWTIdentityKey, userID)
 		c.Next()
 	}

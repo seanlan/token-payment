@@ -30,4 +30,3 @@ export function getInfo(token) {
     data: { token }
   })
 }
-

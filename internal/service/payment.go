@@ -96,7 +96,6 @@ func Withdraw(ctx context.Context, req model.WithdrawReq) (resp model.WithdrawRe
 	if err != nil {
 		err = e.ErrorDataParam
 		return
-
 	}
 	// 获取应用链信息
 	err = dao.FetchApplicationChain(ctx, &appChain, dao.And(
