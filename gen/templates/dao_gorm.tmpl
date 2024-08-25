@@ -71,7 +71,7 @@ func Fetch{{.StructName}}(ctx context.Context, record interface{}, expr clause.E
 }
 
 func Save{{.StructName}}(ctx context.Context, d *{{.ModelPackageName}}.{{.StructName}}) (err error) {
-	db := GetDB(ctx).WithContext(ctx).Model(&{{.ModelPackageName}}.{{.StructName}}{}).Save(d)
+	db := GetDB(ctx).WithContext(ctx).Save(d)
 	if err = db.Error; err != nil {
 		return ErrInsertFailed
 	}

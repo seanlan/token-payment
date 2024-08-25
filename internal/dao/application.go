@@ -71,7 +71,7 @@ func FetchApplication(ctx context.Context, record interface{}, expr clause.Expre
 }
 
 func SaveApplication(ctx context.Context, d *sqlmodel.Application) (err error) {
-	db := GetDB(ctx).WithContext(ctx).Model(&sqlmodel.Application{}).Save(d)
+	db := GetDB(ctx).WithContext(ctx).Save(d)
 	if err = db.Error; err != nil {
 		return ErrInsertFailed
 	}

@@ -71,7 +71,7 @@ func FetchChainBlock(ctx context.Context, record interface{}, expr clause.Expres
 }
 
 func SaveChainBlock(ctx context.Context, d *sqlmodel.ChainBlock) (err error) {
-	db := GetDB(ctx).WithContext(ctx).Model(&sqlmodel.ChainBlock{}).Save(d)
+	db := GetDB(ctx).WithContext(ctx).Save(d)
 	if err = db.Error; err != nil {
 		return ErrInsertFailed
 	}

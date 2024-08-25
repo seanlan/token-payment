@@ -71,7 +71,7 @@ func FetchAdminUser(ctx context.Context, record interface{}, expr clause.Express
 }
 
 func SaveAdminUser(ctx context.Context, d *sqlmodel.AdminUser) (err error) {
-	db := GetDB(ctx).WithContext(ctx).Model(&sqlmodel.AdminUser{}).Save(d)
+	db := GetDB(ctx).WithContext(ctx).Save(d)
 	if err = db.Error; err != nil {
 		return ErrInsertFailed
 	}

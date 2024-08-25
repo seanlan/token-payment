@@ -71,7 +71,7 @@ func FetchAdminGroupPermission(ctx context.Context, record interface{}, expr cla
 }
 
 func SaveAdminGroupPermission(ctx context.Context, d *sqlmodel.AdminGroupPermission) (err error) {
-	db := GetDB(ctx).WithContext(ctx).Model(&sqlmodel.AdminGroupPermission{}).Save(d)
+	db := GetDB(ctx).WithContext(ctx).Save(d)
 	if err = db.Error; err != nil {
 		return ErrInsertFailed
 	}

@@ -71,7 +71,7 @@ func FetchApplicationWithdrawOrder(ctx context.Context, record interface{}, expr
 }
 
 func SaveApplicationWithdrawOrder(ctx context.Context, d *sqlmodel.ApplicationWithdrawOrder) (err error) {
-	db := GetDB(ctx).WithContext(ctx).Model(&sqlmodel.ApplicationWithdrawOrder{}).Save(d)
+	db := GetDB(ctx).WithContext(ctx).Save(d)
 	if err = db.Error; err != nil {
 		return ErrInsertFailed
 	}

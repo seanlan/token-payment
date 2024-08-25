@@ -3,9 +3,24 @@
 
 package model
 
+import "token-payment/internal/dao/sqlmodel"
+
 type GetApplicationListReq struct {
 	BaseReq
+	Page int `json:"page" form:"page" binding:"required"`
+	Size int `json:"size" form:"size" binding:"required"`
 }
 
 type GetApplicationListResp struct {
+	List  []sqlmodel.Application `json:"list"`
+	Total int64                  `json:"total"`
+}
+
+type EditApplicationReq struct {
+	BaseReq
+	ID      int64  `json:"id" form:"id"`
+	AppName string `json:"app_name" form:"app_name" binding:"required"`
+}
+
+type EditApplicationResp struct {
 }

@@ -71,7 +71,7 @@ func FetchChainAddress(ctx context.Context, record interface{}, expr clause.Expr
 }
 
 func SaveChainAddress(ctx context.Context, d *sqlmodel.ChainAddress) (err error) {
-	db := GetDB(ctx).WithContext(ctx).Model(&sqlmodel.ChainAddress{}).Save(d)
+	db := GetDB(ctx).WithContext(ctx).Save(d)
 	if err = db.Error; err != nil {
 		return ErrInsertFailed
 	}

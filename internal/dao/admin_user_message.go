@@ -71,7 +71,7 @@ func FetchAdminUserMessage(ctx context.Context, record interface{}, expr clause.
 }
 
 func SaveAdminUserMessage(ctx context.Context, d *sqlmodel.AdminUserMessage) (err error) {
-	db := GetDB(ctx).WithContext(ctx).Model(&sqlmodel.AdminUserMessage{}).Save(d)
+	db := GetDB(ctx).WithContext(ctx).Save(d)
 	if err = db.Error; err != nil {
 		return ErrInsertFailed
 	}

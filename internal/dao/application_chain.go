@@ -71,7 +71,7 @@ func FetchApplicationChain(ctx context.Context, record interface{}, expr clause.
 }
 
 func SaveApplicationChain(ctx context.Context, d *sqlmodel.ApplicationChain) (err error) {
-	db := GetDB(ctx).WithContext(ctx).Model(&sqlmodel.ApplicationChain{}).Save(d)
+	db := GetDB(ctx).WithContext(ctx).Save(d)
 	if err = db.Error; err != nil {
 		return ErrInsertFailed
 	}

@@ -71,7 +71,7 @@ func FetchAdminUserToken(ctx context.Context, record interface{}, expr clause.Ex
 }
 
 func SaveAdminUserToken(ctx context.Context, d *sqlmodel.AdminUserToken) (err error) {
-	db := GetDB(ctx).WithContext(ctx).Model(&sqlmodel.AdminUserToken{}).Save(d)
+	db := GetDB(ctx).WithContext(ctx).Save(d)
 	if err = db.Error; err != nil {
 		return ErrInsertFailed
 	}

@@ -6,7 +6,8 @@ package cmd
 import (
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
-	"token-payment/internal/tokenpay"
+	"token-payment/internal/dao"
+	"token-payment/internal/dao/sqlmodel"
 )
 
 // testCmd represents the test command
@@ -20,24 +21,31 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		sdk := tokenpay.NewClient(
-			"f4399f851e984405aa1eba51ecbce790",
-			"f4399f851e984405aa1eba51ecbce790",
-			"http://127.0.0.1:8080")
-		resp, err := sdk.Withdraw(tokenpay.WithdrawReqData{
-			Chain:           "amoy",
-			SerialNo:        "0b2695c3-a487-4102-8a9a-75b2562c660b7",
-			Symbol:          "usdt",
-			ContractAddress: "",
-			TokenID:         0,
-			Value:           "321",
-			ToAddress:       "0x92304f29496ded1314d124c1d7905be44608b709",
-			NotifyUrl:       "",
+		//sdk := tokenpay.NewClient(
+		//	"f4399f851e984405aa1eba51ecbce790",
+		//	"f4399f851e984405aa1eba51ecbce790",
+		//	"http://127.0.0.1:8080")
+		//resp, err := sdk.Withdraw(tokenpay.WithdrawReqData{
+		//	Chain:           "amoy",
+		//	SerialNo:        "0b2695c3-a487-4102-8a9a-75b2562c660b7",
+		//	Symbol:          "usdt",
+		//	ContractAddress: "",
+		//	TokenID:         0,
+		//	Value:           "321",
+		//	ToAddress:       "0x92304f29496ded1314d124c1d7905be44608b709",
+		//	NotifyUrl:       "",
+		//})
+		//if err != nil {
+		//	zap.S().Infof("err: %v", err)
+		//}
+		//zap.S().Infof("resp: %v", resp)
+		err := dao.SaveChainRPC(cmd.Context(), &sqlmodel.ChainRPC{
+			ID:          1,
+			ChainSymbol: "amoy",
+			RPCURL:      "https://rpc.ankr.com/polygon_amoy/f60b6a29d8551b2156461783d5ebc4b00983609c846db245e42bf3c5aa51af5c",
+			Disable:     1,
 		})
-		if err != nil {
-			zap.S().Infof("err: %v", err)
-		}
-		zap.S().Infof("resp: %v", resp)
+		zap.S().Infof("err: %v", err)
 	},
 }
 

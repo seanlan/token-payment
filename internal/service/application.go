@@ -5,9 +5,46 @@ package service
 
 import (
 	"context"
+	"gorm.io/gorm/clause"
+	"time"
+	"token-payment/internal/dao"
+	"token-payment/internal/dao/sqlmodel"
 	"token-payment/internal/model"
+	"token-payment/internal/utils"
 )
 
 func GetApplicationList(ctx context.Context, req model.GetApplicationListReq) (resp model.GetApplicationListResp, err error) {
+	var (
+		appQ   = sqlmodel.ApplicationColumns
+		params = make([]clause.Expression, 0)
+	)
+	// 查询应用列表
+	resp.Total, err = dao.CountApplication(ctx, dao.And(params...))
+	err = dao.FetchAllApplication(ctx, &resp.List, dao.And(params...), req.Page, req.Size, appQ.ID.Desc())
+	return
+}
+
+func EditApplication(ctx context.Context, req model.EditApplicationReq) (resp model.EditApplicationResp, err error) {
+	var (
+		appQ        = sqlmodel.ApplicationColumns
+		application sqlmodel.Application
+	)
+	if req.ID == 0 {
+		application = sqlmodel.Application{
+			ID:        req.ID,
+			AppKey:    utils.GetUUIDStr(),
+			AppSecret: utils.GetUUIDStr(),
+			AppName:   req.AppName,
+			HookURL:   "",
+			CreateAt:  time.Now().Unix(),
+		}
+	} else {
+		err = dao.FetchApplication(ctx, &application, dao.And(appQ.ID.Eq(req.ID)))
+		if err != nil {
+			return
+		}
+		application.AppName = req.AppName
+	}
+	err = dao.SaveApplication(ctx, &application)
 	return
 }

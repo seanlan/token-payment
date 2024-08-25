@@ -71,7 +71,7 @@ func FetchChain(ctx context.Context, record interface{}, expr clause.Expression,
 }
 
 func SaveChain(ctx context.Context, d *sqlmodel.Chain) (err error) {
-	db := GetDB(ctx).WithContext(ctx).Model(&sqlmodel.Chain{}).Save(d)
+	db := GetDB(ctx).WithContext(ctx).Save(d)
 	if err = db.Error; err != nil {
 		return ErrInsertFailed
 	}

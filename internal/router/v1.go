@@ -63,4 +63,32 @@ func initWebRouter(r *gin.Engine) {
 		// 员工日志
 		staffGroup.POST("logs", middleware.CheckPermission("user_log_view"), v1.StaffLogs)
 	}
+	applicationGroup := apiGroup.Group("application")
+	applicationGroup.Use(middleware.CheckPermission("application_view"))
+	{
+		// 获取应用列表
+		applicationGroup.POST("list", v1.GetApplicationList)
+		// 添加应用
+		applicationGroup.POST("edit", v1.EditApplication)
+	}
+	chainGroup := apiGroup.Group("chain")
+	chainGroup.Use(middleware.CheckPermission("chain_view"))
+	{
+		// 获取链列表
+		chainGroup.POST("list", v1.GetChainList)
+		// 添加链
+		chainGroup.POST("edit", v1.EditChain)
+		// 获取链的RPC列表
+		chainGroup.POST("rpc_list", v1.GetChainRPCList)
+		// 编辑链的RPC
+		chainGroup.POST("rpc_edit", v1.EditChainRPC)
+		// 删除链的RPC
+		chainGroup.POST("rpc_delete", v1.DeleteChainRPC)
+		// 获取链的token列表
+		chainGroup.POST("token_list", v1.GetTokenList)
+		// 编辑链的token
+		chainGroup.POST("token_edit", v1.EditToken)
+		// 删除链的token
+		chainGroup.POST("token_delete", v1.DeleteToken)
+	}
 }

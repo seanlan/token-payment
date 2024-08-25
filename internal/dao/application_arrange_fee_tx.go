@@ -71,7 +71,7 @@ func FetchApplicationArrangeFeeTx(ctx context.Context, record interface{}, expr 
 }
 
 func SaveApplicationArrangeFeeTx(ctx context.Context, d *sqlmodel.ApplicationArrangeFeeTx) (err error) {
-	db := GetDB(ctx).WithContext(ctx).Model(&sqlmodel.ApplicationArrangeFeeTx{}).Save(d)
+	db := GetDB(ctx).WithContext(ctx).Save(d)
 	if err = db.Error; err != nil {
 		return ErrInsertFailed
 	}

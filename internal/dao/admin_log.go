@@ -71,7 +71,7 @@ func FetchAdminLog(ctx context.Context, record interface{}, expr clause.Expressi
 }
 
 func SaveAdminLog(ctx context.Context, d *sqlmodel.AdminLog) (err error) {
-	db := GetDB(ctx).WithContext(ctx).Model(&sqlmodel.AdminLog{}).Save(d)
+	db := GetDB(ctx).WithContext(ctx).Save(d)
 	if err = db.Error; err != nil {
 		return ErrInsertFailed
 	}

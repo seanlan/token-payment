@@ -71,7 +71,7 @@ func FetchAdminPermission(ctx context.Context, record interface{}, expr clause.E
 }
 
 func SaveAdminPermission(ctx context.Context, d *sqlmodel.AdminPermission) (err error) {
-	db := GetDB(ctx).WithContext(ctx).Model(&sqlmodel.AdminPermission{}).Save(d)
+	db := GetDB(ctx).WithContext(ctx).Save(d)
 	if err = db.Error; err != nil {
 		return ErrInsertFailed
 	}
