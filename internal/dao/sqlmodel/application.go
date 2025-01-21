@@ -44,12 +44,12 @@ var ApplicationColumns = struct {
 }
 
 type Application struct {
-	ID        int64  `json:"id" gorm:"column:id;type:bigint;primaryKey;autoIncrement"`  //
-	AppKey    string `json:"app_key" gorm:"column:app_key;type:varchar;not null"`       //app key
-	AppSecret string `json:"app_secret" gorm:"column:app_secret;type:varchar;not null"` //app secret
-	AppName   string `json:"app_name" gorm:"column:app_name;type:varchar;not null"`     //app name
-	HookURL   string `json:"hook_url" gorm:"column:hook_url;type:varchar;not null"`     //通知url
-	CreateAt  int64  `json:"create_at" gorm:"column:create_at;type:bigint;not null"`    //创建时间
+	ID        int64  `json:"id" gorm:"column:id;type:bigint;primaryKey;autoIncrement"`       //
+	AppKey    string `json:"app_key" gorm:"column:app_key;type:varchar(200);not null"`       //app key
+	AppSecret string `json:"app_secret" gorm:"column:app_secret;type:varchar(200);not null"` //app secret
+	AppName   string `json:"app_name" gorm:"column:app_name;type:varchar(200);not null"`     //app name
+	HookURL   string `json:"hook_url" gorm:"column:hook_url;type:varchar(200);not null"`     //通知url
+	CreateAt  int64  `json:"create_at" gorm:"column:create_at;type:bigint;not null"`         //创建时间
 }
 
 // TableName Application's table name

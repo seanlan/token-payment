@@ -78,18 +78,18 @@ var ChainSendTxColumns = struct {
 type ChainSendTx struct {
 	ID                  int64   `json:"id" gorm:"column:id;type:bigint;primaryKey;autoIncrement"`                    //
 	ApplicationID       int64   `json:"application_id" gorm:"column:application_id;type:bigint;not null"`            //应用ID
-	SerialNo            string  `json:"serial_no" gorm:"column:serial_no;type:varchar;not null"`                     //订单序列号
-	ChainSymbol         string  `json:"chain_symbol" gorm:"column:chain_symbol;type:varchar;not null"`               //链的符号
-	ContractAddress     string  `json:"contract_address" gorm:"column:contract_address;type:varchar;not null"`       //代币合约地址，如果是空表示是主币
-	Symbol              string  `json:"symbol" gorm:"column:symbol;type:varchar;not null"`                           //代币符号
-	FromAddress         string  `json:"from_address" gorm:"column:from_address;type:varchar;not null"`               //发送地址
-	ToAddress           string  `json:"to_address" gorm:"column:to_address;type:varchar;not null"`                   //收款地址
+	SerialNo            string  `json:"serial_no" gorm:"column:serial_no;type:varchar(200);not null"`                //订单序列号
+	ChainSymbol         string  `json:"chain_symbol" gorm:"column:chain_symbol;type:varchar(200);not null"`          //链的符号
+	ContractAddress     string  `json:"contract_address" gorm:"column:contract_address;type:varchar(200);not null"`  //代币合约地址，如果是空表示是主币
+	Symbol              string  `json:"symbol" gorm:"column:symbol;type:varchar(200);not null"`                      //代币符号
+	FromAddress         string  `json:"from_address" gorm:"column:from_address;type:varchar(200);not null"`          //发送地址
+	ToAddress           string  `json:"to_address" gorm:"column:to_address;type:varchar(200);not null"`              //收款地址
 	Value               float64 `json:"value" gorm:"column:value;type:decimal;not null"`                             //数量
 	GasPrice            int64   `json:"gas_price" gorm:"column:gas_price;type:bigint;not null"`                      //gas费用
 	TokenID             int64   `json:"token_id" gorm:"column:token_id;type:bigint;not null"`                        //tokenid （NFT）
-	TxHash              string  `json:"tx_hash" gorm:"column:tx_hash;type:varchar;not null"`                         //交易hash值
+	TxHash              string  `json:"tx_hash" gorm:"column:tx_hash;type:varchar(200);not null"`                    //交易hash值
 	Nonce               int64   `json:"nonce" gorm:"column:nonce;type:bigint;not null"`                              //交易nonce
-	Hook                string  `json:"hook" gorm:"column:hook;type:varchar;not null"`                               //到账变动通知url
+	Hook                string  `json:"hook" gorm:"column:hook;type:varchar(200);not null"`                          //到账变动通知url
 	TransferType        int32   `json:"transfer_type" gorm:"column:transfer_type;type:int;not null"`                 //交易类型 1到账 2提币 3整理费用 4零钱整理
 	CreateAt            int64   `json:"create_at" gorm:"column:create_at;type:bigint;not null"`                      //申请时间
 	TransferAt          int64   `json:"transfer_at" gorm:"column:transfer_at;type:bigint;not null"`                  //转账时间

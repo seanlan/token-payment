@@ -40,10 +40,10 @@ var ChainRPCColumns = struct {
 }
 
 type ChainRPC struct {
-	ID          int64  `json:"id" gorm:"column:id;type:bigint;primaryKey;autoIncrement"`      //
-	ChainSymbol string `json:"chain_symbol" gorm:"column:chain_symbol;type:varchar;not null"` //链的符号
-	RPCURL      string `json:"rpc_url" gorm:"column:rpc_url;type:varchar;not null"`           //rpc地址
-	Disable     int32  `json:"disable" gorm:"column:disable;type:int;not null"`               //是否可用
+	ID          int64  `json:"id" gorm:"column:id;type:bigint;primaryKey;autoIncrement"`           //
+	ChainSymbol string `json:"chain_symbol" gorm:"column:chain_symbol;type:varchar(200);not null"` //链的符号
+	RPCURL      string `json:"rpc_url" gorm:"column:rpc_url;type:varchar(200);not null"`           //rpc地址
+	Disable     int32  `json:"disable" gorm:"column:disable;type:int;not null"`                    //是否可用
 }
 
 // TableName ChainRPC's table name

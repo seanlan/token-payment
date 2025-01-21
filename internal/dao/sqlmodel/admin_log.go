@@ -48,7 +48,7 @@ type AdminLog struct {
 	UserID    int64  `json:"user_id" gorm:"column:user_id;type:bigint;not null"`       //用户ID
 	AssetID   int64  `json:"asset_id" gorm:"column:asset_id;type:bigint;not null"`     //资源ID
 	AssetType int32  `json:"asset_type" gorm:"column:asset_type;type:int;not null"`    //资源类型
-	Remarks   string `json:"remarks" gorm:"column:remarks;type:varchar;not null"`      //日志
+	Remarks   string `json:"remarks" gorm:"column:remarks;type:varchar(200);not null"` //日志
 	CreateAt  int64  `json:"create_at" gorm:"column:create_at;type:bigint;not null"`   //记录时间
 }
 

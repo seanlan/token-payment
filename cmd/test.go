@@ -5,7 +5,6 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
-	"go.uber.org/zap"
 	"token-payment/internal/dao"
 	"token-payment/internal/dao/sqlmodel"
 )
@@ -39,13 +38,32 @@ to quickly create a Cobra application.`,
 		//	zap.S().Infof("err: %v", err)
 		//}
 		//zap.S().Infof("resp: %v", resp)
-		err := dao.SaveChainRPC(cmd.Context(), &sqlmodel.ChainRPC{
-			ID:          1,
-			ChainSymbol: "amoy",
-			RPCURL:      "https://rpc.ankr.com/polygon_amoy/f60b6a29d8551b2156461783d5ebc4b00983609c846db245e42bf3c5aa51af5c",
-			Disable:     1,
-		})
-		zap.S().Infof("err: %v", err)
+		err := dao.GetDB(cmd.Context()).AutoMigrate(
+			&sqlmodel.AdminGroup{},
+			&sqlmodel.AdminGroupPermission{},
+			&sqlmodel.AdminGroupUser{},
+			&sqlmodel.AdminLog{},
+			&sqlmodel.AdminPermission{},
+			&sqlmodel.AdminUser{},
+			&sqlmodel.AdminUserMessage{},
+			&sqlmodel.AdminUserPermission{},
+			&sqlmodel.AdminUserToken{},
+			&sqlmodel.Application{},
+			&sqlmodel.ApplicationArrangeFeeTx{},
+			&sqlmodel.ApplicationArrangeTx{},
+			&sqlmodel.ApplicationChain{},
+			&sqlmodel.ApplicationWithdrawOrder{},
+			&sqlmodel.Chain{},
+			&sqlmodel.ChainAddress{},
+			&sqlmodel.ChainBlock{},
+			&sqlmodel.ChainRPC{},
+			&sqlmodel.ChainSendTx{},
+			&sqlmodel.ChainToken{},
+			&sqlmodel.ChainTx{},
+		)
+		if err != nil {
+			panic(err)
+		}
 	},
 }
 

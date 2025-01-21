@@ -62,21 +62,21 @@ var ChainColumns = struct {
 }
 
 type Chain struct {
-	ID          int64  `json:"id" gorm:"column:id;type:bigint;primaryKey;autoIncrement"`              //
-	ChainSymbol string `json:"chain_symbol" gorm:"column:chain_symbol;type:varchar;not null"`         //链的符号
-	Name        string `json:"name" gorm:"column:name;type:varchar;not null"`                         //链名称
-	ChainID     int64  `json:"chain_id" gorm:"column:chain_id;type:bigint;not null"`                  //链ID
-	Currency    string `json:"currency" gorm:"column:currency;type:varchar;not null"`                 //货币
-	ChainType   string `json:"chain_type" gorm:"column:chain_type;type:varchar;not null;default:evm"` //链类型 默认evm
-	Confirm     int32  `json:"confirm" gorm:"column:confirm;type:int;not null"`                       //确认区块数量
-	Gas         int64  `json:"gas" gorm:"column:gas;type:bigint;not null"`                            //gas费用配置
-	GasPrice    int64  `json:"gas_price" gorm:"column:gas_price;type:bigint;not null"`                //gas price 配置
-	LatestBlock int64  `json:"latest_block" gorm:"column:latest_block;type:bigint;not null"`          //最新区块
-	RebaseBlock int64  `json:"rebase_block" gorm:"column:rebase_block;type:bigint;not null"`          //重新构建区块
-	HasBranch   int32  `json:"has_branch" gorm:"column:has_branch;type:tinyint;not null"`             //是否出现分叉
-	Concurrent  int32  `json:"concurrent" gorm:"column:concurrent;type:int;not null"`                 //并发量
-	AddressPool int32  `json:"address_pool" gorm:"column:address_pool;type:int;not null"`             //地址池
-	Watch       int32  `json:"watch" gorm:"column:watch;type:tinyint;not null"`                       //是否监听
+	ID          int64  `json:"id" gorm:"column:id;type:bigint;primaryKey;autoIncrement"`                   //
+	ChainSymbol string `json:"chain_symbol" gorm:"column:chain_symbol;type:varchar(200);not null"`         //链的符号
+	Name        string `json:"name" gorm:"column:name;type:varchar(200);not null"`                         //链名称
+	ChainID     int64  `json:"chain_id" gorm:"column:chain_id;type:bigint;not null"`                       //链ID
+	Currency    string `json:"currency" gorm:"column:currency;type:varchar(200);not null"`                 //货币
+	ChainType   string `json:"chain_type" gorm:"column:chain_type;type:varchar(200);not null;default:evm"` //链类型 默认evm
+	Confirm     int32  `json:"confirm" gorm:"column:confirm;type:int;not null"`                            //确认区块数量
+	Gas         int64  `json:"gas" gorm:"column:gas;type:bigint;not null"`                                 //gas费用配置
+	GasPrice    int64  `json:"gas_price" gorm:"column:gas_price;type:bigint;not null"`                     //gas price 配置
+	LatestBlock int64  `json:"latest_block" gorm:"column:latest_block;type:bigint;not null"`               //最新区块
+	RebaseBlock int64  `json:"rebase_block" gorm:"column:rebase_block;type:bigint;not null"`               //重新构建区块
+	HasBranch   int32  `json:"has_branch" gorm:"column:has_branch;type:tinyint;not null"`                  //是否出现分叉
+	Concurrent  int32  `json:"concurrent" gorm:"column:concurrent;type:int;not null"`                      //并发量
+	AddressPool int32  `json:"address_pool" gorm:"column:address_pool;type:int;not null"`                  //地址池
+	Watch       int32  `json:"watch" gorm:"column:watch;type:tinyint;not null"`                            //是否监听
 }
 
 // TableName Chain's table name

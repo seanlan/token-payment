@@ -48,9 +48,9 @@ var AdminUserMessageColumns = struct {
 type AdminUserMessage struct {
 	ID       int64  `json:"id" gorm:"column:id;type:bigint;primaryKey;autoIncrement"` //
 	UserID   int64  `json:"user_id" gorm:"column:user_id;type:bigint;not null"`       //用户ID
-	Title    string `json:"title" gorm:"column:title;type:varchar;not null"`          //标题
-	Message  string `json:"message" gorm:"column:message;type:varchar;not null"`      //消息
-	Path     string `json:"path" gorm:"column:path;type:varchar;not null"`            //资源路径
+	Title    string `json:"title" gorm:"column:title;type:varchar(200);not null"`     //标题
+	Message  string `json:"message" gorm:"column:message;type:varchar(200);not null"` //消息
+	Path     string `json:"path" gorm:"column:path;type:varchar(200);not null"`       //资源路径
 	IsRead   int32  `json:"is_read" gorm:"column:is_read;type:int;not null"`          //是否处理
 	CreateAt int64  `json:"create_at" gorm:"column:create_at;type:bigint;not null"`   //消息时间
 }

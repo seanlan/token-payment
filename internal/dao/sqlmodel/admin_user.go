@@ -48,14 +48,14 @@ var AdminUserColumns = struct {
 }
 
 type AdminUser struct {
-	ID       int64  `json:"id" gorm:"column:id;type:bigint;primaryKey;autoIncrement"` //
-	Account  string `json:"account" gorm:"column:account;type:varchar;not null"`      //账号
-	Password string `json:"password" gorm:"column:password;type:varchar;not null"`    //密码
-	Username string `json:"username" gorm:"column:username;type:varchar;not null"`    //用户名
-	Phone    string `json:"phone" gorm:"column:phone;type:varchar;not null"`          //手机号
-	Email    string `json:"email" gorm:"column:email;type:varchar;not null"`          //电子邮箱
-	IsSuper  int32  `json:"is_super" gorm:"column:is_super;type:int;not null"`        //是否超级用户
-	CreateAt int64  `json:"create_at" gorm:"column:create_at;type:bigint;not null"`   //创建时间
+	ID       int64  `json:"id" gorm:"column:id;type:bigint;primaryKey;autoIncrement"`   //
+	Account  string `json:"account" gorm:"column:account;type:varchar(200);not null"`   //账号
+	Password string `json:"password" gorm:"column:password;type:varchar(200);not null"` //密码
+	Username string `json:"username" gorm:"column:username;type:varchar(200);not null"` //用户名
+	Phone    string `json:"phone" gorm:"column:phone;type:varchar(200);not null"`       //手机号
+	Email    string `json:"email" gorm:"column:email;type:varchar(200);not null"`       //电子邮箱
+	IsSuper  int32  `json:"is_super" gorm:"column:is_super;type:int;not null"`          //是否超级用户
+	CreateAt int64  `json:"create_at" gorm:"column:create_at;type:bigint;not null"`     //创建时间
 }
 
 // TableName AdminUser's table name

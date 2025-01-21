@@ -89,22 +89,22 @@ export const constantRoutes = [{ // 固定路由
  * the routes that need to be dynamically loaded based on user roles
  */
 export const asyncRoutes = [
-  // {
-  //   path: '/chain',
-  //   component: Layout,
-  //   redirect: '/chain/list',
-  //   name: '链管理',
-  //   meta: { title: '链管理', icon: 'el-icon-user-solid', roles: ['chain_view'] },
-  //   alwaysShow: true,
-  //   children: [
-  //     {
-  //       path: 'list',
-  //       name: 'user-list',
-  //       component: () => import('@/views/chain/list'),
-  //       meta: { title: '链管理', icon: 'el-icon-user-solid', roles: ['chain_view'] }
-  //     }
-  //   ]
-  // },
+  {
+    path: '/chain',
+    component: Layout,
+    redirect: '/chain/list',
+    name: '链管理',
+    meta: { title: '链管理', icon: 'blockchain-filled', roles: ['chain_view'] },
+    alwaysShow: true,
+    children: [
+      {
+        path: 'list',
+        name: 'user-list',
+        component: () => import('@/views/chain/list'),
+        meta: { title: '链管理', icon: 'blockchain-filled', roles: ['chain_view'] }
+      }
+    ]
+  },
   {
     path: '/staff',
     component: Layout,

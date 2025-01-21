@@ -48,9 +48,9 @@ var AdminUserTokenColumns = struct {
 type AdminUserToken struct {
 	ID              int64  `json:"id" gorm:"column:id;type:bigint;primaryKey;autoIncrement"`                         //
 	UserID          int64  `json:"user_id" gorm:"column:user_id;type:bigint;not null"`                               //用户id
-	Token           string `json:"token" gorm:"column:token;type:varchar;not null"`                                  //token
+	Token           string `json:"token" gorm:"column:token;type:varchar(200);not null"`                             //token
 	ExpireAt        int64  `json:"expire_at" gorm:"column:expire_at;type:bigint;not null;default:0"`                 //token过期时间
-	RefreshToken    string `json:"refresh_token" gorm:"column:refresh_token;type:varchar;not null"`                  //refresh token
+	RefreshToken    string `json:"refresh_token" gorm:"column:refresh_token;type:varchar(200);not null"`             //refresh token
 	RefreshExpireAt int64  `json:"refresh_expire_at" gorm:"column:refresh_expire_at;type:bigint;not null;default:0"` //refresh token过期时间
 	CreateAt        int64  `json:"create_at" gorm:"column:create_at;type:bigint;not null;default:0"`                 //创建时间
 }

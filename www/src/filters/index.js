@@ -102,3 +102,7 @@ export function messagePushState(value) {
   }
   return stateMap[value]
 }
+
+export function toGwei(value) {
+  return value / 1e9
+}

@@ -50,15 +50,15 @@ var ChainAddressColumns = struct {
 }
 
 type ChainAddress struct {
-	ID            int64  `json:"id" gorm:"column:id;type:bigint;primaryKey;autoIncrement"`         //
-	ApplicationID int64  `json:"application_id" gorm:"column:application_id;type:bigint;not null"` //应用ID
-	ChainSymbol   string `json:"chain_symbol" gorm:"column:chain_symbol;type:varchar;not null"`    //链的符号
-	Address       string `json:"address" gorm:"column:address;type:varchar;not null"`              //地址
-	EncKey        string `json:"enc_key" gorm:"column:enc_key;type:varchar;not null"`              //加密后的私钥
-	Hook          string `json:"hook" gorm:"column:hook;type:varchar;not null"`                    //到账变动通知url
-	Watch         int32  `json:"watch" gorm:"column:watch;type:int;not null"`                      //是否监听
-	CreateAt      int64  `json:"create_at" gorm:"column:create_at;type:bigint;not null"`           //创建时间
-	Used          int32  `json:"used" gorm:"column:used;type:int;not null"`                        //是否已使用
+	ID            int64  `json:"id" gorm:"column:id;type:bigint;primaryKey;autoIncrement"`           //
+	ApplicationID int64  `json:"application_id" gorm:"column:application_id;type:bigint;not null"`   //应用ID
+	ChainSymbol   string `json:"chain_symbol" gorm:"column:chain_symbol;type:varchar(200);not null"` //链的符号
+	Address       string `json:"address" gorm:"column:address;type:varchar(200);not null"`           //地址
+	EncKey        string `json:"enc_key" gorm:"column:enc_key;type:varchar(200);not null"`           //加密后的私钥
+	Hook          string `json:"hook" gorm:"column:hook;type:varchar(200);not null"`                 //到账变动通知url
+	Watch         int32  `json:"watch" gorm:"column:watch;type:int;not null"`                        //是否监听
+	CreateAt      int64  `json:"create_at" gorm:"column:create_at;type:bigint;not null"`             //创建时间
+	Used          int32  `json:"used" gorm:"column:used;type:int;not null"`                          //是否已使用
 }
 
 // TableName ChainAddress's table name

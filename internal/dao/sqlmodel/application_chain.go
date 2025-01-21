@@ -44,12 +44,12 @@ var ApplicationChainColumns = struct {
 }
 
 type ApplicationChain struct {
-	ID            int64  `json:"id" gorm:"column:id;type:bigint;primaryKey;autoIncrement"`         //
-	ApplicationID int64  `json:"application_id" gorm:"column:application_id;type:bigint;not null"` //应用id
-	ChainSymbol   string `json:"chain_symbol" gorm:"column:chain_symbol;type:varchar;not null"`    //链的符号
-	HotWallet     string `json:"hot_wallet" gorm:"column:hot_wallet;type:varchar;not null"`        //热钱包地址
-	ColdWallet    string `json:"cold_wallet" gorm:"column:cold_wallet;type:varchar;not null"`      //冷钱包地址
-	FeeWallet     string `json:"fee_wallet" gorm:"column:fee_wallet;type:varchar;not null"`        //零钱整理费用钱包
+	ID            int64  `json:"id" gorm:"column:id;type:bigint;primaryKey;autoIncrement"`           //
+	ApplicationID int64  `json:"application_id" gorm:"column:application_id;type:bigint;not null"`   //应用id
+	ChainSymbol   string `json:"chain_symbol" gorm:"column:chain_symbol;type:varchar(200);not null"` //链的符号
+	HotWallet     string `json:"hot_wallet" gorm:"column:hot_wallet;type:varchar(200);not null"`     //热钱包地址
+	ColdWallet    string `json:"cold_wallet" gorm:"column:cold_wallet;type:varchar(200);not null"`   //冷钱包地址
+	FeeWallet     string `json:"fee_wallet" gorm:"column:fee_wallet;type:varchar(200);not null"`     //零钱整理费用钱包
 }
 
 // TableName ApplicationChain's table name

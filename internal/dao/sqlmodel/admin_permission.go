@@ -41,9 +41,9 @@ var AdminPermissionColumns = struct {
 
 type AdminPermission struct {
 	ID   int64  `json:"id" gorm:"column:id;type:bigint;primaryKey;autoIncrement"` //
-	Name string `json:"name" gorm:"column:name;type:varchar;not null"`            //权限名称
-	Code string `json:"code" gorm:"column:code;type:varchar;not null"`            //权限代码
-	Type string `json:"type" gorm:"column:type;type:varchar;not null"`            //权限类型
+	Name string `json:"name" gorm:"column:name;type:varchar(200);not null"`       //权限名称
+	Code string `json:"code" gorm:"column:code;type:varchar(200);not null"`       //权限代码
+	Type string `json:"type" gorm:"column:type;type:varchar(200);not null"`       //权限类型
 }
 
 // TableName AdminPermission's table name

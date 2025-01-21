@@ -212,8 +212,8 @@ export default {
     }
   },
   mounted() {
-    this.getStatsToday()
-    this.getStatsList()
+    // this.getStatsToday()
+    // this.getStatsList()
   },
   methods: {
     async getStatsToday(pagenum = 1) {
